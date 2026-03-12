@@ -39,7 +39,7 @@ spec:
       tailscale:
         enabled: true
         targetSelector:
-          - main
+          - longhorn-frontend
         # -- you can directly specify the config file here
         config: ""
         container:
