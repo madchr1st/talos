@@ -35,3 +35,45 @@ spec:
       defaultClass: true
       # Increase to 3 for a multi-node cluster
       defaultClassReplicaCount: 1
+    tailscale:
+      enabled: false
+      targetSelector:
+        - main
+      # -- you can directly specify the config file here
+      config: ""
+      container:
+        enabled: true
+        imageSelector: "tailscaleImage"
+        probes:
+          liveness:
+            enabled: false
+          readiness:
+            enabled: false
+          startup:
+            enabled: false
+        command:
+          - /usr/local/bin/containerboot
+        resources:
+          excludeExtra: true
+        securityContext:
+          capabilities:
+            add:
+              - NET_ADMIN
+              - NET_RAW
+  
+      # -- Auth key to connect to the VPN Service
+      authkey: "${TAILSCALE_AUTH_KEY_LONGHORN_UI}"
+      # As a sidecar, it should only need to run in userspace
+      userspace: true
+      auth_once: true
+      accept_dns: false
+      routes: ""
+      dest_ip: ""
+      sock5_server: ""
+      extra_args: ""
+      daemon_extra_args: ""
+      outbound_http_proxy_listen: ""
+      # -- Annotations for tailscale sidecar
+      annotations: {}
+        
+  
