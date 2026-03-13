@@ -68,7 +68,10 @@ spec:
         port: 
         http:
           redirections:
-            entryPoint: websecure
+            entryPoint: 
+              to: websecure
+              scheme: https
+              permanent: true
       websecure:
         http:
           tls:
