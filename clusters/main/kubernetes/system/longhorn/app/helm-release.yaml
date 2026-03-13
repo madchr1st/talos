@@ -44,7 +44,5 @@ spec:
       annotations:
         kubernetes.io/tls-acme: true
         cert-manager.io/cluster-issuer: domain-0-le-prod
-      secrets:
-        - name: longhorn-tls-0
-          key: 
+      tlsSecret:longhorn-tls-0
 
