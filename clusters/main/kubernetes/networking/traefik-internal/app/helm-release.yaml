@@ -64,13 +64,13 @@ spec:
     #     defaultCertificate:
     #     secretName: "${SECRET_PUBLIC_DOMAIN/./-}-tls"
     ports:
-      traefik:
-        expose:
-          default: true
       web:
-        redirections:
-          port: websecure
+        port: 
+        http:
+          redirections:
+            entryPoint: websecure
       websecure:
-        tls:
-          enabled: true
-          options: "default"
+        http:
+          tls:
+            enabled: true
+            options: "default"
