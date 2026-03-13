@@ -35,4 +35,16 @@ spec:
       defaultClass: true
       # Increase to 3 for a multi-node cluster
       defaultClassReplicaCount: 1
-  
+    ingress:
+      enabled: true
+      ingressClassName: traefik-internal
+      host: longhorn.hallernet.ch
+      tls: true
+      secureBackends: false
+      annotations:
+        kubernetes.io/tls-acme: true
+        cert-manager.io/cluster-issuer: domain-0-le-prod
+      secrets:
+        - name: longhorn-tls-0
+          key: 
+
