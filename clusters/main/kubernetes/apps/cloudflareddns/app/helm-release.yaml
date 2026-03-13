@@ -40,5 +40,5 @@ spec:
                 DETECTION_MODE: "dig-whoami.cloudflare"
                 LOG_LEVEL: 3
                 CF_APITOKEN: ${DOMAIN_0_CLOUDFLARE_TOKEN}
-                CF_HOSTS: "sso.${DOMAIN_0}"
+                CF_HOSTS: "${DOMAIN_0}"
                 INTERVAL: 300
