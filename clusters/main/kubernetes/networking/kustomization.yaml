@@ -4,3 +4,5 @@ resources:
   - nginx-external/ks.yaml
   - nginx-internal/ks.yaml
   - tailscale/ks.yaml
+  - traefik-external/ks.yaml
+  - traefik-internal/ks.yaml

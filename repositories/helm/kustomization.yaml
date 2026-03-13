@@ -15,5 +15,6 @@ resources:
   - openebs.yaml
   - prometheus-community.yaml
   - spegel.yaml
+  - traefik.yaml
   - truecharts.yaml
 # more goes here!
