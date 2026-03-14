@@ -67,10 +67,17 @@ spec:
 
     configmap:
       dashboard:
-        enabled: false
+        enabled: true
       datasource:
-        enabled: false
+        enabled: true
 
+    # cnpg config
     cnpg:
       main:
-        enabled: false
+        enabled: true
+        cluster:
+          instances: 2
+          storage:
+            size: "2Gi"
+          walStorage:
+            size: "2Gi"
