@@ -32,6 +32,19 @@ spec:
   values:
     # yaml-language-server: $schema=./values.schema.json
     
+    # cnpg config
+    cnpg:
+      main:
+        enabled: true
+        user: grafana
+        database: grafana
+        cluster:
+          instances: 2
+          storage:
+            size: "2Gi"
+          walStorage:
+            size: "2Gi"
+
     # ingress config
     ingress:
       main:
@@ -313,10 +326,3 @@ spec:
               domain: "{{ if (and .Values.ingress.main.enabled .Values.ingress.main.hosts) }}{{ .Values.ingress.main.hosts | first }}{{ else }}''{{ end }}"
           ldap.toml: |-
             # nope
-    
-    # cnpg config
-    cnpg:
-      main:
-        enabled: true
-        user: grafana
-        database: grafana
