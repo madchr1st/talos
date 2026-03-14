@@ -92,12 +92,6 @@ spec:
     #
     dashboards:
       grafana:
-        cnpg:
-          enabled: true
-          marketplace:
-            # renovate: depName="CloudNativePG"
-            id: 20417
-            revision: 4
         flux-cluster:
           enabled: true
           url: https://github.com/fluxcd/flux2-monitoring-example/raw/82c37257787bba13a40b17bed9bd8191ee7aa049/monitoring/configs/dashboards/cluster.json
