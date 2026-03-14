@@ -25,8 +25,10 @@ spec:
     speaker:
       ignoreExcludeLB: true
     prometheus:
+      serviceAccount: kube-prometheus-stack-prometheus
+      namespace: kube-prometheus-stack
       # Prometheus Operator ServiceMonitors. To be used as an alternative
       # to podMonitor, supports secure metrics.
-      podMonitor:
+      serviceMonitor:
         # enable support for Prometheus Operator
         enabled: true
