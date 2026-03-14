@@ -71,6 +71,14 @@ spec:
               - websecure
             forceTLS: true
 
+    # persistence config
+    persistence:
+      data:
+        enabled: true
+        mountPath: "/var/lib/grafana"
+        type: pvc
+        size: 10Gi
+
     # Define extra dashboards to be provisioned
     # Supports 2 formats:
     # - Importing directly from `grafana.com` via Grafana dashboard ID & revision
