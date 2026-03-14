@@ -1,0 +1,322 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: grafana
+  namespace: grafana
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: grafana
+      version: 21.11.3
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 15m
+  timeout: 20m
+  maxHistory: 3
+  driftDetection:
+    mode: warn
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    # yaml-language-server: $schema=./values.schema.json
+    
+    # ingress config
+    ingress:
+      main:
+        enabled: true
+        primary: true
+        ingressClassName: "traefik-internal"
+        targetSelector:
+          main: main
+        hosts:
+          - host: grafana-new.hallernet.ch
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - grafana-new.hallernet.ch
+        integrations:
+          certManager:
+            enabled: true
+            certificateIssuer: "domain-0-le-prod"
+          traefik:
+            enabled: true
+            entrypoints:
+              - websecure
+            forceTLS: true
+
+    # Define extra dashboards to be provisioned
+    # Supports 2 formats:
+    # - Importing directly from `grafana.com` via Grafana dashboard ID & revision
+    # - Importing from any URL that returns a JSON file
+    #
+    # Additionally, each configured dashboard can be set to be:
+    # - base64 decoded
+    # - have its datasources replaced
+    #
+    # See values below for more examples
+    dashboards:
+      grafana:
+        cert-manager:
+          enabled: true
+          failOnError: false
+          b64content: false
+          datasource:
+            - name: "${DS_PROMETHEUS}"
+              value: Prometheus
+          marketplace:
+            # renovate: depName="Cert-manager-Kubernetes"
+            id: 20842
+            revision: 3
+        cnpg:
+          enabled: true
+          failOnError: false
+          b64content: false
+          datasource:
+            - name: "${DS_PROMETHEUS}"
+              value: Prometheus
+          marketplace:
+            # renovate: depName="CloudNativePG"
+            id: 20417
+            revision: 4
+        flux-cluster:
+          enabled: true
+          failOnError: false
+          b64content: false
+          datasource:
+            - name: "${DS_PROMETHEUS}"
+              value: Prometheus
+          url: https://github.com/fluxcd/flux2-monitoring-example/raw/82c37257787bba13a40b17bed9bd8191ee7aa049/monitoring/configs/dashboards/cluster.json
+        flux-control-plane:
+          enabled: true
+          failOnError: false
+          b64content: false
+          datasource:
+            - name: "${DS_PROMETHEUS}"
+              value: Prometheus
+          url: https://github.com/fluxcd/flux2-monitoring-example/raw/82c37257787bba13a40b17bed9bd8191ee7aa049/monitoring/configs/dashboards/control-plane.json
+        metallb:
+          enabled: true
+          failOnError: false
+          b64content: false
+          datasource:
+            - name: "${DS_PROMETHEUS}"
+              value: Prometheus
+          marketplace:
+            # renovate: depName="Metallb"
+            id: 20162
+            revision: 6
+        node-feature-discovery:
+          enabled: true
+          failOnError: false
+          b64content: false
+          datasource:
+            - name: "${DS_PROMETHEUS}"
+              value: Prometheus
+          url: https://github.com/kubernetes-sigs/node-feature-discovery/raw/refs/tags/v0.18.3/examples/grafana-dashboard.json
+        traefik:
+          enabled: true
+          failOnError: false
+          b64content: false
+          datasource:
+            - name: "${DS_PROMETHEUS}"
+              value: Prometheus
+          marketplace:
+            # renovate: depName="Traefik Official Standalone Dashboard"
+            id: 17346
+            revision: 9
+    #
+    # workload config
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                GF_SECURITY_ADMIN_USER: "admin"
+                GF_SECURITY_ADMIN_PASSWORD: "testpassword"
+                GF_INSTALL_PLUGINS: ""
+                GF_AUTH_LDAP_ENABLED: "false"
+                GF_AUTH_LDAP_ALLOW_SIGN_UP: "false"
+                GF_SERVER_HTTP_PORT: 3000
+                GF_DATABASE_TYPE: postgres
+                GF_DATABASE_NAME: "{{ .Values.cnpg.main.user }}"
+                GF_DATABASE_USER: "{{ .Values.cnpg.main.database }}"
+                GF_DATABASE_SSL_MODE: disable
+                GF_DATABASE_HOST:
+                  secretKeyRef:
+                    name: cnpg-main-urls
+                    key: host
+                GF_DATABASE_PASSWORD:
+                  secretKeyRef:
+                    name: cnpg-main-user
+                    key: password
+              
+            dashboards:
+              enabled: true
+              env:
+                IGNORE_ALREADY_PROCESSED: false
+                METHOD: WATCH
+                LABEL: grafana_dashboard
+                LABEL_VALUE: "1"
+                LOG_LEVEL: info
+                FOLDER: /tmp/dashboards
+                RESOURCE: both
+                NAMESPACE: "ALL"
+                UNIQUE_FILENAMES: false
+                # NAMESPACE: null
+                # FOLDER_ANNOTATION: null
+                # script: null
+                # WATCH_SERVER_TIMEOUT: 3600
+                # WATCH_CLIENT_TIMEOUT: 3600
+                SKIP_TLS_VERIFY: false
+                REQ_USERNAME: "{{ .Values.workload.main.podSpec.containers.main.env.GF_SECURITY_ADMIN_USER }}"
+                REQ_PASSWORD: "{{ .Values.workload.main.podSpec.containers.main.env.GF_SECURITY_ADMIN_PASSWORD }}"
+                REQ_URL: "http://localhost:3000/api/admin/provisioning/dashboards/reload"
+                REQ_METHOD: POST
+            datasources:
+              enabled: true
+              env:
+                IGNORE_ALREADY_PROCESSED: false
+                METHOD: WATCH
+                LABEL: grafana_datasource
+                LABEL_VALUE: "1"
+                LOG_LEVEL: info
+                FOLDER: /etc/grafana/provisioning/datasources
+                RESOURCE: both
+                NAMESPACE: "ALL"
+                UNIQUE_FILENAMES: false
+                # NAMESPACE: null
+                # FOLDER_ANNOTATION: null
+                # script: null
+                # WATCH_SERVER_TIMEOUT: 3600
+                # WATCH_CLIENT_TIMEOUT: 3600
+                SKIP_TLS_VERIFY: false
+                REQ_USERNAME: "{{ .Values.workload.main.podSpec.containers.main.env.GF_SECURITY_ADMIN_USER }}"
+                REQ_PASSWORD: "{{ .Values.workload.main.podSpec.containers.main.env.GF_SECURITY_ADMIN_PASSWORD }}"
+                REQ_URL: "http://localhost:3000/api/admin/provisioning/datasources/reload"
+                REQ_METHOD: POST
+            alerts:
+              enabled: true
+              env:
+                IGNORE_ALREADY_PROCESSED: false
+                METHOD: WATCH
+                LABEL: grafana_alerts
+                LABEL_VALUE: "1"
+                LOG_LEVEL: info
+                FOLDER: /etc/grafana/provisioning/alerts
+                RESOURCE: both
+                NAMESPACE: "ALL"
+                UNIQUE_FILENAMES: false
+                # NAMESPACE: null
+                # FOLDER_ANNOTATION: null
+                # script: null
+                # WATCH_SERVER_TIMEOUT: 3600
+                # WATCH_CLIENT_TIMEOUT: 3600
+                SKIP_TLS_VERIFY: false
+                REQ_USERNAME: "{{ .Values.workload.main.podSpec.containers.main.env.GF_SECURITY_ADMIN_USER }}"
+                REQ_PASSWORD: "{{ .Values.workload.main.podSpec.containers.main.env.GF_SECURITY_ADMIN_PASSWORD }}"
+                REQ_URL: "http://localhost:3000/api/admin/provisioning/alerts/reload"
+                REQ_METHOD: POST
+            plugins:
+              enabled: true
+              env:
+                IGNORE_ALREADY_PROCESSED: false
+                METHOD: WATCH
+                LABEL: grafana_plugins
+                LABEL_VALUE: "1"
+                LOG_LEVEL: info
+                FOLDER: /etc/grafana/provisioning/plugins
+                RESOURCE: both
+                NAMESPACE: "ALL"
+                UNIQUE_FILENAMES: false
+                # NAMESPACE: null
+                # FOLDER_ANNOTATION: null
+                # script: null
+                # WATCH_SERVER_TIMEOUT: 3600
+                # WATCH_CLIENT_TIMEOUT: 3600
+                SKIP_TLS_VERIFY: false
+                REQ_USERNAME: "{{ .Values.workload.main.podSpec.containers.main.env.GF_SECURITY_ADMIN_USER }}"
+                REQ_PASSWORD: "{{ .Values.workload.main.podSpec.containers.main.env.GF_SECURITY_ADMIN_PASSWORD }}"
+                REQ_URL: "http://localhost:3000/api/admin/provisioning/plugins/reload"
+                REQ_METHOD: POST
+            notifiers:
+              enabled: true
+              env:
+                IGNORE_ALREADY_PROCESSED: false
+                METHOD: WATCH
+                LABEL: grafana_notifiers
+                LABEL_VALUE: "1"
+                LOG_LEVEL: info
+                FOLDER: /etc/grafana/provisioning/notifiers
+                RESOURCE: both
+                NAMESPACE: "ALL"
+                UNIQUE_FILENAMES: false
+                # NAMESPACE: null
+                # FOLDER_ANNOTATION: null
+                # script: null
+                # WATCH_SERVER_TIMEOUT: 3600
+                # WATCH_CLIENT_TIMEOUT: 3600
+                SKIP_TLS_VERIFY: false
+                REQ_USERNAME: "{{ .Values.workload.main.podSpec.containers.main.env.GF_SECURITY_ADMIN_USER }}"
+                REQ_PASSWORD: "{{ .Values.workload.main.podSpec.containers.main.env.GF_SECURITY_ADMIN_PASSWORD }}"
+                REQ_URL: "http://localhost:3000/api/admin/provisioning/notifiers/reload"
+                REQ_METHOD: POST
+    #
+    # configmaps
+    configmap:
+      dashboard-provider:
+        enabled: true
+        data:
+          provider.yaml: |-
+            apiVersion: 1
+            providers:
+              - name: sidecarProvider
+                orgId: 1
+                folder: ''
+                type: file
+                disableDeletion: false
+                allowUiUpdates: false
+                updateIntervalSeconds: 30
+                options:
+                  foldersFromFilesStructure: true
+                  path: /tmp/dashboards
+      config:
+        enabled: true
+        data:
+          grafana.ini: |-
+            paths:
+              data: /var/lib/grafana/
+              logs: /var/log/grafana
+              plugins: /var/lib/grafana/plugins
+              provisioning: /etc/grafana/provisioning
+            analytics:
+              check_for_updates: true
+            log:
+              mode: console
+            grafana_net:
+              url: https://grafana.net
+            server:
+              domain: "{{ if (and .Values.ingress.main.enabled .Values.ingress.main.hosts) }}{{ .Values.ingress.main.hosts | first }}{{ else }}''{{ end }}"
+          ldap.toml: |-
+            # nope
+    
+    # cnpg config
+    cnpg:
+      main:
+        enabled: true
+        user: grafana
+        database: grafana
