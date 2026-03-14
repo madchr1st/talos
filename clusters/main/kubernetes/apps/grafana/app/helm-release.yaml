@@ -71,7 +71,7 @@ spec:
     dashboards:
       grafana:
         cert-manager:
-          enabled: true
+          enabled: false
           failOnError: false
           b64content: false
           datasource:
