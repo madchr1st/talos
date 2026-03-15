@@ -187,14 +187,14 @@ spec:
       push:
         enabled: true
         installationId: "${VAULTWARDEN_TEST_PUSH_INSTALL_ID}"
-        installationKey: "{VAULTWARDEN_TEST_PUSH_INSTALL_KEY}"
+        installationKey: "${VAULTWARDEN_TEST_PUSH_INSTALL_KEY}"
       requireEmail: true
       showPasswordHint: true
       signupwhitelistenable: false
       smtp:
         authMechanism: Plain
         enabled: true
-        from: vaultwarden-test@"${DOMAIN_0}"
+        from: vaultwarden-test@${DOMAIN_0}
         fromName: vaultwarden-test
         heloName: ""
         host: "${VAULTWARDEN_TEST_SMTP_HOST}"
