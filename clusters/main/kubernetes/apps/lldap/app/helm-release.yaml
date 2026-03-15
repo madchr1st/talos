@@ -149,7 +149,7 @@ spec:
               - /app/lldap
               env:
                 LLDAP_HTTP_PORT: '{{ .Values.service.main.ports.main.port }}'
-                LLDAP_HTTP_URL: '{{ .Values.ingress.main.hosts[0].host }}'
+                LLDAP_HTTP_URL: 'lldap-new.${DOMAIN_0}'
                 LLDAP_JWT_SECRET:
                 - secretRef:
                     key: LLDAP_JWT_SECRET
