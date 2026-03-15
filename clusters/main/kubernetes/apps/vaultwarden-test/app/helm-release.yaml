@@ -81,7 +81,7 @@ spec:
         advanced: true
         enabled: true
         hosts:
-        - host: bitwarden-test-new.${DOMAIN_0}
+        - host: bitwarden-test.${DOMAIN_0}
           paths:
           - path: /
             pathType: Prefix
@@ -101,9 +101,9 @@ spec:
             #   expandObjectName: false
       ext:
         advanced: true
-        enabled: true
+        enabled: false
         hosts:
-        - host: bitwarden-test-new.${DOMAIN_0}
+        - host: bitwarden-test.${DOMAIN_0}
           paths:
           - path: /
             pathType: Prefix

@@ -5,3 +5,4 @@ resources:
   - cloudflareddns/ks.yaml
   - grafana/ks.yaml
   - vaultwarden-test/ks.yaml
+  - lldap/ks.yaml

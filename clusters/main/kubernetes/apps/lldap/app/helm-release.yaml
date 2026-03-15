@@ -1,0 +1,179 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: lldap
+  namespace: lldap
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: lldap
+      version: 8.17.2
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 15m
+  timeout: 20m
+  maxHistory: 3
+  driftDetection:
+    mode: warn
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    credentials:
+      mys3:
+        type: s3
+        url: ${CNPG_BACKUP_AWS_S3_URL}
+        bucket: ${CNPG_BACKUP_AWS_S3_BUCKET}
+        accessKey: ${CNPG_BACKUP_AWS_S3_ACCESS_KEY}
+        secretKey: ${CNPG_BACKUP_AWS_S3_SECRET_KEY}
+        encrKey: ${CNPG_BACKUP_AWS_S3_ENCRYPTION_KEY}
+    cnpg:
+      main:
+        mode: recovery
+        backups:
+          enabled: true
+          credentials: mys3
+          scheduledBackups:
+            - name: daily-backup
+              schedule: "0 0 0 * * *" # Daily at midnight
+              backupOwnerReference: self
+              immediate: true
+              suspend: false
+          retentionPolicy: "30d"
+          revision: ""
+        recovery:
+          method: object_store
+          credentials: mys3
+        cluster:
+          instances: 2
+          singleNode: true
+          storage:
+            size: 5Gi
+          walStorage:
+            size: 5Gi
+        database: "${CNPG_DB_LLDAP_NAME}"
+        enabled: true
+        hibernate: false
+        monitoring:
+          disableDefaultQueries: false
+          enablePodMonitor: true
+        password: "${CNPG_DB_LLDAP_PASSWORD}"
+        pgVersion: 16
+        pooler:
+          enabled: false
+        user: "${CNPG_DB_LLDAP_USER}"
+    database:
+      type: postgresql
+      wal: true
+    ingress:
+      main:
+        advanced: true
+        enabled: true
+        hosts:
+        - host: ldap-new.${DOMAIN_0}
+          paths:
+          - path: /
+            pathType: Prefix
+        ingressClassName: traefik-internal
+        integrations:
+          certManager:
+            certificateIssuer: domain-0-le-prod
+            enabled: true
+          traefik:
+            allowCors: false
+            enabled: true
+            entrypoints:
+            - websecure
+    persistence:
+      data:
+        autoPermissions:
+          enabled: false
+        enabled: true
+        path: "${NFS_PATH_LLDAP_DATA}"
+        server: "${NFS_SERVER_0}"
+        mountPath: /data
+        readOnly: false
+        type: nfs
+    resources:
+      limits:
+        amd.com/gpu: 0
+        cpu: 1000m
+        gpu.intel.com/i915: 0
+        memory: 1Gi
+        nvidia.com/gpu: 0
+      requests:
+        cpu: 10m
+        memory: 50Mi
+    securityContext:
+      container:
+        UMASK: "0022"
+        advanced: false
+        fsGroup: 1000
+        readOnlyRootFilesystem: false
+        runAsGroup: 1000
+        runAsUser: 1000
+    service:
+      ldap:
+        enabled: true
+        ports:
+          ldap:
+            enabled: true
+            port: 3890
+        type: LoadBalancer
+      main:
+        enabled: true
+        ports:
+          main:
+            port: 17170
+        type: ClusterIP
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              advanced: false
+              args:
+              - run
+              command:
+              - /app/lldap
+              env:
+                LLDAP_HTTP_PORT: '{{ .Values.service.main.ports.main.port }}'
+                LLDAP_HTTP_URL: '{{ .Values.ingress.main.hosts[0].host }}'
+                LLDAP_JWT_SECRET:
+                - secretRef:
+                    key: LLDAP_JWT_SECRET
+                    name: secrets
+                LLDAP_LDAP_BASE_DN: ${LLDAP_LDAP_BASE_DN}
+                LLDAP_LDAP_PORT: '{{ .Values.service.ldap.ports.ldap.port }}'
+                LLDAP_LDAP_USER_DN: ${LLDAP_LDAP_USER_DN}
+                LLDAP_LDAP_USER_EMAIL: ${LLDAP_LDAP_USER_EMAIL}
+                LLDAP_LDAP_USER_PASS: ${LLDAP_LDAP_USER_PASS}
+                LLDAP_SMTP_OPTIONS__ENABLE_PASSWORD_RESET: true
+                LLDAP_SMTP_OPTIONS__FROM: ${LLDAP_SMTP_OPTIONS__FROM}
+                LLDAP_SMTP_OPTIONS__PASSWORD: ${LLDAP_SMTP_OPTIONS__PASSWORD}
+                LLDAP_SMTP_OPTIONS__PORT: "465"
+                LLDAP_SMTP_OPTIONS__REPLY_TO: ${LLDAP_SMTP_OPTIONS__REPLY_TO}
+                LLDAP_SMTP_OPTIONS__SERVER: ${LLDAP_SMTP_OPTIONS__SERVER}
+                LLDAP_SMTP_OPTIONS__USER: ${LLDAP_SMTP_OPTIONS__USER}
+                LLDAP_VERBOSE: false
+                LLDAP_database_url:
+                  secretKeyRef:
+                    key: std
+                    name: cnpg-main-urls
+                LLDAP_key_file: /data/private_key
+                smtp: true
+              envList: []
+              extraArgs: []
+        replicas: 2
+        type: Deployment
