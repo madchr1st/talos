@@ -56,13 +56,13 @@ spec:
         targetSelector:
           main: main
         hosts:
-          - host: grafana-new."${DOMAIN_0}""
+          - host: grafana-new.${DOMAIN_0}
             paths:
               - path: /
                 pathType: Prefix
         tls:
           - hosts:
-              - grafana-new."${DOMAIN_0}""
+              - grafana-new.${DOMAIN_0}
         integrations:
           certManager:
             enabled: true
