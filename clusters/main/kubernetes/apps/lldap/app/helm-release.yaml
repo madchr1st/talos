@@ -30,8 +30,8 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    image:
-      tag: latest
+    # image:
+    #   tag: latest
     credentials:
       mys3:
         type: s3
