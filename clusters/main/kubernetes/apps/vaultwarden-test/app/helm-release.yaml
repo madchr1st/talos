@@ -8,7 +8,7 @@ spec:
   interval: 15m
   chart:
     spec:
-      chart: vaultwarden-test
+      chart: vaultwarden
       version: 29.18.2
       sourceRef:
         kind: HelmRepository
@@ -81,13 +81,13 @@ spec:
         advanced: true
         enabled: true
         hosts:
-        - host: bitwarden-test."${DOMAIN_0}"
+        - host: bitwarden-test.${DOMAIN_0}
           paths:
           - path: /
             pathType: Prefix
         tls:
           - hosts:
-              - bitwarden-test."${DOMAIN_0}"
+              - bitwarden-test.${DOMAIN_0}
         ingressClassName: traefik-internal
         integrations:
           certManager:
@@ -106,13 +106,13 @@ spec:
         advanced: true
         enabled: true
         hosts:
-        - host: bitwarden-test."${DOMAIN_0}"
+        - host: bitwarden-test.${DOMAIN_0}
           paths:
           - path: /
             pathType: Prefix
         tls:
           - hosts:
-              - bitwarden-test."${DOMAIN_0}"
+              - bitwarden-test.${DOMAIN_0}
         ingressClassName: traefik-external
         integrations:
           certManager:
