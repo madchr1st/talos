@@ -29,9 +29,7 @@ spec:
       retries: 3
   uninstall:
     keepHistory: false
-  values:
-    # yaml-language-server: $schema=./values.schema.json
-    
+  values:    
     # cnpg config
     cnpg:
       main:
