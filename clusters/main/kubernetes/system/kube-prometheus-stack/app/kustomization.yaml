@@ -7,6 +7,7 @@ resources:
   - alertmanagerconfig.yaml
 configMapGenerator:
   - name: flux-kube-state-metrics-config
+    namespace: kube-prometheus-stack
     files:
       - kube-state-metrics-config.yaml
     options:
