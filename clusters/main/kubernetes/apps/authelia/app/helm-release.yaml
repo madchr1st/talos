@@ -104,26 +104,27 @@ spec:
               - websecure
             middlewares: []
         required: true
-        main:
-          advanced: true
-          enabled: true
-          hosts:
-            - host: sso-new.${DOMAIN_0}
-              paths:
-                - path: /
-                  pathType: Prefix
-          ingressClassName: traefik-internal
-          integrations:
-            certManager:
-              certificateIssuer: domain-0-le-prod
-              enabled: true
-            traefik:
-              allowCors: false
-              enabled: true
-              entrypoints:
-                - websecure
-              middlewares: []
-          required: true
+      main:
+        advanced: true
+        enabled: true
+        primary: true
+        hosts:
+          - host: sso-new.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+        ingressClassName: traefik-internal
+        integrations:
+          certManager:
+            certificateIssuer: domain-0-le-prod
+            enabled: true
+          traefik:
+            allowCors: false
+            enabled: true
+            entrypoints:
+              - websecure
+            middlewares: []
+        required: true
     
     persistence:
       config:
