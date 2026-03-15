@@ -1,0 +1,210 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: vaultwarden-test
+  namespace: vaultwarden-test
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: vaultwarden-test
+      version: 29.18.2
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 15m
+  timeout: 20m
+  maxHistory: 3
+  driftDetection:
+    mode: warn
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    credentials:
+      mys3:
+        type: s3
+        url: "${CNPG_BACKUP_AWS_S3_URL}"
+        bucket: "${CNPG_BACKUP_AWS_S3_BUCKET}"
+        accessKey: "${CNPG_BACKUP_AWS_S3_ACCESS_KEY}"
+        secretKey: "{CNPG_BACKUP_AWS_S3_SECRET_KEY}"
+        encrKey: "{CNPG_BACKUP_AWS_S3_ENCRYPTION_KEY}"
+    cnpg:
+      main:
+        mode: recovery
+        backups:
+          enabled: true
+          credentials: mys3
+          scheduledBackups:
+            - name: daily-backup
+              schedule: "0 0 0 * * *" # Daily at midnight
+              backupOwnerReference: self
+              immediate: true
+              suspend: false
+          retentionPolicy: "30d"
+          revision: ""
+        recovery:
+          method: object_store
+          credentials: mys3
+        cluster:
+          instances: 2
+          singleNode: true
+          storage:
+            size: 5Gi
+          walStorage:
+            size: 5Gi
+        database: "${CNPG_DB_VAULTWARDEN_TEST_NAME}"
+        enabled: true
+        hibernate: false
+        monitoring:
+          disableDefaultQueries: false
+          enablePodMonitor: true
+        password: "${CNPG_DB_VAULTWARDEN_TEST_PASSWORD}"
+        pgVersion: 16
+        pooler:
+          enabled: false
+        user: "${CNPG_DB_VAULTWARDEN_TEST_USER}"
+    database:
+      type: postgresql
+      wal: true
+    ingress:
+      main:
+        advanced: true
+        enabled: true
+        hosts:
+        - host: bitwarden-test."${DOMAIN_0}"
+          paths:
+          - path: /
+            pathType: Prefix
+        tls:
+          - hosts:
+              - bitwarden-test."${DOMAIN_0}"
+        ingressClassName: traefik-internal
+        integrations:
+          certManager:
+            certificateIssuer: domain-0-le-prod
+            enabled: true
+          traefik:
+            enabled: true
+            entrypoints:
+            - websecure
+            forceTLS: true
+            middlewares:
+            # - name: traefik-forward-auth-authelia
+            #   namespace: traefik-internal
+            #   expandObjectName: false
+      ext:
+        advanced: true
+        enabled: true
+        hosts:
+        - host: bitwarden-test."${DOMAIN_0}"
+          paths:
+          - path: /
+            pathType: Prefix
+        tls:
+          - hosts:
+              - bitwarden-test."${DOMAIN_0}"
+        ingressClassName: traefik-external
+        integrations:
+          certManager:
+            certificateIssuer: domain-0-le-prod
+            enabled: true
+          traefik:
+            enabled: true
+            entrypoints:
+            - websecure
+            forceTLS: true
+            middlewares:
+            # - name: traefik-forward-auth-authelia
+            #   namespace: traefik-internal
+            #   expandObjectName: false
+    persistence:
+      data:
+        autoPermissions:
+          enabled: false
+        enabled: true
+        path: "${NFS_PATH_VAULTWARDEN_TEST_DATA}"
+        server: "${NFS_SERVER_0}"
+        mountPath: /data
+        readOnly: false
+        type: nfs
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 10m
+        memory: 50Mi
+    securityContext:
+      container:
+        UMASK: "0022"
+        advanced: false
+        runAsGroup: 1000
+        runAsUser: 1000
+      pod:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups: []
+    service:
+      main:
+        enabled: true
+        ports:
+          main:
+            port: 10102
+            targetPort: 8080
+        type: ClusterIP
+    vaultwarden:
+      admin:
+        disableAdminToken: false
+        enabled: true
+        token: "${VAULTWARDEN_TEST_ADMIN_TOKEN}"
+      allowInvitation: true
+      allowSignups: false
+      attachmentLimitOrg: ""
+      attachmentLimitUser: ""
+      defaultInviteName: ""
+      emailAttempts: 3
+      emailTokenExpiration: 600
+      enableWebVault: true
+      hibpApiKey: ""
+      icons:
+        cache: 2592000
+        disableDownload: false
+        token: 2592000
+      log:
+        file: ""
+        level: info
+      orgCreationUsers: all
+      push:
+        enabled: true
+        installationId: "${VAULTWARDEN_TEST_PUSH_INSTALL_ID}"
+        installationKey: "{VAULTWARDEN_TEST_PUSH_INSTALL_KEY}"
+      requireEmail: true
+      showPasswordHint: true
+      signupwhitelistenable: false
+      smtp:
+        authMechanism: Plain
+        enabled: true
+        from: vaultwarden-test@"${DOMAIN_0}"
+        fromName: vaultwarden-test
+        heloName: ""
+        host: "${VAULTWARDEN_TEST_SMTP_HOST}"
+        invalidCertificate: false
+        invalidHostname: false
+        password: "${VAULTWARDEN_TEST_SMTP_PASSWORD}"
+        port: 465
+        security: force_tls
+        timeout: 15
+        user: "${VAULTWARDEN_TEST_SMTP_USER}"
+      verifySignup: true
+      yubico:
+        enabled: false

@@ -4,3 +4,4 @@ resources:
   - kubernetes-dashboard/ks.yaml
   - cloudflareddns/ks.yaml
   - grafana/ks.yaml
+  - vaultwarden-test/ks.yaml
