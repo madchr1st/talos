@@ -1,0 +1,160 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: authelia
+  namespace: authelia
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: authelia
+      version: 29.35.5
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 15m
+  timeout: 20m
+  maxHistory: 3
+  driftDetection:
+    mode: warn
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  valuesFrom:
+    - kind: Secret
+      name: authelia-config
+      valuesKey: authelia-config.yaml 
+  values:
+    cnpg:
+      main:
+        mode: recovery
+        backups:
+          enabled: true
+          credentials: mys3
+          scheduledBackups:
+            - name: daily-backup
+              # Daily at midnight
+              schedule: 0 0 0 * * *
+              backupOwnerReference: self
+              immediate: true
+              suspend: false
+          retentionPolicy: 30d
+          revision: ""
+        recovery:
+          method: object_store
+          credentials: mys3
+        cluster:
+          instances: 2
+          singleNode: true
+          storage:
+            size: 5Gi
+          walStorage:
+            size: 5Gi
+        database: ${CNPG_DB_AUTHELIA_NAME}
+        enabled: true
+        hibernate: false
+        monitoring:
+          disableDefaultQueries: false
+          enablePodMonitor: true
+        password: ${CNPG_DB_AUTHELIA_PASSWORD}
+        pgVersion: 16
+        pooler:
+          enabled: false
+        user: ${CNPG_DB_AUTHELIA_USER}
+    database:
+      type: postgresql
+      wal: true
+    
+    credentials:
+      mys3:
+        type: s3
+        url: ${CNPG_BACKUP_AWS_S3_URL}
+        bucket: ${CNPG_BACKUP_AWS_S3_BUCKET}
+        accessKey: ${CNPG_BACKUP_AWS_S3_ACCESS_KEY}
+        secretKey: ${CNPG_BACKUP_AWS_S3_SECRET_KEY}
+        encrKey: ${CNPG_BACKUP_AWS_S3_ENCRYPTION_KEY}
+    
+    ingress:
+      ext:
+        advanced: true
+        enabled: true
+        hosts:
+          - host: sso-new.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+        ingressClassName: traefik-external
+        integrations:
+          certManager:
+            certificateIssuer: domain-0-le-prod
+            enabled: true
+          traefik:
+            allowCors: false
+            enabled: true
+            entrypoints:
+              - websecure
+            middlewares: []
+        required: true
+        main:
+          advanced: true
+          enabled: true
+          hosts:
+            - host: sso-new.${DOMAIN_0}
+              paths:
+                - path: /
+                  pathType: Prefix
+          ingressClassName: traefik-internal
+          integrations:
+            certManager:
+              certificateIssuer: domain-0-le-prod
+              enabled: true
+            traefik:
+              allowCors: false
+              enabled: true
+              entrypoints:
+                - websecure
+              middlewares: []
+          required: true
+    
+    persistence:
+      config:
+        autoPermissions:
+          enabled: false
+        enabled: true
+        path: ${NFS_PATH_AUTHELIA_DATA}
+        server: ${NFS_SERVER_0}
+        mountPath: /config
+        readOnly: false
+        type: nfs
+    
+    redis:
+      creds:
+        redisPassword: ${REDIS_AUTHELIA_PASSWORD}
+      enabled: true
+      includeCommon: true
+      password: ${REDIS_AUTHELIA_PASSWORD}
+    
+    resources:
+      limits:
+        memory: 4Gi
+      requests:
+        cpu: 10m
+        memory: 50Mi
+    
+    securityContext:
+      container:
+        UMASK: "0022"
+        advanced: false
+        runAsGroup: 1000
+        runAsUser: 1000
+      pod:
+        fsGroup: 1000

@@ -6,3 +6,4 @@ resources:
   - grafana/ks.yaml
   - vaultwarden-test/ks.yaml
   - lldap/ks.yaml
+  - authelia/ks.yaml
