@@ -11,3 +11,13 @@ creation_rules:
   - path_regex: talsecret.yaml
     age: age1uaud96tmvkrmct5ssh20a4dwqy825ru5tqsdp8hu3syxlp4p9glqkamlya
 ## DO NOT REMOVE: Personal setting go under this line
+  - path_regex: ^clusters.*kubernetes.*authelia-config.ya?ml$
+    age: age1uaud96tmvkrmct5ssh20a4dwqy825ru5tqsdp8hu3syxlp4p9glqkamlya
+    encrypted_regex: "."
+  - path_regex: ^clusters.*kubernetes.*values-sec.ya?ml$
+    age: age1uaud96tmvkrmct5ssh20a4dwqy825ru5tqsdp8hu3syxlp4p9glqkamlya
+    encrypted_regex: "."
+
+stores:
+  yaml:
+    indent: 2
