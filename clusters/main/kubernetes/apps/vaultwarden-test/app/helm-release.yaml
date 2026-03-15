@@ -33,11 +33,11 @@ spec:
     credentials:
       mys3:
         type: s3
-        url: "${CNPG_BACKUP_AWS_S3_URL}"
-        bucket: "${CNPG_BACKUP_AWS_S3_BUCKET}"
-        accessKey: "${CNPG_BACKUP_AWS_S3_ACCESS_KEY}"
-        secretKey: "${CNPG_BACKUP_AWS_S3_SECRET_KEY}"
-        encrKey: "${CNPG_BACKUP_AWS_S3_ENCRYPTION_KEY}"
+        url: ${CNPG_BACKUP_AWS_S3_URL}
+        bucket: ${CNPG_BACKUP_AWS_S3_BUCKET}
+        accessKey: ${CNPG_BACKUP_AWS_S3_ACCESS_KEY}
+        secretKey: ${CNPG_BACKUP_AWS_S3_SECRET_KEY}
+        encrKey: ${CNPG_BACKUP_AWS_S3_ENCRYPTION_KEY}
     cnpg:
       main:
         mode: recovery
