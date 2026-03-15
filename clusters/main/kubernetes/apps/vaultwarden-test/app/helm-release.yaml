@@ -81,13 +81,10 @@ spec:
         advanced: true
         enabled: true
         hosts:
-        - host: bitwarden-test.${DOMAIN_0}
+        - host: bitwarden-test-new.${DOMAIN_0}
           paths:
           - path: /
             pathType: Prefix
-        tls:
-          - hosts:
-              - bitwarden-test.${DOMAIN_0}
         ingressClassName: traefik-internal
         integrations:
           certManager:
@@ -106,13 +103,10 @@ spec:
         advanced: true
         enabled: true
         hosts:
-        - host: bitwarden-test.${DOMAIN_0}
+        - host: bitwarden-test-new.${DOMAIN_0}
           paths:
           - path: /
             pathType: Prefix
-        tls:
-          - hosts:
-              - bitwarden-test.${DOMAIN_0}
         ingressClassName: traefik-external
         integrations:
           certManager:
