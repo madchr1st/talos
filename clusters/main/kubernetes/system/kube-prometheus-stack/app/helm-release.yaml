@@ -28,6 +28,10 @@ spec:
       retries: 3
   uninstall:
     keepHistory: false
+  valuesFrom:
+    - kind: ConfigMap
+      name: flux-kube-state-metrics-config
+      valuesKey: kube-state-metrics-config.yaml
   values:
     crds:
       enabled: true
@@ -96,7 +100,4 @@ spec:
       forceDeployDashboards: true
       defaultDashboardsEnabled: true
       forceDeployDatasources: true
-    valuesFrom:
-      - kind: ConfigMap
-        name: flux-kube-state-metrics-config
-        valuesKey: kube-state-metrics-config.yaml
+  
