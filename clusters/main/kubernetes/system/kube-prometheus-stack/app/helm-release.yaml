@@ -77,12 +77,12 @@ spec:
             memory: 500Mi
           limits:
             memory: 2000Mi
-        # storageSpec:
-        #   volumeClaimTemplate:
-        #     spec:
-        #       resources:
-        #         requests:
-        #           storage: 60Gi
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              resources:
+                requests:
+                  storage: 60Gi
 
     prometheus-node-exporter:
       fullnameOverride: node-exporter
