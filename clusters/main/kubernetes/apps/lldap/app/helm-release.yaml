@@ -30,6 +30,8 @@ spec:
   uninstall:
     keepHistory: false
   values:
+    image:
+      tag: latest
     credentials:
       mys3:
         type: s3
@@ -56,7 +58,6 @@ spec:
           method: object_store
           credentials: mys3
         cluster:
-          imageName: ghcr.io/cloudnative-pg/postgresql:16.11
           instances: 2
           singleNode: true
           storage:
