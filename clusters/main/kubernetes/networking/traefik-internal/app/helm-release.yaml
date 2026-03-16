@@ -59,6 +59,9 @@ spec:
         enabled: true
         allowCrossNamespace: true
         allowExternalNameServices: true
+      kubernetesGateway:
+        # -- Enable Traefik Gateway provider for Gateway API
+        enabled: true
     # tlsStore: 
     #   default:
     #     defaultCertificate:
@@ -76,9 +79,6 @@ spec:
           tls:
             enabled: true
             options: "default"
-    kubernetesGateway:
-    # -- Enable Traefik Gateway provider for Gateway API
-      enabled: true
     ingressRoute:
       dashboard:
         enabled: true
