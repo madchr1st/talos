@@ -61,7 +61,7 @@ spec:
         allowExternalNameServices: true
       kubernetesGateway:
         # -- Enable Traefik Gateway provider for Gateway API
-        enabled: true
+        enabled: false
     # tlsStore: 
     #   default:
     #     defaultCertificate:
