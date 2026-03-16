@@ -78,6 +78,12 @@ spec:
           tls:
             enabled: true
             options: "default"
+    kubernetesGateway:
+    # -- Enable Traefik Gateway provider for Gateway API
+      enabled: true
+    ingressRoute:
+      dashboard:
+        enabled: true
     metrics:
       ## Prometheus is enabled by default.
       ## It can be disabled by setting "prometheus: null"
