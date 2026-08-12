@@ -41,7 +41,7 @@ spec:
         metallb.io/loadBalancerIPs: ${TRAEFIK_INTERNAL_IP}
       spec:
         externalTrafficPolicy: Local
-    logs:
+    log:
       general:
         level: INFO
       access:
