@@ -27,7 +27,7 @@ nodes:
       controlPlane: true
       nameservers:
         - 1.1.1.1
-        - 8.8.8.8
+        - 1.0.0.1
       installDiskSelector:
         size: <= 1600GB
       networkInterfaces:
