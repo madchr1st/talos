@@ -1,0 +1,67 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: anytype
+  namespace: anytype
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: app-template
+      version: 5.0.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    controllers:
+      anytype:
+        pod:
+          # any-sync needs time to shut down its sync/consensus state cleanly
+          terminationGracePeriodSeconds: 120
+        containers:
+          app:
+            image:
+              repository: ghcr.io/grishy/any-sync-bundle
+              tag: v1.5.0-2026-07-17
+            env:
+              # Reachable LAN address clients use to connect; Tailscale subnet
+              # routing already covers access away from home
+              ANY_SYNC_BUNDLE_INIT_EXTERNAL_ADDRS: "${ANYTYPE_IP}"
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: ["ALL"]
+    service:
+      app:
+        controller: anytype
+        type: LoadBalancer
+        loadBalancerIP: "${ANYTYPE_IP}"
+        ports:
+          drpc:
+            port: 33010
+            protocol: TCP
+          quic:
+            port: 33020
+            protocol: UDP
+    persistence:
+      data:
+        type: persistentVolumeClaim
+        accessMode: ReadWriteOnce
+        size: 50Gi
+        retain: true
+        globalMounts:
+          - path: /data

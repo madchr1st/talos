@@ -7,3 +7,4 @@ resources:
   - vaultwarden-test/ks.yaml
   - lldap/ks.yaml
   - authelia/ks.yaml
+  - anytype/ks.yaml
