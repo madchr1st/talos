@@ -133,6 +133,7 @@ spec:
             enabled: true
             port: 3890
         type: LoadBalancer
+        loadBalancerIP: "${LLDAP_IP}"
       main:
         enabled: true
         ports:
