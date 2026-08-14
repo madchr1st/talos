@@ -43,11 +43,31 @@ spec:
         advanced: true
         enabled: true
         hosts:
-        - host: jellyfin-new.hallernet.ch
+        - host: jellyfin.hallernet.ch
           paths:
           - path: /
             pathType: Prefix
         ingressClassName: traefik-internal
+        integrations:
+          certManager:
+            certificateIssuer: domain-0-le-prod
+            enabled: true
+          traefik:
+            allowCors: false
+            enabled: true
+            entrypoints:
+            - websecure
+            middlewares: []
+        tls: []
+      ext:
+        advanced: true
+        enabled: true
+        hosts:
+        - host: jellyfin.hallernet.ch
+          paths:
+          - path: /
+            pathType: Prefix
+        ingressClassName: traefik-external
         integrations:
           certManager:
             certificateIssuer: domain-0-le-prod
