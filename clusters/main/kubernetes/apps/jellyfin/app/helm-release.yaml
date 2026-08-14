@@ -101,7 +101,8 @@ spec:
         mountPath: /config/transcodes
         type: emptyDir
     podOptions:
-      runtimeClassName: nvidia
+      # cannot be set yet
+      # runtimeClassName: nvidia
       expertPodOpts: false
     release_name: jellyfin
     resources:
