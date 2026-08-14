@@ -1,0 +1,196 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: jellyfin
+  namespace: /mnt/nvme-storage/k8s/jellyfin/config
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: jellyfin
+      version: 23.7.2
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 15m
+  timeout: 20m
+  maxHistory: 3
+  driftDetection:
+    mode: warn
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:    
+    image:
+      repository: oci.trueforge.org/containerforge/jellyfin
+      pullPolicy: IfNotPresent
+      tag: 10.11.11
+    broadcastProxyImage:
+      repository: docker.io/alpine/socat
+      pullPolicy: IfNotPresent
+      tag: 1.8.1.3@sha256:f134cb7ebb983f971f5deb44e92bc62c1385b0a3b525393f32dd0722acc30315
+    ingress:
+      main:
+        advanced: true
+        enabled: true
+        hosts:
+        - host: jellyfin-new.hallernet.ch
+          paths:
+          - path: /
+            pathType: Prefix
+        ingressClassName: traefik-internal
+        integrations:
+          certManager:
+            certificateIssuer: domain-0-le-prod
+            enabled: true
+          traefik:
+            allowCors: false
+            enabled: true
+            entrypoints:
+            - websecure
+            middlewares: []
+        tls: []
+    persistence:
+      cache:
+        enabled: true
+        mountPath: /cache
+        type: emptyDir
+      config:
+        autoPermissions:
+          enabled: false
+        enabled: true
+        mountPath: /config
+        readOnly: false
+        type: nfs
+        path: ${NFS_PATH_JELLYFIN_CONFIG}
+        server: ${NFS_SERVER_0} 
+      data:
+        autoPermissions:
+          enabled: false
+        enabled: true
+        mountPath: /data
+        readOnly: false
+        type: nfs
+        path: ${NFS_PATH_JELLYFIN_DATA}
+        server: ${NFS_SERVER_0} 
+      media:
+        autoPermissions:
+          enabled: false
+        enabled: true
+        # hostPath: /mnt/bulk-storage/multimedia
+        mountPath: /media
+        readOnly: false
+        # type: hostPath
+        type: nfs
+        path: ${NFS_PATH_MULTIMEDIA}
+        server: ${NFS_SERVER_0} 
+      transcode:
+        autoPermissions:
+          enabled: false
+        enabled: true
+        media: Memory
+        mountPath: /config/transcodes
+        type: emptyDir
+    podOptions:
+      runtimeClassName: nvidia
+      expertPodOpts: false
+    release_name: jellyfin
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+      requests:
+        cpu: 10m
+        memory: 50Mi
+    securityContext:
+      container:
+        UMASK: "0022"
+        advanced: false
+        readOnlyRootFilesystem: false
+        runAsGroup: 1000
+        runAsUser: 1000
+      pod:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups: []
+    service:
+      autodiscovery:
+        enabled: true
+        ports:
+          autodiscovery:
+            enabled: true
+            port: 7359
+            protocol: udp
+            targetPort: 7359
+      main:
+        enabled: true
+        ports:
+          main:
+            port: 8096
+            targetPort: 8096
+        type: ClusterIP
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                JELLYFIN_DATA_DIR: /data
+                JELLYFIN_CONFIG_DIR: /config
+                JELLYFIN_LOG_DIR: /logs
+                JELLYFIN_CACHE_DIR: /cache
+                JELLYFIN_PublishedServerUrl: '{{ $.Values.chartContext.appUrl }}'
+        replicas: 1
+        type: Deployment
+      broadcastproxy:
+        enabled: true
+        type: DaemonSet
+        podSpec:
+          hostNetwork: true
+          terminationGracePeriodSeconds: 3
+          containers:
+            broadcastproxy:
+              enabled: true
+              primary: true
+              imageSelector: broadcastProxyImage
+              securityContext:
+                readOnlyRootFilesystem: true
+              command: ["/bin/sh"]
+              # Quite a lot going on here:
+              # - Resolve Jellyfin's autodiscovery service IP from its FQDN via getent hosts
+              # - Export the IP to `$TARGET_IP`
+              # - Check `$TARGET_IP` is not empty (so we can crash if it is - will help to detect templating errors)
+              # - Touch `/tmp/healty` to use with the readiness, liveness and startup probes
+              # - Start socat in proxy mode
+              # - On exit remove `/tmp/healthy`
+              args:
+                - "-c"
+                - 'export TARGET_IP=$(getent hosts ''{{ printf "%v-autodiscovery" (include "tc.v1.common.lib.chart.names.fullname" $) }}'' | awk ''{ print $1 }'') && [[ ! -z $TARGET_IP ]] && touch /tmp/healthy && socat UDP4-LISTEN:7359,fork,reuseaddr,rcvbuf=8096 UDP4-SENDTO:${TARGET_IP}:7359,rcvbuf=8096 ; rm -rf /tmp/healthy'
+              probes:
+                liveness:
+                  command:
+                  - cat
+                  - /tmp/healthy
+                  enabled: true
+                  type: exec
+                readiness:
+                  command:
+                  - cat
+                  - /tmp/healthy
+                  enabled: true
+                  type: exec
+                startup:
+                  command:
+                  - cat
+                  - /tmp/healthy
+                  enabled: true
+                  type: exec
