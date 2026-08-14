@@ -31,7 +31,7 @@ spec:
     keepHistory: false
   values:
     image:
-      tag: latest
+      tag: v0.6.3-debian
     credentials:
       mys3:
         type: s3
