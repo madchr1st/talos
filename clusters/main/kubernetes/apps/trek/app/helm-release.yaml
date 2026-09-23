@@ -35,46 +35,19 @@ spec:
       pullPolicy: Always
       tag: latest
     ingress:
-      main:
-        advanced: true
-        enabled: true
-        hosts:
-        - host: trek.hallernet.ch
-          paths:
-          - path: /
-            pathType: Prefix
-        ingressClassName: traefik-internal
-        integrations:
-          certManager:
-            certificateIssuer: domain-0-le-prod
-            enabled: true
-          traefik:
-            allowCors: false
-            enabled: true
-            entrypoints:
-            - websecure
-            middlewares: []
-        tls: []
-      ext:
-        advanced: true
-        enabled: true
-        hosts:
-        - host: trek.hallernet.ch
-          paths:
-          - path: /
-            pathType: Prefix
-        ingressClassName: traefik-external
-        integrations:
-          certManager:
-            certificateIssuer: domain-0-le-prod
-            enabled: true
-          traefik:
-            allowCors: false
-            enabled: true
-            entrypoints:
-            - websecure
-            middlewares: []
-        tls: []
+      enabled: true
+      className: "traefik-internal"
+      annotations:
+        cert-manager.io/cluster-issuer: domain-0-le-prod
+        cert-manager.io/private-key-rotation-policy: Always
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        traefik.ingress.kubernetes.io/router.middlewares: vaultwarden-test-vaultwarden-test-tc-basic-secure-headers@kubernetescrd
+        traefik.ingress.kubernetes.io/router.tls: "true"
+      hosts:
+      - host: trek.hallernet.ch
+        paths:
+        - /
+      tls: []
     env:
       NODE_ENV: production
       PORT: 3000
