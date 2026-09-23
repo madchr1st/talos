@@ -8,3 +8,4 @@ resources:
   # - jellyfin/ks.yaml
   - lldap/ks.yaml
   - vaultwarden-test/ks.yaml
+  - trek/ks.yaml

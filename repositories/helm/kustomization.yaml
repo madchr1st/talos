@@ -16,5 +16,6 @@ resources:
   - prometheus-community.yaml
   - spegel.yaml
   - traefik.yaml
+  - trek.yaml
   - truecharts.yaml
 # more goes here!
