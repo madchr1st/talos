@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: domain-0-le-prod
+    cert-manager.io/private-key-rotation-policy: Always
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.middlewares: vaultwarden-test-vaultwarden-test-tc-basic-secure-headers@kubernetescrd
+    traefik.ingress.kubernetes.io/router.tls: "true"
+  labels:
+    app: trek
+  name: trek-ext
+  namespace: trek
+spec:
+  ingressClassName: traefik-external
+  rules:
+  - host: trek.hallernet.ch
+    http:
+      paths:
+      - backend:
+          service:
+            name: trek
+            port:
+              number: 3000
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - trek.hallernet.ch
+    secretName: trek-tls-0
