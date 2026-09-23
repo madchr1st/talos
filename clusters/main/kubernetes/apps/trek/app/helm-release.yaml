@@ -47,7 +47,10 @@ spec:
       - host: trek.hallernet.ch
         paths:
         - /
-      tls: []
+      tls:
+      - hosts:
+        - trek.hallernet.ch
+        secretName: trek-tls-0
     env:
       NODE_ENV: production
       PORT: 3000
