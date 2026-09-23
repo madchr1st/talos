@@ -54,7 +54,7 @@ spec:
     env:
       NODE_ENV: production
       PORT: 3000
-      # TZ: "UTC"
+      TZ: "Europe/Zurich"
       # Timezone for logs, reminders, and cron jobs (e.g. Europe/Berlin).
       # LOG_LEVEL: "info"
       # "info" = concise user actions, "debug" = verbose details.
@@ -68,12 +68,12 @@ spec:
       # Default language on the login page for users with no saved preference.
       # Browser/OS language is auto-detected first; this is the fallback when no match is found.
       # Supported: de, en, es, fr, hu, nl, br, cs, pl, ru, zh, zh-TW, it, ar
-      # ALLOWED_ORIGINS: ""
+      ALLOWED_ORIGINS: "https://trek.hallernet.ch"
       # NOTE: If using ingress, ensure env.ALLOWED_ORIGINS matches the domains in ingress.hosts for proper CORS configuration.
-      # APP_URL: "https://trek.example.com"
+      APP_URL: "https://trek.hallernet.ch"
       # Public base URL of this instance. Required when OIDC is enabled — must match the redirect URI registered with your IdP.
       # Also used as the base URL for links in email notifications and other external links.
-      # FORCE_HTTPS: "false"
+      FORCE_HTTPS: "true"
       # Optional. When "true": HTTPS redirect, HSTS, CSP upgrade-insecure-requests, secure cookies. Only behind a TLS proxy. Requires TRUST_PROXY.
       # HSTS_INCLUDE_SUBDOMAINS: "false"
       # When "true": adds includeSubDomains to the HSTS header. Only effective when HSTS is active. Leave "false" if sibling subdomains still run over plain HTTP.
@@ -156,7 +156,7 @@ spec:
       # Initial admin account — only used on first boot when no users exist yet.
       # If both values are non-empty the admin account is created with these credentials.
       # If either is empty a random password is generated and printed to the server log.
-      ADMIN_EMAIL: ""
+      ADMIN_EMAIL: "ch.haller@gmail.com"
       ADMIN_PASSWORD: ""
       # OIDC client secret — set together with env.OIDC_ISSUER and env.OIDC_CLIENT_ID.
       OIDC_CLIENT_SECRET: ""
