@@ -39,7 +39,7 @@ spec:
         cluster:
           instances: 2
           storage:
-            size: "2Gi"
+            size: "5Gi"
           walStorage:
             size: "2Gi"
         monitoring:
