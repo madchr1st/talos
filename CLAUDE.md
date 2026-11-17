@@ -64,7 +64,7 @@ The Kubernetes directory is layered with explicit dependencies:
 | `kube-system` | `kubernetes/kube-system/` | Core components: Cilium CNI, metrics-server, descheduler, kubelet-csr-approver |
 | `system` | `kubernetes/system/` | Platform infra: cert-manager, CloudNative-PG, MetalLB, Longhorn, OpenEBS, kube-prometheus-stack, Spegel, VolSync |
 | `core` | `kubernetes/core/` | Cluster services: Blocky DNS, ClusterIssuers, MetalLB config, system-upgrade-controller |
-| `networking` | `kubernetes/networking/` | Ingress: traefik-internal/external, nginx-internal/external, Tailscale |
+| `networking` | `kubernetes/networking/` | Ingress: traefik-internal/external, Tailscale |
 | `apps` | `kubernetes/apps/` | User applications: Authelia, LLDAP, Grafana, Vaultwarden, etc. |
 
 ## Adding a New Application
@@ -92,8 +92,8 @@ clusters/main/kubernetes/apps/<app-name>/
 
 ## Ingress Classes
 
-- `traefik-internal` / `nginx-ingress-internal` — LAN-only (do not port-forward)
-- `traefik-external` / `nginx-ingress-external` — Internet-facing (port-forward at router)
+- `traefik-internal` — LAN-only (do not port-forward)
+- `traefik-external` — Internet-facing (port-forward at router)
 
 ## Dependency Update Automation
 
