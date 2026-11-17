@@ -80,7 +80,6 @@ spec:
       wal: true
     ingress:
       main:
-        advanced: true
         enabled: true
         hosts:
         - host: ldap-new.${DOMAIN_0}
@@ -93,7 +92,6 @@ spec:
             certificateIssuer: domain-0-le-prod
             enabled: true
           traefik:
-            allowCors: false
             enabled: true
             entrypoints:
             - websecure
@@ -120,8 +118,6 @@ spec:
     securityContext:
       container:
         UMASK: "0022"
-        advanced: false
-        fsGroup: 1000
         readOnlyRootFilesystem: false
         runAsGroup: 1000
         runAsUser: 1000
@@ -145,7 +141,6 @@ spec:
         podSpec:
           containers:
             main:
-              advanced: false
               args:
               - run
               command:
@@ -153,10 +148,6 @@ spec:
               env:
                 LLDAP_HTTP_PORT: '{{ .Values.service.main.ports.main.port }}'
                 LLDAP_HTTP_URL: 'https://lldap-new.${DOMAIN_0}'
-                LLDAP_JWT_SECRET:
-                - secretRef:
-                    key: LLDAP_JWT_SECRET
-                    name: secrets
                 LLDAP_LDAP_BASE_DN: ${LLDAP_LDAP_BASE_DN}
                 LLDAP_LDAP_PORT: '{{ .Values.service.ldap.ports.ldap.port }}'
                 LLDAP_LDAP_USER_DN: ${LLDAP_LDAP_USER_DN}
