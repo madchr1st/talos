@@ -3,5 +3,14 @@
   "extends": [
     "config:recommended",
     "github>trueforge-org/renovate-config"
+  ],
+  "packageRules": [
+    {
+      // Longhorn only supports upgrading from the previous minor version, and a
+      // failed pre-upgrade check leaves the release stuck. Review these manually.
+      "description": "Do not automerge Longhorn chart updates",
+      "matchDepNames": ["longhorn"],
+      "automerge": false
+    }
   ]
 }
