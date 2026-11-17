@@ -71,6 +71,11 @@ spec:
       datasource:
         enabled: true
 
+    redis:
+      persistence:
+        data:
+          size: 1Gi
+
     # cnpg config
     cnpg:
       main:
