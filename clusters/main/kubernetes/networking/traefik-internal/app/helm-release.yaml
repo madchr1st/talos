@@ -35,11 +35,11 @@ spec:
       replicas: 2
     service:
       enabled: true
-      type: LoadBalancer
       annotations:
         metallb.io/ip-allocated-from-pool: main
         metallb.io/loadBalancerIPs: ${TRAEFIK_INTERNAL_IP}
       spec:
+        type: LoadBalancer
         externalTrafficPolicy: Local
     log:
       general:
