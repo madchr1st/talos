@@ -22,6 +22,10 @@ spec:
     remediation:
       retries: 3
   values:
+    # L2 only (no BGP peers): FRR-k8s is only needed for BGP. Its hostNetwork
+    # statuscleaner Deployment cannot roll on a single node (port 19443 conflict).
+    frrk8s:
+      enabled: false
     speaker:
       ignoreExcludeLB: true
     prometheus:
