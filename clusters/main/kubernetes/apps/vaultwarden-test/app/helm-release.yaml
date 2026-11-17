@@ -78,7 +78,6 @@ spec:
       wal: true
     ingress:
       main:
-        advanced: true
         enabled: true
         hosts:
         - host: bitwarden-test.${DOMAIN_0}
@@ -95,12 +94,11 @@ spec:
             entrypoints:
             - websecure
             forceTLS: true
-            middlewares:
+            middlewares: []
             # - name: traefik-forward-auth-authelia
             #   namespace: traefik-internal
             #   expandObjectName: false
       ext:
-        advanced: true
         enabled: false
         hosts:
         - host: bitwarden-test.${DOMAIN_0}
@@ -117,7 +115,7 @@ spec:
             entrypoints:
             - websecure
             forceTLS: true
-            middlewares:
+            middlewares: []
             # - name: traefik-forward-auth-authelia
             #   namespace: traefik-internal
             #   expandObjectName: false
@@ -141,7 +139,6 @@ spec:
     securityContext:
       container:
         UMASK: "0022"
-        advanced: false
         runAsGroup: 1000
         runAsUser: 1000
       pod:
