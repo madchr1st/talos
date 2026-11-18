@@ -1,0 +1,23 @@
+workload:
+  main:
+    podSpec:
+      containers:
+        main:
+          env:
+            GF_SECURITY_ADMIN_PASSWORD: ENC[AES256_GCM,data:6E4B/K6/Oy+x6uXb7+jXL8gLuEoD9YGRwHMdnc94+tUdUQ/vVfTCs0PZSQ==,iv:5/tQLiT/h6o+HztW52SwR1C5onXb9UjMnHq2iymnbpA=,tag:8WtQsdql/mVlbK8wbKnGrA==,type:str]
+            GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: ENC[AES256_GCM,data:FEeZXQcB0236Vsg4rhsKqLy1/bAXT1Rydnl53W7xv+mXEEByI8g/yjAzbR665l3m9ayew50u3y7/LtFtye1E3NW4IK+HZpI0,iv:Ie6ngpxpOVRwjXWbKT0+Swa0Gzuf50G2nCNXKOdUmHQ=,tag:1l3Bie6K/zlcjGhH5/4oZw==,type:str]
+sops:
+  age:
+    - recipient: age1uaud96tmvkrmct5ssh20a4dwqy825ru5tqsdp8hu3syxlp4p9glqkamlya
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAvWSs0Y0dCbEEwa3NRSDhS
+        WE93Q2pyeUh4WFFzRkZVb3hrZnEzSjZGUmtBCmFycHJGOGFMSnU0R0RaMHZKTzJr
+        eEVTc3VvREYwMjI1eTUwb05zdUlsV0kKLS0tIEVHOERFTTNTM0RmcHhZNTlUZ1Vj
+        N3lpbkE5SmJhcDNiWFBtQjcwZTVQdE0KSSy32OiVb+qigBGTv1ukUmtVuoy2pWxM
+        W3uNZjbf+3uLTytnIuXpqhfYN4cz+DSqwRS1RTWi3ik6mNWxw4iYKA==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-11-18T09:32:50Z"
+  mac: ENC[AES256_GCM,data:Dkp50OZv0HC9+jWrblzXZ0u97jt7SH7apT5DCUXqVdkTYivzHcs+GHSWsO4ZLk+rrvZdci9ZEyd5EnobHgTXnAn0yxvovmbAUI1i8U9ZqjRfw0mXdz826NaiW7T0JtqlXnG3afqiWBChXV+D056/hLxHCwrS9S1O41Kzf/7Jkls=,iv:EfZX+nJPTOOPSYewS/k3SqdfHV9vFOFYJJ+A7E5dVmQ=,tag:EKP/PlpS0lnt97XaObGbKQ==,type:str]
+  encrypted_regex: .
+  version: 3.12.1

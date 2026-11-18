@@ -3,3 +3,23 @@ kind: Kustomization
 resources:
   - helm-release.yaml
   - namespace.yaml
+secretGenerator:
+  - name: grafana-values-sec
+    namespace: grafana
+    files:
+      - values-sec.yaml
+configMapGenerator:
+  # Hand-made dashboards migrated from the old TrueNAS K3s Grafana (2026-11-18).
+  # Picked up by the dashboards sidecar (label grafana_dashboard=1).
+  - name: grafana-dashboards-custom
+    namespace: grafana
+    files:
+      - dashboards/media-dashboard.json
+      - dashboards/nvidia-gpu-metrics.json
+      - dashboards/speedtest-custom.json
+    options:
+      disableNameSuffixHash: true
+      labels:
+        grafana_dashboard: "1"
+configurations:
+  - kustomizeconfig.yaml
