@@ -27,3 +27,4 @@ resources:
   - jellystat/ks.yaml
   - home-assistant/ks.yaml
   - paperless-ngx/ks.yaml
+  - vaultwarden-prod/ks.yaml
