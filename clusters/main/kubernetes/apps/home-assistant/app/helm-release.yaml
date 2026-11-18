@@ -31,8 +31,12 @@ spec:
     keepHistory: false
   values:
     image:
-      # = K3s version: config is shared over NFS; upgrade after the rollback window
+      # = K3s version for the rollback window (K3s keeps its own config copy), upgrade afterwards
       tag: 2026.11.1
+    workload:
+      main:
+        # W3: 0 until the config has been copied from K3s, then removed
+        replicas: 0
     cnpg:
       main:
         enabled: true
@@ -123,16 +127,13 @@ spec:
                   namespace: authelia
                   expandObjectName: false
     persistence:
-      # config stays on the NAS (as on K3s); the chart's init rewrites recorder.db_url to the local CNPG on every start
+      # copied from the K3s hostPath to block storage: HA runs as root, and the NFS share squashes root
       config:
         enabled: true
-        type: nfs
-        server: ${NFS_SERVER_0}
-        path: /mnt/nvme-storage/k8s/home-assistant/config
+        type: pvc
+        size: 5Gi
         mountPath: /config
         targetSelectAll: true
-        autoPermissions:
-          enabled: false
     securityContext:
       container:
         runAsUser: 0
