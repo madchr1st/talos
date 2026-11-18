@@ -2,3 +2,6 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: home-assistant
+  labels:
+    # runs as root (as on K3s, config files on NFS are root-owned); the chart adds NET_RAW for root containers
+    pod-security.kubernetes.io/enforce: privileged
