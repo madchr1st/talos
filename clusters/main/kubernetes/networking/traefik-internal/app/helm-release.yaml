@@ -41,7 +41,7 @@ spec:
       spec:
         type: LoadBalancer
         externalTrafficPolicy: Local
-    log:
+    logs:
       general:
         level: INFO
       access:
