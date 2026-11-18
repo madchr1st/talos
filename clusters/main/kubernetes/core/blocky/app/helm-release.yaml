@@ -88,3 +88,17 @@ spec:
             size: "2Gi"
         monitoring:
           enablePodMonitor: true
+    # Upstreams over DoH/DoT instead of plain DNS to ten public resolvers (same provider as AdGuard:
+    # Cloudflare with malware blocking, Quad9 as a second, also filtering, provider).
+    defaultUpstreams:
+      - https://security.cloudflare-dns.com/dns-query
+      - tcp-tls:security.cloudflare-dns.com
+      - tcp-tls:dns.quad9.net
+    # resolves the upstream host names; DoT by IP (Cloudflare's certificate covers 1.1.1.1)
+    bootstrapDns:
+      upstream: tcp-tls:1.1.1.1
+    blockyConfig:
+      ports:
+        # DoT (:853) is only reachable through traefik-internal, which adds the PROXY header (encrypted-dns.yaml)
+        proxyProtocol:
+          - tls

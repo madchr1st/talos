@@ -87,6 +87,13 @@ spec:
           tls:
             enabled: true
             options: "default"
+      # DNS-over-TLS for Blocky (core/blocky/app/encrypted-dns.yaml)
+      dot:
+        port: 8853
+        exposedPort: 853
+        expose:
+          default: true
+        protocol: TCP
     ingressRoute:
       dashboard:
         enabled: true

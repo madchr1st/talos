@@ -1,0 +1,72 @@
+# Encrypted DNS for LAN/tailnet clients, served by traefik-internal with a Let's Encrypt certificate for dns.${DOMAIN_0}
+# (cert-manager renews it; Blocky cannot reload certificates itself, see blocky issue #311).
+#   DoT: dns.${DOMAIN_0}:853  (Android "Private DNS", systemd-resolved, iOS/macOS profiles)
+#        Traefik terminates TLS and forwards to Blocky's DoT listener with PROXY protocol v2 -> Blocky sees the client IP.
+#   DoH: https://dns.${DOMAIN_0}/dns-query  (browsers, Windows)
+#        Plain HTTP route to Blocky's HTTP listener, limited to /dns-query (REST API and metrics stay internal).
+#        Blocky does not read X-Forwarded-For: DoH clients appear as the Traefik pod in Blocky's logs.
+# Internal only (traefik-internal): an open resolver on the internet would be abused.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: dns-tls
+  namespace: blocky
+spec:
+  secretName: dns-tls
+  dnsNames:
+    - dns.${DOMAIN_0}
+  issuerRef:
+    kind: ClusterIssuer
+    name: domain-0-le-prod
+---
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransportTCP
+metadata:
+  name: blocky-dot
+  namespace: blocky
+spec:
+  # Blocky's DoT listener uses a self-signed certificate; clients only ever see Traefik's certificate
+  tls:
+    insecureSkipVerify: true
+  proxyProtocol:
+    version: 2
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: blocky-dot
+  namespace: blocky
+  annotations:
+    kubernetes.io/ingress.class: traefik-internal
+spec:
+  entryPoints:
+    - dot
+  routes:
+    # dedicated entrypoint: also answer clients that connect by IP without SNI
+    - match: HostSNI(`*`)
+      services:
+        - name: blocky-dot
+          port: 853
+          tls: true
+          serversTransport: blocky-dot
+  tls:
+    secretName: dns-tls
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: blocky-doh
+  namespace: blocky
+  annotations:
+    kubernetes.io/ingress.class: traefik-internal
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`dns.${DOMAIN_0}`) && PathPrefix(`/dns-query`)
+      kind: Rule
+      services:
+        - name: blocky
+          port: 4000
+  tls:
+    secretName: dns-tls
