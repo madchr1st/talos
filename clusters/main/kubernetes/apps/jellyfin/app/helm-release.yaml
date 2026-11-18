@@ -33,7 +33,7 @@ spec:
     image:
       repository: oci.trueforge.org/containerforge/jellyfin
       pullPolicy: IfNotPresent
-      tag: 12.0.0 # = K3s version: config is shared over NFS, a newer version migrates the DB and breaks rollback. Upgrade after the rollback window.
+      tag: 12.4.0 # = K3s version: config is shared over NFS, a newer version migrates the DB and breaks rollback. Upgrade after the rollback window.
     ingress:
       main:
         enabled: true
