@@ -30,10 +30,6 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    workload:
-      main:
-        # W3: 0 until AdGuardHome.yaml has been copied from K3s, then removed
-        replicas: 0
     service:
       # LAN DNS on its own IP; runs in parallel with the K3s AdGuard (.150) until the UDR DHCP DNS points here
       dns-tcp:
