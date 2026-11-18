@@ -19,6 +19,9 @@ configMapGenerator:
       - dashboards/speedtest-custom.json
     options:
       disableNameSuffixHash: true
+      annotations:
+        # dashboards contain Grafana ${...} variables; keep Flux envsubst away
+        kustomize.toolkit.fluxcd.io/substitute: disabled
       labels:
         grafana_dashboard: "1"
 configurations:
