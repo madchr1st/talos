@@ -155,6 +155,3 @@ spec:
                 JELLYFIN_PublishedServerUrl: '{{ $.Values.chartContext.appUrl }}'
         replicas: 1
         type: Deployment
-    # W4: stays stopped until the K3s app is stopped (shared NFS config), then this block is removed
-    global:
-      stopAll: true

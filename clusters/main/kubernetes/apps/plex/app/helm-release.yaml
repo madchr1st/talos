@@ -30,9 +30,6 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    # W4: stays stopped until the K3s app is stopped (shared NFS config / data copy, migration/w4/cutover.sh), then this block is removed
-    global:
-      stopAll: true
     ingress:
       main:
         enabled: true
