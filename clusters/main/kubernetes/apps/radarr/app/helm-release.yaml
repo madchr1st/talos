@@ -52,7 +52,7 @@ spec:
             enabled: true
             entrypoints:
               - websecure
-            middlewares: 
+            middlewares:
               - name: forward-auth-authelia
                 namespace: authelia
                 expandObjectName: false
@@ -129,3 +129,11 @@ spec:
                         - seerr
                         - jellyseerr
                         - unpackerr
+    # Allowed Hosts: public names (Traefik) + in-cluster service names (Prowlarr, Seerr, Unpackerr, exportarr); localhost and the pod hostname are always allowed
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                RADARR__SERVER__ALLOWEDHOSTS: radarr.${DOMAIN_0},movies.${DOMAIN_0},radarr,radarr.radarr.svc,radarr.radarr.svc.cluster.local
