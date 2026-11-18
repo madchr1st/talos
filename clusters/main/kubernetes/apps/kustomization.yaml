@@ -28,3 +28,4 @@ resources:
   - home-assistant/ks.yaml
   - paperless-ngx/ks.yaml
   - vaultwarden-prod/ks.yaml
+  - immich/ks.yaml

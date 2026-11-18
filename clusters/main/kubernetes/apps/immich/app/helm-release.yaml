@@ -1,0 +1,183 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: immich
+  namespace: immich
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: immich
+      version: 35.7.7
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 15m
+  timeout: 20m
+  maxHistory: 3
+  driftDetection:
+    mode: warn
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    # = K3s version. Immich 3.x needs VectorChord instead of pgvecto.rs: upgrade as a separate step
+    image:
+      tag: v2.7.5
+    mlImage:
+      tag: v2.7.5
+    workload:
+      main:
+        # W3: 0 until the CNPG recovery from the K3s S3 backup has finished, then removed
+        replicas: 0
+      microservices:
+        replicas: 0
+      machinelearning:
+        replicas: 0
+    cnpg:
+      main:
+        enabled: true
+        user: immich
+        database: immich
+        pgVersion: 16
+        # pgvecto.rs image, same digest as on K3s (physical recovery needs the same extensions)
+        type: vectors
+        # Bootstrapped from the K3s cluster's S3 backup + WAL (s3://.../immich/cnpg)
+        mode: recovery
+        recovery:
+          method: object_store
+          credentials: mys3
+        cluster:
+          instances: 1
+          singleNode: true
+          storage:
+            size: 10Gi
+          walStorage:
+            size: 5Gi
+        monitoring:
+          enablePodMonitor: true
+        backups:
+          enabled: true
+          # new server name (-r1) so Talos never writes into the K3s backup
+          revision: "1"
+          credentials: mys3
+          scheduledBackups:
+            - name: daily-backup
+              schedule: "0 0 0 * * *"
+              backupOwnerReference: self
+              immediate: true
+              suspend: false
+          retentionPolicy: 30d
+    credentials:
+      mys3:
+        type: s3
+        url: ${CNPG_BACKUP_AWS_S3_URL}
+        bucket: ${CNPG_BACKUP_AWS_S3_BUCKET}
+        accessKey: ${CNPG_BACKUP_AWS_S3_ACCESS_KEY}
+        secretKey: ${CNPG_BACKUP_AWS_S3_SECRET_KEY}
+        encrKey: ${CNPG_BACKUP_AWS_S3_ENCRYPTION_KEY}
+    ingress:
+      main:
+        enabled: true
+        primary: true
+        ingressClassName: traefik-internal
+        hosts:
+          - host: immich.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+          - host: photos.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+        integrations:
+          certManager:
+            enabled: true
+            certificateIssuer: domain-0-le-prod
+          traefik:
+            enabled: true
+            entrypoints:
+              - websecure
+            middlewares: []
+      ext:
+        enabled: true
+        ingressClassName: traefik-external
+        hosts:
+          - host: immich.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+          - host: photos.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+        integrations:
+          certManager:
+            enabled: true
+            certificateIssuer: domain-0-le-prod
+          traefik:
+            enabled: true
+            entrypoints:
+              - websecure
+            middlewares: []
+    persistence:
+      # photos/videos stay on the NAS (as on K3s), uid 1000
+      library:
+        enabled: true
+        type: nfs
+        server: ${NFS_SERVER_0}
+        path: /mnt/bulk-storage/downloads/k8s/immich/library
+        autoPermissions:
+          enabled: false
+      uploads:
+        enabled: true
+        type: nfs
+        server: ${NFS_SERVER_0}
+        path: /mnt/bulk-storage/downloads/k8s/immich/upload
+        autoPermissions:
+          enabled: false
+      backups:
+        enabled: true
+        type: nfs
+        server: ${NFS_SERVER_0}
+        path: /mnt/bulk-storage/downloads/k8s/immich/backups
+        autoPermissions:
+          enabled: false
+      thumbs:
+        enabled: true
+        type: nfs
+        server: ${NFS_SERVER_0}
+        path: /mnt/bulk-storage/downloads/k8s/immich/thumbnails
+        autoPermissions:
+          enabled: false
+      video:
+        enabled: true
+        type: nfs
+        server: ${NFS_SERVER_0}
+        path: /mnt/bulk-storage/downloads/k8s/immich/videos
+        autoPermissions:
+          enabled: false
+      profile:
+        enabled: true
+        type: nfs
+        server: ${NFS_SERVER_0}
+        path: /mnt/nvme-storage/k8s/immich/profiles
+        autoPermissions:
+          enabled: false
+    securityContext:
+      container:
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+      pod:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch

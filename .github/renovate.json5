@@ -21,13 +21,15 @@
         "oci.trueforge.org/containerforge/jellyfin",
         "oci.trueforge.org/containerforge/plex",
         "oci.trueforge.org/containerforge/home-assistant",
-        "ghcr.io/paperless-ngx/paperless-ngx"
+        "ghcr.io/paperless-ngx/paperless-ngx",
+        "ghcr.io/immich-app/immich-server",
+        "ghcr.io/immich-app/immich-machine-learning"
       ],
       "automerge": false
     },
     {
       "description": "Do not automerge charts of apps in the K3s migration rollback window",
-      "matchDepNames": ["jellyfin", "plex", "home-assistant", "paperless-ngx"],
+      "matchDepNames": ["jellyfin", "plex", "home-assistant", "paperless-ngx", "immich"],
       "automerge": false
     }
   ]
