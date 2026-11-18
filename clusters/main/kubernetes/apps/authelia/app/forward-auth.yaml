@@ -12,8 +12,8 @@ metadata:
   namespace: authelia
 spec:
   forwardAuth:
-    address: http://authelia.authelia.svc.cluster.local:9091/api/verify?rd=https://sso.${DOMAIN_0}/
-    trustForwardHeader: true
+    address: http://authelia.authelia.svc.cluster.local:9091/api/authz/forward-auth
+    trustForwardHeader: false
     authResponseHeaders:
       - Remote-User
       - Remote-Groups
