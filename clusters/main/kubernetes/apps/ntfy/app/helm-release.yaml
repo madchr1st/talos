@@ -1,0 +1,136 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ntfy
+  namespace: ntfy
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: ntfy
+      version: 14.10.1
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 15m
+  timeout: 20m
+  maxHistory: 3
+  driftDetection:
+    mode: warn
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    ingress:
+      main:
+        enabled: true
+        primary: true
+        ingressClassName: traefik-internal
+        hosts:
+          - host: ntfy.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+        integrations:
+          certManager:
+            enabled: true
+            certificateIssuer: domain-0-le-prod
+          traefik:
+            enabled: true
+            entrypoints:
+              - websecure
+            middlewares: []
+      ext:
+        enabled: true
+        ingressClassName: traefik-external
+        hosts:
+          - host: ntfy.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+        integrations:
+          certManager:
+            enabled: true
+            certificateIssuer: domain-0-le-prod
+          traefik:
+            enabled: true
+            entrypoints:
+              - websecure
+            middlewares: []
+    persistence:
+      # user.db (auth) / cache.db are SQLite -> block storage, copied from K3s
+      config:
+        enabled: true
+        type: pvc
+        size: 1Gi
+        mountPath: /etc/ntfy
+      cache:
+        enabled: true
+        type: pvc
+        size: 5Gi
+        mountPath: /var/cache/ntfy
+    securityContext:
+      container:
+        runAsUser: 1000
+        runAsGroup: 1000
+        readOnlyRootFilesystem: false
+      pod:
+        fsGroup: 1000
+    metrics:
+      main:
+        enabled: true
+    service:
+      smtp:
+        enabled: true
+        type: LoadBalancer
+        loadBalancerIP: 192.168.10.219
+        integrations:
+          metallb:
+            enabled: true
+        ports:
+          smtp:
+            enabled: true
+            port: 2525
+            protocol: tcp
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              args:
+                - serve
+              env:
+                ENABLE_ATTACHMENT_CACHE_DIR: true
+                ENABLE_AUTH_FILE: true
+                ENABLE_CACHE_FILE: true
+                ENABLE_FIREBASE_FILE: false
+                NTFY_BASE_URL: https://ntfy.${DOMAIN_0}
+                NTFY_UPSTREAM_BASE_URL: https://ntfy.sh
+                NTFY_BEHIND_PROXY: true
+                NTFY_AUTH_DEFAULT_ACCESS: deny-all
+                NTFY_CACHE_DURATION: 12h
+                NTFY_KEEPALIVE_INTERVAL: 45s
+                NTFY_MANAGER_INTERVAL: 1m
+                NTFY_GLOBAL_TOPIC_LIMIT: 15000
+                NTFY_ATTACHMENT_EXPIRY_DURATION: 3h
+                NTFY_ATTACHMENT_FILE_SIZE_LIMIT: 15M
+                NTFY_ATTACHMENT_TOTAL_SIZE_LIMIT: 5G
+                NTFY_VISITOR_ATTACHMENT_DAILY_BANDWIDTH_LIMIT: 500M
+                NTFY_VISITOR_ATTACHMENT_TOTAL_SIZE_LIMIT: 100M
+                NTFY_VISITOR_EMAIL_LIMIT_BURST: 16
+                NTFY_VISITOR_EMAIL_LIMIT_REPLENISH: 1h
+                NTFY_VISITOR_REQUEST_LIMIT_BURST: 60
+                NTFY_VISITOR_REQUEST_LIMIT_REPLENISH: 5s
+                NTFY_VISITOR_SUBSCRIPTION_LIMIT: 30
+                NTFY_SMTP_SERVER_LISTEN: ":2525"
+                NTFY_SMTP_SERVER_DOMAIN: ${DOMAIN_0}
+                NTFY_SMTP_SERVER_ADDR_PREFIX: ntfy-

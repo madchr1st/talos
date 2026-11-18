@@ -1,0 +1,71 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: pgadmin
+  namespace: pgadmin
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: pgadmin
+      version: 21.2.4
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 15m
+  timeout: 20m
+  maxHistory: 3
+  driftDetection:
+    mode: warn
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  valuesFrom:
+    # SOPS-encrypted secrets (values-sec.yaml)
+    - kind: Secret
+      name: pgadmin-values-sec
+      valuesKey: values-sec.yaml
+  values:
+    ingress:
+      main:
+        enabled: true
+        primary: true
+        ingressClassName: traefik-internal
+        hosts:
+          - host: pgadmin.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+        integrations:
+          certManager:
+            enabled: true
+            certificateIssuer: domain-0-le-prod
+          traefik:
+            enabled: true
+            entrypoints:
+              - websecure
+            middlewares: []
+    persistence:
+      # pgadmin4.db is SQLite -> block storage, copied from K3s
+      config:
+        enabled: true
+        type: pvc
+        size: 1Gi
+        mountPath: /var/lib/pgadmin
+    securityContext:
+      container:
+        runAsUser: 5050
+        runAsGroup: 5050
+        readOnlyRootFilesystem: false
+        runAsNonRoot: true
+      pod:
+        fsGroup: 5050

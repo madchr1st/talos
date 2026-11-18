@@ -1,0 +1,24 @@
+workload:
+  main:
+    podSpec:
+      containers:
+        main:
+          env:
+            SECRET_KEY: ENC[AES256_GCM,data:/MLh7eXxCLjHpr9ak/MHyxNlWGrWLLyisGU/lYNM9YyQswTvXm5U6vrYQEgdDO+XXFw=,iv:wVHQ/r/Ui7tOoRVxZjsgLRbft12wjhcRoKU94tfac1I=,tag:TOv+AKyufZ9j5esPKHXqbA==,type:str]
+            SOCIALACCOUNT_PROVIDERS: ENC[AES256_GCM,data:Nx0dtRuhuDS1iTMxx+C2xxQMHleSlTFqmmzTnJ/inQr2rc4R9a0PbXuRVhp8h1xN2Q6uyi266REubKKQfrLDPsUfE4+wbKYEr3u3fQvndsXhzYyw3E5l5WiaAFKDAB9lbBoyY7M2KmrepJlFSGaO0J8wx1aG7Kk8zI09peNQG5k9z+PQexsclxKHJW/YxEdecK8O792kZWUP6qqpeckiUqDrWoMyhB1D/EOlvETomvDJLrFgxIVe+qNPZX1BwEurKemcwnvcdpjg95xJmt3KP62hSs9Xx7QY9EROoJrDlVCxLRufW7qmD0TN+DwiSNjZFltGQYDw/vymzx1RMhFDTh2o0bU6OJtcAKi6xnALXSTFYC0ROyoZInOMn/ipKCTm1R99tNM0W3fKjJysT2kaHfdrEN4Sf0q4+X/L5JvPiBG4EoNVQWa8YG1i/LaJbM2YQohbjLZFWjcM0wckvduA8YBDqYwD21K0CyoDgEYiPraiLCKTTdhzXTJKK18yZLmzUWVPmJThlRfR5WwkWeeCkAxox33ttBw9qSPuPJsuS4UZM9LE0yUcWxHPkLQEZ7UgOioNdaS1GJLpICOhkUhgGGORYoaZG93kbgJEkhjzJ21SSpm6+eHgvuMgJ06AjDMHuZut8dWdvBu6G7NY/3fbkvIlIg+6Hg==,iv:zLhkZBfqcEtuEZXQksWYLpSnyJw5q7rjriuWheT0VS0=,tag:XzMIazYZZ/16sxFCzC50Xw==,type:str]
+            SOCIAL_PROVIDERS: ENC[AES256_GCM,data:QkbqL4fStD1lPrI3sU345BdobBfCQFjx2/eMRECj7IztRwihqj6IKfY0kcibhg==,iv:+iDAumeB/tPpzos2mKIAwaoPe2/7oWBTfO5ATk7AYTA=,tag:FfSHE5z3Ge9xJkCdGqtv6A==,type:str]
+sops:
+  age:
+    - recipient: age1uaud96tmvkrmct5ssh20a4dwqy825ru5tqsdp8hu3syxlp4p9glqkamlya
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBqcGtMUFdEYndMVnh2WVZN
+        NzFRcWpUZmtrVWxUV1FObjg1ZXVSaUpaY0JrCjZUdFoyaUI2cmxRZnpSU1F0S3Vq
+        aUlsejBHalRkQ1U0VEhUZTZVZlZJNkkKLS0tIEFzYnNqSE5QNkhMdUZjdFBvY1VH
+        Y2UwU2Z3SnVscXVXTGNORmR6QXdEZEkKmoGdYEAxMWLULCDwIqRTGVsPirOvXMvS
+        9GIK3nydrnalsYpFGo+4I6tEDwLfd+VIcvnbSALkcx/uLO3yiH3apQ==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-11-18T10:00:48Z"
+  mac: ENC[AES256_GCM,data:y49viG1KxxuK2a4dNypat6Rcq9Cb2bn5tlBBNu6is7uWkIIRMhoEPwSsLsSl7b0sXF0ts5XwTw/glASNsGlkIu6oY0XGSe4U8LsMOBanV6VbAa/RZiOTCoErRle1/jeE8GcsU60oC4PpsXf/NhEJWC6r/Xo3jKB8G6ij4j6L3vM=,iv:f4NeplZnhgcQBKlVNYaaPFQhdJFwQv3vgdk7XGL1MrU=,tag:vFoZBUyMqNNh9Ac7ZkrR3Q==,type:str]
+  encrypted_regex: .
+  version: 3.12.1

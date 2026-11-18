@@ -1,0 +1,22 @@
+workload:
+  main:
+    podSpec:
+      containers:
+        main:
+          env:
+            FF_SYNCSERVER_SECRET: ENC[AES256_GCM,data:EBk5FIcYizwfBXpl+P8aPkIukqjQ8HB8,iv:1RihV60WChcq5SxHM9+ATAAcbgLjfEO5WBwz2hAsjHA=,tag:Xx07ORTMqijUrVPj97/9kA==,type:str]
+sops:
+  age:
+    - recipient: age1uaud96tmvkrmct5ssh20a4dwqy825ru5tqsdp8hu3syxlp4p9glqkamlya
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBySlRjak8wRDRaTXZqTzRO
+        eUc0UDBpUGpaU2lpRXgrakFiaWozWXdldG1nCjVBUmsrdHdhL05UQ2F4N21DKzJQ
+        M2tpamNjeXBPNmhWQTA3MEtianJzQmMKLS0tIDE3MFBPVWE1S0FWS0NnWFpMWWZk
+        UTlkZklhQzk5SDFtTlladlY2TFRaWG8KZt5hbjEHxvuCkskqzT0KfZqBUzBNIBY3
+        djjJSIp2N4CXcAujsX4NtvaJ4QDf7WGi8xTJ7JLg9dbtfem9yjJErg==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-11-18T10:00:48Z"
+  mac: ENC[AES256_GCM,data:iYBrL3HMSbnzBbdnSNB+ntCVbVsC+rVRWFV1UCL08F6KPmOsRkH5eK2rxdEuHFWtgBCz/HMciI5OxTkNQXMjbSaxlC2tD21udk22GIxzBkuAfdVdnzSafAYTcnOFJlTLW/4RkNma3Vx0HOIAXhmxlIX9Mkuu5P+1Kldg6q+aZFk=,iv:+9SU0BbKTOjrMLui0fMGTsJ/cPrBQlpDoRmsrsF7rJY=,tag:BSn93FPvwRJrcAS12248+A==,type:str]
+  encrypted_regex: .
+  version: 3.12.1

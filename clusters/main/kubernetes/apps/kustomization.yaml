@@ -9,3 +9,8 @@ resources:
   - lldap/ks.yaml
   - vaultwarden-test/ks.yaml
   - trek/ks.yaml
+  - firefox-syncserver/ks.yaml
+  - ntfy/ks.yaml
+  - pgadmin/ks.yaml
+  - syncthing/ks.yaml
+  - tandoor/ks.yaml

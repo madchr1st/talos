@@ -1,0 +1,113 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: syncthing
+  namespace: syncthing
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: syncthing
+      version: 24.1.4
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 15m
+  timeout: 20m
+  maxHistory: 3
+  driftDetection:
+    mode: warn
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    ingress:
+      main:
+        enabled: true
+        primary: true
+        ingressClassName: traefik-internal
+        hosts:
+          - host: sync.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+        integrations:
+          certManager:
+            enabled: true
+            certificateIssuer: domain-0-le-prod
+          traefik:
+            enabled: true
+            entrypoints:
+              - websecure
+            middlewares: []
+      ext:
+        enabled: true
+        ingressClassName: traefik-external
+        hosts:
+          - host: sync.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+        integrations:
+          certManager:
+            enabled: true
+            certificateIssuer: domain-0-le-prod
+          traefik:
+            enabled: true
+            entrypoints:
+              - websecure
+            middlewares: []
+    persistence:
+      # index DB (SQLite) + keys -> block storage, copied from K3s; synced data stays on the NAS
+      config:
+        enabled: true
+        type: pvc
+        size: 2Gi
+        mountPath: /var/syncthing
+      data:
+        enabled: true
+        type: nfs
+        server: ${NFS_SERVER_0}
+        path: /mnt/bulk-storage/downloads/k8s/syncthing/data
+        mountPath: /data
+        readOnly: false
+        autoPermissions:
+          enabled: false
+    securityContext:
+      container:
+        runAsUser: 1000
+        runAsGroup: 1000
+        readOnlyRootFilesystem: false
+      pod:
+        fsGroup: 1000
+    service:
+      listeners:
+        enabled: true
+        type: LoadBalancer
+        loadBalancerIP: 192.168.10.218
+        integrations:
+          metallb:
+            enabled: true
+      listeners-udp:
+        enabled: true
+        type: LoadBalancer
+        loadBalancerIP: 192.168.10.218
+        integrations:
+          metallb:
+            enabled: true
+      discovery:
+        enabled: true
+        type: LoadBalancer
+        loadBalancerIP: 192.168.10.218
+        integrations:
+          metallb:
+            enabled: true

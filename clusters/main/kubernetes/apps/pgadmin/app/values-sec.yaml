@@ -1,0 +1,23 @@
+workload:
+  main:
+    podSpec:
+      containers:
+        main:
+          env:
+            PGADMIN_DEFAULT_EMAIL: ENC[AES256_GCM,data:GLDK2VvjhOiOnYO0S0JZSskxmQ==,iv:pmNG7GefhIz0KZXz40Ox3IxqAC6pafFgW4e8Q0/azi4=,tag:LLKYqQJRyZasxz39mThayw==,type:str]
+            PGADMIN_DEFAULT_PASSWORD: ENC[AES256_GCM,data:tUtAhJ8aNVftiyIbgJLF8w==,iv:SjKvpAQ67XlG1Jk36pgHkZj3n6oWQTpeWMB3CI47KIw=,tag:jn2iNKLgqIVvIxLEbWq4ZA==,type:str]
+sops:
+  age:
+    - recipient: age1uaud96tmvkrmct5ssh20a4dwqy825ru5tqsdp8hu3syxlp4p9glqkamlya
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBDWG9aS0Z1Uy9ZQ2xDSkxs
+        MTBybWtDM1J2Nk1oTE5EYUt2QzZnblB5NTBFCnpGdG9qNWpvOGJ0bzh0aGFray9x
+        VndmSUVwQWdTVlpIcEZwQ3cyZzQ1S0kKLS0tIHlFZFo3Q0ZZUDBkK3FqeDViNTJq
+        Ulh2YXdyMkcrazhBU3dYNEhtcHNUM0UKZNhZ4RkhFCeaD9iVcg/YGr0nFTueIhZ3
+        27kdYozrxy7kIzYtAMB4KRLsUMdKgryeRC4L1Kw2A7UsmfKXxfiL9A==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-11-18T10:00:48Z"
+  mac: ENC[AES256_GCM,data:aukdDR2DPoMhXkUe4CKCo0Bc3tGuUtMONxjwOVf5M3fsn7dfY7zEJWH3Q8Hmze7ruzkHTFwp9w4i7OAb9KXSAxwlVEyBZauJgtE2oHTwkrLFfd/tb5TJXpa3ZJbKjSAqZPKVxusAzyPzA+ekf4xl7fmXQsfY6Xr4jE1gDaIs/W0=,iv:pmFtoWhSb9tHCCeq4JME/Q/dyhfuSLlmEMfm4qmPfCI=,tag:mMM5chb5ebeHCy9K0lIfaQ==,type:str]
+  encrypted_regex: .
+  version: 3.12.1
