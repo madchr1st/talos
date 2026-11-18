@@ -35,14 +35,6 @@ spec:
       tag: v2.7.5
     mlImage:
       tag: v2.7.5
-    workload:
-      main:
-        # W3: 0 until the CNPG recovery from the K3s S3 backup has finished, then removed
-        replicas: 0
-      microservices:
-        replicas: 0
-      machinelearning:
-        replicas: 0
     cnpg:
       main:
         enabled: true
