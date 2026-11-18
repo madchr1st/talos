@@ -122,8 +122,6 @@ spec:
         fsGroup: 1000
     workload:
       main:
-        # W3: 0 until data + DB are copied from K3s, then removed
-        replicas: 0
         podSpec:
           containers:
             main:

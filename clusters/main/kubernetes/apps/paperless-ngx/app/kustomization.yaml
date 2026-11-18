@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - helm-release.yaml
+  - networkpolicy.yaml
 secretGenerator:
   - name: paperless-ngx-values-sec
     namespace: paperless-ngx
