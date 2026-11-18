@@ -25,3 +25,4 @@ resources:
   - plex/ks.yaml
   - tautulli/ks.yaml
   - jellystat/ks.yaml
+  - home-assistant/ks.yaml

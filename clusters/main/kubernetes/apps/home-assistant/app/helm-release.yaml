@@ -1,0 +1,147 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: home-assistant
+  namespace: home-assistant
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: home-assistant
+      version: 32.2.7
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 15m
+  timeout: 20m
+  maxHistory: 3
+  driftDetection:
+    mode: warn
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    image:
+      # = K3s version: config is shared over NFS; upgrade after the rollback window
+      tag: 2026.11.1
+    workload:
+      main:
+        # W3: 0 until the CNPG recovery from the K3s S3 backup has finished (migration/w3), then removed
+        replicas: 0
+    cnpg:
+      main:
+        enabled: true
+        user: home-assistant
+        database: home-assistant
+        pgVersion: 16
+        # Bootstrapped from the K3s cluster's S3 backup + WAL (s3://.../home-assistant/cnpg, server home-assistant-cnpg-main).
+        # Keep mode/recovery: they only matter at cluster creation.
+        mode: recovery
+        recovery:
+          method: object_store
+          credentials: mys3
+        cluster:
+          instances: 1
+          singleNode: true
+          storage:
+            size: 20Gi
+          walStorage:
+            size: 10Gi
+        monitoring:
+          enablePodMonitor: true
+        backups:
+          enabled: true
+          # new server name (-r1) so Talos never writes into the K3s backup
+          revision: "1"
+          credentials: mys3
+          scheduledBackups:
+            - name: daily-backup
+              schedule: "0 0 0 * * *"
+              backupOwnerReference: self
+              immediate: true
+              suspend: false
+          retentionPolicy: 30d
+    credentials:
+      mys3:
+        type: s3
+        url: ${CNPG_BACKUP_AWS_S3_URL}
+        bucket: ${CNPG_BACKUP_AWS_S3_BUCKET}
+        accessKey: ${CNPG_BACKUP_AWS_S3_ACCESS_KEY}
+        secretKey: ${CNPG_BACKUP_AWS_S3_SECRET_KEY}
+        encrKey: ${CNPG_BACKUP_AWS_S3_ENCRYPTION_KEY}
+    ingress:
+      main:
+        enabled: true
+        primary: true
+        ingressClassName: traefik-internal
+        hosts:
+          - host: home-assistant.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+        integrations:
+          certManager:
+            enabled: true
+            certificateIssuer: domain-0-le-prod
+          traefik:
+            enabled: true
+            entrypoints:
+              - websecure
+            middlewares: []
+    addons:
+      codeserver:
+        enabled: true
+        service:
+          type: ClusterIP
+          ports:
+            codeserver:
+              port: 36107
+        ingress:
+          enabled: true
+          ingressClassName: traefik-internal
+          hosts:
+            - host: home-assistant-edit.${DOMAIN_0}
+              paths:
+                - path: /
+                  pathType: Prefix
+          integrations:
+            certManager:
+              enabled: true
+              certificateIssuer: domain-0-le-prod
+            traefik:
+              enabled: true
+              entrypoints:
+                - websecure
+              # code-server can edit the whole HA config: SSO in front (it had none on K3s)
+              middlewares:
+                - name: forward-auth-authelia
+                  namespace: authelia
+                  expandObjectName: false
+    persistence:
+      # config stays on the NAS (as on K3s); the chart's init rewrites recorder.db_url to the local CNPG on every start
+      config:
+        enabled: true
+        type: nfs
+        server: ${NFS_SERVER_0}
+        path: /mnt/nvme-storage/k8s/home-assistant/config
+        mountPath: /config
+        targetSelectAll: true
+        autoPermissions:
+          enabled: false
+    securityContext:
+      container:
+        runAsUser: 0
+        runAsGroup: 0
+        runAsNonRoot: false
+        readOnlyRootFilesystem: false
+      pod:
+        fsGroup: 568
