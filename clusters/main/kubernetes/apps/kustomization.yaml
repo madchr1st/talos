@@ -5,7 +5,7 @@ resources:
   - cloudflareddns/ks.yaml
   - grafana/ks.yaml
   - kubernetes-dashboard/ks.yaml
-  # - jellyfin/ks.yaml
+  - jellyfin/ks.yaml
   - lldap/ks.yaml
   - vaultwarden-test/ks.yaml
   - trek/ks.yaml
@@ -22,3 +22,6 @@ resources:
   - flaresolverr/ks.yaml
   - seerr/ks.yaml
   - jellyseerr/ks.yaml
+  - plex/ks.yaml
+  - tautulli/ks.yaml
+  - jellystat/ks.yaml

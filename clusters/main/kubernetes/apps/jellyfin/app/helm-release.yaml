@@ -29,56 +29,50 @@ spec:
       retries: 3
   uninstall:
     keepHistory: false
-  values:    
+  values:
     image:
       repository: oci.trueforge.org/containerforge/jellyfin
       pullPolicy: IfNotPresent
-      tag: 12.4.0
+      tag: 12.0.0 # = K3s version: config is shared over NFS, a newer version migrates the DB and breaks rollback. Upgrade after the rollback window.
     broadcastProxyImage:
       repository: docker.io/alpine/socat
       pullPolicy: IfNotPresent
       tag: 1.8.1.3@sha256:71131702f671a88b3808a70b7330f9679cd9b9933adcafadc191508edfe55bba
     ingress:
       main:
-        advanced: true
         enabled: true
         hosts:
-        - host: jellyfin.hallernet.ch
-          paths:
-          - path: /
-            pathType: Prefix
+          - host: jellyfin.hallernet.ch
+            paths:
+              - path: /
+                pathType: Prefix
         ingressClassName: traefik-internal
         integrations:
           certManager:
             certificateIssuer: domain-0-le-prod
             enabled: true
           traefik:
-            allowCors: false
             enabled: true
             entrypoints:
-            - websecure
+              - websecure
             middlewares: []
-        tls: []
       ext:
-        advanced: true
         enabled: true
         hosts:
-        - host: jellyfin.hallernet.ch
-          paths:
-          - path: /
-            pathType: Prefix
+          - host: jellyfin.hallernet.ch
+            paths:
+              - path: /
+                pathType: Prefix
         ingressClassName: traefik-external
         integrations:
           certManager:
             certificateIssuer: domain-0-le-prod
             enabled: true
           traefik:
-            allowCors: false
             enabled: true
             entrypoints:
-            - websecure
+              - websecure
             middlewares: []
-        tls: []
     persistence:
       cache:
         enabled: true
@@ -92,7 +86,7 @@ spec:
         readOnly: false
         type: nfs
         path: ${NFS_PATH_JELLYFIN_CONFIG}
-        server: ${NFS_SERVER_0} 
+        server: ${NFS_SERVER_0}
       data:
         autoPermissions:
           enabled: false
@@ -101,7 +95,7 @@ spec:
         readOnly: false
         type: nfs
         path: ${NFS_PATH_JELLYFIN_DATA}
-        server: ${NFS_SERVER_0} 
+        server: ${NFS_SERVER_0}
       media:
         autoPermissions:
           enabled: false
@@ -112,30 +106,23 @@ spec:
         # type: hostPath
         type: nfs
         path: ${NFS_PATH_MULTIMEDIA}
-        server: ${NFS_SERVER_0} 
+        server: ${NFS_SERVER_0}
       transcode:
         autoPermissions:
           enabled: false
         enabled: true
-        media: Memory
         mountPath: /config/transcodes
         type: emptyDir
-    podOptions:
-      # cannot be set yet
-      # runtimeClassName: nvidia
-      expertPodOpts: false
-    release_name: jellyfin
+        medium: "" # disk, not RAM: CPU transcodes until the GPU arrives
     resources:
       limits:
-        cpu: 2000m
-        memory: 4Gi
+        cpu: 6000m
+        memory: 6Gi
       requests:
-        cpu: 10m
-        memory: 50Mi
+        cpu: 100m
+        memory: 512Mi
     securityContext:
       container:
-        UMASK: "0022"
-        advanced: false
         readOnlyRootFilesystem: false
         runAsGroup: 1000
         runAsUser: 1000
@@ -199,19 +186,22 @@ spec:
               probes:
                 liveness:
                   command:
-                  - cat
-                  - /tmp/healthy
+                    - cat
+                    - /tmp/healthy
                   enabled: true
                   type: exec
                 readiness:
                   command:
-                  - cat
-                  - /tmp/healthy
+                    - cat
+                    - /tmp/healthy
                   enabled: true
                   type: exec
                 startup:
                   command:
-                  - cat
-                  - /tmp/healthy
+                    - cat
+                    - /tmp/healthy
                   enabled: true
                   type: exec
+    # W4: stays stopped until the K3s app is stopped (shared NFS config), then this block is removed
+    global:
+      stopAll: true
