@@ -111,7 +111,7 @@ spec:
         enabled: true
         type: nfs
         server: ${NFS_SERVER_0}
-        path: /mnt/bulk-storage/home/challer/documents/aarau-print01-scans
+        path: ${NFS_PATH_PAPERLESS_CONSUME}
         mountPath: /consume
         autoPermissions:
           enabled: false

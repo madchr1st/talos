@@ -110,7 +110,7 @@ spec:
         enabled: true
         type: nfs
         server: ${NFS_SERVER_0}
-        path: /mnt/nvme-storage/k8s/tandoor/media
+        path: ${NFS_PATH_TANDOOR_MEDIA}
         mountPath: /opt/recipes/mediafiles
         readOnly: false
         autoPermissions:

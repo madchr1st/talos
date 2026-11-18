@@ -83,7 +83,7 @@ spec:
         enabled: true
         type: nfs
         server: ${NFS_SERVER_0}
-        path: /mnt/bulk-storage/downloads/k8s/syncthing/data
+        path: ${NFS_PATH_SYNCTHING_DATA}
         mountPath: /data
         readOnly: false
         autoPermissions:
@@ -99,21 +99,21 @@ spec:
       listeners:
         enabled: true
         type: LoadBalancer
-        loadBalancerIP: 192.168.10.218
+        loadBalancerIP: ${SYNCTHING_IP}
         integrations:
           metallb:
             enabled: true
       listeners-udp:
         enabled: true
         type: LoadBalancer
-        loadBalancerIP: 192.168.10.218
+        loadBalancerIP: ${SYNCTHING_IP}
         integrations:
           metallb:
             enabled: true
       discovery:
         enabled: true
         type: LoadBalancer
-        loadBalancerIP: 192.168.10.218
+        loadBalancerIP: ${SYNCTHING_IP}
         integrations:
           metallb:
             enabled: true

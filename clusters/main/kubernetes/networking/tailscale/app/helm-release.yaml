@@ -38,5 +38,5 @@ spec:
       accept_dns: true
       advertise_as_exit_node: true
       authkey: "${TAILSCALE_AUTH_KEY}"
-      hostname: "aarau-talos01"
-      routes: 192.168.0.0/24,192.168.10.0/24,192.168.110.0/24
+      hostname: "${TAILSCALE_HOSTNAME}"
+      routes: ${TAILSCALE_ROUTES}

@@ -127,7 +127,7 @@ spec:
         enabled: true
         type: nfs
         server: ${NFS_SERVER_0}
-        path: /mnt/nvme-storage/k8s/vaultwarden-prod/config
+        path: ${NFS_PATH_VAULTWARDEN_PROD_DATA}
         mountPath: /data
         autoPermissions:
           enabled: false

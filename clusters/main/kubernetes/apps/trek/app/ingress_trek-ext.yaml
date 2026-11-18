@@ -13,7 +13,7 @@ metadata:
 spec:
   ingressClassName: traefik-external
   rules:
-  - host: trek.hallernet.ch
+  - host: trek.${DOMAIN_0}
     http:
       paths:
       - backend:
@@ -25,5 +25,5 @@ spec:
         pathType: Prefix
   tls:
   - hosts:
-    - trek.hallernet.ch
+    - trek.${DOMAIN_0}
     secretName: trek-tls-0

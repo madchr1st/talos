@@ -33,12 +33,12 @@ spec:
     image:
       repository: oci.trueforge.org/containerforge/jellyfin
       pullPolicy: IfNotPresent
-      tag: 12.4.0 # = K3s version: config is shared over NFS, a newer version migrates the DB and breaks rollback. Upgrade after the rollback window.
+      tag: 12.4.0 # config shared over NFS with the stopped K3s copy (rollback window): Renovate PRs are not automerged
     ingress:
       main:
         enabled: true
         hosts:
-          - host: jellyfin.hallernet.ch
+          - host: jellyfin.${DOMAIN_0}
             paths:
               - path: /
                 pathType: Prefix
@@ -55,7 +55,7 @@ spec:
       ext:
         enabled: true
         hosts:
-          - host: jellyfin.hallernet.ch
+          - host: jellyfin.${DOMAIN_0}
             paths:
               - path: /
                 pathType: Prefix
@@ -96,7 +96,6 @@ spec:
         autoPermissions:
           enabled: false
         enabled: true
-        # hostPath: /mnt/bulk-storage/multimedia
         mountPath: /media
         readOnly: false
         # type: hostPath

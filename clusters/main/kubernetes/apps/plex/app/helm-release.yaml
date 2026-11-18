@@ -52,13 +52,13 @@ spec:
     service:
       main:
         type: LoadBalancer
-        loadBalancerIP: 192.168.10.217
+        loadBalancerIP: ${PLEX_IP}
         integrations:
           metallb:
             enabled: true
     plex:
-      # advertised to clients (was the NAS IP .150 on K3s); UDR forwards WAN 32400 here
-      serverIP: 192.168.10.217
+      # advertised to clients; the UDR forwards WAN 32400 here
+      serverIP: ${PLEX_IP}
       disableGDM: true
       requireHTTPS: false
     persistence:
@@ -67,7 +67,7 @@ spec:
         enabled: true
         type: nfs
         server: ${NFS_SERVER_0}
-        path: /mnt/nvme-storage/k8s/plex/config
+        path: ${NFS_PATH_PLEX_CONFIG}
         mountPath: /config
         autoPermissions:
           enabled: false

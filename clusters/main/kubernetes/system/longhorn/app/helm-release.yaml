@@ -40,7 +40,7 @@ spec:
     ingress:
       enabled: true
       ingressClassName: traefik-internal
-      host: longhorn.hallernet.ch
+      host: longhorn.${DOMAIN_0}
       tls: true
       secureBackends: false
       annotations:
