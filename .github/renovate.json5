@@ -11,6 +11,24 @@
       "description": "Do not automerge Longhorn chart updates",
       "matchDepNames": ["longhorn"],
       "automerge": false
+    },
+    {
+      // TrueNAS K3s migration: these apps share data with the stopped K3s copies (NFS) or are pinned
+      // to the K3s version so rollback stays possible. Review manually until the rollback window
+      // has ended (>= 2026-11-25), then remove this rule.
+      "description": "Do not automerge apps in the K3s migration rollback window",
+      "matchPackageNames": [
+        "oci.trueforge.org/containerforge/jellyfin",
+        "oci.trueforge.org/containerforge/plex",
+        "oci.trueforge.org/containerforge/home-assistant",
+        "ghcr.io/paperless-ngx/paperless-ngx"
+      ],
+      "automerge": false
+    },
+    {
+      "description": "Do not automerge charts of apps in the K3s migration rollback window",
+      "matchDepNames": ["jellyfin", "plex", "home-assistant", "paperless-ngx"],
+      "automerge": false
     }
   ]
 }

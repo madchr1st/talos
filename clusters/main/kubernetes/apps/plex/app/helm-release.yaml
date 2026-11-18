@@ -101,3 +101,5 @@ spec:
       requests:
         cpu: 500m
         memory: 1Gi
+    image:
+      tag: 1.43.5.11079 # = K3s version: library DB shared over NFS during the rollback window
