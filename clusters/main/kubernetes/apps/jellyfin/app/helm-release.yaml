@@ -34,10 +34,6 @@ spec:
       repository: oci.trueforge.org/containerforge/jellyfin
       pullPolicy: IfNotPresent
       tag: 12.0.0 # = K3s version: config is shared over NFS, a newer version migrates the DB and breaks rollback. Upgrade after the rollback window.
-    broadcastProxyImage:
-      repository: docker.io/alpine/socat
-      pullPolicy: IfNotPresent
-      tag: 1.8.1.3@sha256:71131702f671a88b3808a70b7330f9679cd9b9933adcafadc191508edfe55bba
     ingress:
       main:
         enabled: true
@@ -159,49 +155,6 @@ spec:
                 JELLYFIN_PublishedServerUrl: '{{ $.Values.chartContext.appUrl }}'
         replicas: 1
         type: Deployment
-      broadcastproxy:
-        enabled: true
-        type: DaemonSet
-        podSpec:
-          hostNetwork: true
-          terminationGracePeriodSeconds: 3
-          containers:
-            broadcastproxy:
-              enabled: true
-              primary: true
-              imageSelector: broadcastProxyImage
-              securityContext:
-                readOnlyRootFilesystem: true
-              command: ["/bin/sh"]
-              # Quite a lot going on here:
-              # - Resolve Jellyfin's autodiscovery service IP from its FQDN via getent hosts
-              # - Export the IP to `$TARGET_IP`
-              # - Check `$TARGET_IP` is not empty (so we can crash if it is - will help to detect templating errors)
-              # - Touch `/tmp/healty` to use with the readiness, liveness and startup probes
-              # - Start socat in proxy mode
-              # - On exit remove `/tmp/healthy`
-              args:
-                - "-c"
-                - 'export TARGET_IP=$(getent hosts ''{{ printf "%v-autodiscovery" (include "tc.v1.common.lib.chart.names.fullname" $) }}'' | awk ''{ print $1 }'') && [[ ! -z $TARGET_IP ]] && touch /tmp/healthy && socat UDP4-LISTEN:7359,fork,reuseaddr,rcvbuf=8096 UDP4-SENDTO:${TARGET_IP}:7359,rcvbuf=8096 ; rm -rf /tmp/healthy'
-              probes:
-                liveness:
-                  command:
-                    - cat
-                    - /tmp/healthy
-                  enabled: true
-                  type: exec
-                readiness:
-                  command:
-                    - cat
-                    - /tmp/healthy
-                  enabled: true
-                  type: exec
-                startup:
-                  command:
-                    - cat
-                    - /tmp/healthy
-                  enabled: true
-                  type: exec
     # W4: stays stopped until the K3s app is stopped (shared NFS config), then this block is removed
     global:
       stopAll: true
