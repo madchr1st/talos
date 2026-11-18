@@ -51,7 +51,8 @@ spec:
               immediate: true
               suspend: false
           retentionPolicy: "30d"
-          revision: ""
+          # own WAL/backup path (<cluster>-r1): the old K3s cluster still archives to the un-suffixed one
+          revision: "1"
         recovery:
           method: object_store
           credentials: mys3
