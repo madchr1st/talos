@@ -14,3 +14,11 @@ resources:
   - pgadmin/ks.yaml
   - syncthing/ks.yaml
   - tandoor/ks.yaml
+  - qbittorrent/ks.yaml
+  - sonarr/ks.yaml
+  - radarr/ks.yaml
+  - prowlarr/ks.yaml
+  - unpackerr/ks.yaml
+  - flaresolverr/ks.yaml
+  - seerr/ks.yaml
+  - jellyseerr/ks.yaml

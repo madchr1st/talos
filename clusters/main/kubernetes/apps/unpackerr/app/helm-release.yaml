@@ -1,0 +1,59 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: unpackerr
+  namespace: unpackerr
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: unpackerr
+      version: 19.1.4
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 15m
+  timeout: 20m
+  maxHistory: 3
+  driftDetection:
+    mode: warn
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    # W2: stays stopped until the data has been copied from K3s (migration/w2/cutover.sh), then this block is removed
+    global:
+      stopAll: true
+    persistence:
+      # unpackerr.conf -> block storage, copied from K3s (service URLs rewritten at cutover)
+      config:
+        enabled: true
+        type: pvc
+        size: 1Gi
+        mountPath: /config
+      downloads:
+        enabled: true
+        type: nfs
+        server: ${NFS_SERVER_0}
+        path: /mnt/bulk-storage/downloads/k8s/download-cache
+        mountPath: /downloads
+        readOnly: false
+        autoPermissions:
+          enabled: false
+    securityContext:
+      container:
+        runAsUser: 1000
+        runAsGroup: 1000
+        readOnlyRootFilesystem: false
+      pod:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch

@@ -1,0 +1,101 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: seerr
+  namespace: seerr
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: seerr
+      version: 17.1.5
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 15m
+  timeout: 20m
+  maxHistory: 3
+  driftDetection:
+    mode: warn
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    # W2: stays stopped until the data has been copied from K3s (migration/w2/cutover.sh), then this block is removed
+    global:
+      stopAll: true
+    ingress:
+      main:
+        enabled: true
+        primary: true
+        ingressClassName: traefik-internal
+        hosts:
+          - host: request.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+        integrations:
+          certManager:
+            enabled: true
+            certificateIssuer: domain-0-le-prod
+          traefik:
+            enabled: true
+            entrypoints:
+              - websecure
+            middlewares: []
+      ext:
+        enabled: true
+        ingressClassName: traefik-external
+        hosts:
+          - host: request.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+        integrations:
+          certManager:
+            enabled: true
+            certificateIssuer: domain-0-le-prod
+          traefik:
+            enabled: true
+            entrypoints:
+              - websecure
+            middlewares: []
+    persistence:
+      # Plex instance: db.sqlite3 + settings.json -> block storage, copied from K3s
+      config:
+        enabled: true
+        type: pvc
+        size: 2Gi
+        mountPath: /app/config
+    securityContext:
+      container:
+        runAsUser: 1000
+        runAsGroup: 1000
+        readOnlyRootFilesystem: false
+      pod:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+    # Keep SQLite as on K3s (chart default is now Postgres). Switching to CNPG can come later.
+    cnpg:
+      main:
+        enabled: false
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                DB_TYPE: sqlite
+                DB_HOST: ""
+                DB_PASS: ""
+                DB_USER: ""
+                DB_NAME: ""

@@ -1,0 +1,104 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: radarr
+  namespace: radarr
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: radarr
+      version: 29.1.9
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 15m
+  timeout: 20m
+  maxHistory: 3
+  driftDetection:
+    mode: warn
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    # W2: stays stopped until the data has been copied from K3s (migration/w2/cutover.sh), then this block is removed
+    global:
+      stopAll: true
+    ingress:
+      main:
+        enabled: true
+        primary: true
+        ingressClassName: traefik-internal
+        hosts:
+          - host: radarr.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+          - host: movies.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+        integrations:
+          certManager:
+            enabled: true
+            certificateIssuer: domain-0-le-prod
+          traefik:
+            enabled: true
+            entrypoints:
+              - websecure
+            middlewares: 
+              - name: forward-auth-authelia
+                namespace: authelia
+                expandObjectName: false
+    persistence:
+      # radarr.db (SQLite) + MediaCover -> block storage, copied from K3s
+      config:
+        enabled: true
+        type: pvc
+        size: 10Gi
+        targetSelector:
+          main:
+            main:
+              mountPath: /config
+            exportarr:
+              mountPath: /config
+              readOnly: true
+      downloads:
+        enabled: true
+        type: nfs
+        server: ${NFS_SERVER_0}
+        path: /mnt/bulk-storage/downloads/k8s/download-cache
+        autoPermissions:
+          enabled: false
+        targetSelector:
+          main:
+            main:
+              mountPath: /downloads
+      movies:
+        enabled: true
+        type: nfs
+        server: ${NFS_SERVER_0}
+        path: /mnt/bulk-storage/multimedia/Video/Movies
+        autoPermissions:
+          enabled: false
+        targetSelector:
+          main:
+            main:
+              mountPath: /movies
+    securityContext:
+      container:
+        runAsUser: 1000
+        runAsGroup: 1000
+        readOnlyRootFilesystem: false
+      pod:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
