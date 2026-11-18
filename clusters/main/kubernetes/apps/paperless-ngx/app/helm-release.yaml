@@ -1,0 +1,138 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: paperless-ngx
+  namespace: paperless-ngx
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: paperless-ngx
+      version: 18.4.0
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 15m
+  timeout: 20m
+  maxHistory: 3
+  driftDetection:
+    mode: warn
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  valuesFrom:
+    # PAPERLESS_SECRET_KEY (from K3s) + admin password: SOPS-encrypted
+    - kind: Secret
+      name: paperless-ngx-values-sec
+      valuesKey: values-sec.yaml
+  values:
+    image:
+      # = K3s version. 3.x has breaking changes (API v1, consumer, encryption removed): upgrade as a separate step
+      tag: 2.20.15
+    cnpg:
+      main:
+        enabled: true
+        user: paperless-ng
+        database: paperless-ng
+        pgVersion: 16
+        cluster:
+          instances: 1
+          singleNode: true
+          storage:
+            size: 5Gi
+          walStorage:
+            size: 2Gi
+        monitoring:
+          enablePodMonitor: true
+        backups:
+          enabled: true
+          credentials: mys3
+          scheduledBackups:
+            - name: daily-backup
+              schedule: "0 0 0 * * *"
+              backupOwnerReference: self
+              immediate: true
+              suspend: false
+          retentionPolicy: 30d
+    credentials:
+      mys3:
+        type: s3
+        url: ${CNPG_BACKUP_AWS_S3_URL}
+        bucket: ${CNPG_BACKUP_AWS_S3_BUCKET}
+        accessKey: ${CNPG_BACKUP_AWS_S3_ACCESS_KEY}
+        secretKey: ${CNPG_BACKUP_AWS_S3_SECRET_KEY}
+        encrKey: ${CNPG_BACKUP_AWS_S3_ENCRYPTION_KEY}
+    ingress:
+      main:
+        enabled: true
+        primary: true
+        ingressClassName: traefik-internal
+        hosts:
+          - host: papierlos.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+        integrations:
+          certManager:
+            enabled: true
+            certificateIssuer: domain-0-le-prod
+          traefik:
+            enabled: true
+            entrypoints:
+              - websecure
+            # Paperless trusts the Remote-User header from Authelia (PAPERLESS_ENABLE_HTTP_REMOTE_USER)
+            middlewares:
+              - name: forward-auth-authelia
+                namespace: authelia
+                expandObjectName: false
+    persistence:
+      # copied from the K3s OpenEBS volumes
+      data:
+        enabled: true
+        type: pvc
+        size: 5Gi
+        mountPath: /data
+      media:
+        enabled: true
+        type: pvc
+        size: 20Gi
+        mountPath: /media
+      # scanner drop folder on the NAS (as on K3s)
+      consume:
+        enabled: true
+        type: nfs
+        server: ${NFS_SERVER_0}
+        path: /mnt/bulk-storage/home/challer/documents/aarau-print01-scans
+        mountPath: /consume
+        autoPermissions:
+          enabled: false
+    securityContext:
+      container:
+        PUID: 1000
+      pod:
+        fsGroup: 1000
+    workload:
+      main:
+        # W3: 0 until data + DB are copied from K3s, then removed
+        replicas: 0
+        podSpec:
+          containers:
+            main:
+              env:
+                PAPERLESS_URL: https://papierlos.${DOMAIN_0}
+                PAPERLESS_ENABLE_HTTP_REMOTE_USER: "true"
+                PAPERLESS_LOGOUT_REDIRECT_URL: https://sso.${DOMAIN_0}/logout
+                PAPERLESS_OCR_LANGUAGE: eng
+                PAPERLESS_OCR_LANGUAGES: eng fra deu spa ita
+                PAPERLESS_WEBSERVER_WORKERS: 2
+                PAPERLESS_ADMIN_USER: admin
+                PAPERLESS_ADMIN_MAIL: admin@admin.com

@@ -1,0 +1,23 @@
+workload:
+  main:
+    podSpec:
+      containers:
+        main:
+          env:
+            PAPERLESS_SECRET_KEY: ENC[AES256_GCM,data:Q1sB3JBXET0QwhkZWpNLKN6MF+dX7VltsrQsInvxfLE=,iv:SOUuCEoKOdTA8LqLHyl6k5hGOrDdTyFQdOdnN1dR5ic=,tag:7u8NJ248BsJC48iPAXTPIA==,type:str]
+            PAPERLESS_ADMIN_PASSWORD: ENC[AES256_GCM,data:TBG+awM=,iv:PEnjaqlnUnQ6Vraihx4lK+B/IflpnUbrX6lByWWZ/VU=,tag:f1nTbe36G3PAkORSn1v7cw==,type:str]
+sops:
+  age:
+    - recipient: age1uaud96tmvkrmct5ssh20a4dwqy825ru5tqsdp8hu3syxlp4p9glqkamlya
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAvbUlRcDR6NDdnNUNCRjYv
+        Vy8zSFU4Rm5KUUtqQnlhU2JXaGE1blViTndvCjlneHN1bThlQ3RuRGdHVHFFZ1pw
+        a3UwcGhidDVwYVc5NWZqOG1IcEJIdEkKLS0tIFB2Z3VBWTkzR0lKSVE0WnN3R3ZQ
+        NzNQL1FnMTR6dStUSDlUdDNBbEh2ekEKCbKbIhTv4gGaV8ZbR+hxVdzCIDbYc7zK
+        ZBoHhV+ND+HXlhzlLJczmXyonHvq/oVrRJPvI1rcemZXu8Yi6h0xCQ==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-11-18T16:21:57Z"
+  mac: ENC[AES256_GCM,data:Rd094KmIrLQzTxDSYpywXexliJ9O07rs4+WYIIRnDFin0edydDJdLmkjUvGrFszO/xyjkQtfGTNvztLoBKoLM1Au1/J6TH29r/Hsay9xF9kpZjG0ybnRla7cU8SgsC8xICyZqbMQ32jYv7W9Ta0rHkDq6ZeZOSCYJhSG9WtNMH0=,iv:qvVLbCK3KuWODx0bng1hLt8cPFN8PMHtVL0J1bIrXfo=,tag:tyJ6X9CR7VnrGt3g7IqM0g==,type:str]
+  encrypted_regex: .
+  version: 3.12.1
