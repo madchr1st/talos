@@ -42,7 +42,8 @@ spec:
         database: firefox-syncserver
         pgVersion: 16
         cluster:
-          instances: 2
+          # single node: a 2nd instance adds RAM but no real HA; S3 backups stay enabled
+          instances: 1
           singleNode: true
           storage:
             size: 5Gi
