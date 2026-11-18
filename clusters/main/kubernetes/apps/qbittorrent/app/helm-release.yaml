@@ -72,7 +72,7 @@ spec:
         enabled: true
         type: nfs
         server: ${NFS_SERVER_0}
-        path: /mnt/bulk-storage/downloads/k8s/download-cache
+        path: ${NFS_PATH_DOWNLOAD_CACHE}
         mountPath: /downloads
         readOnly: false
         autoPermissions:
@@ -102,7 +102,7 @@ spec:
             # with the gluetun firewall on, which also gives a kill switch (it was off on K3s).
             FIREWALL: "on"
             FIREWALL_INPUT_PORTS: "10095"
-            FIREWALL_OUTBOUND_SUBNETS: "172.16.0.0/16,172.17.0.0/16,192.168.10.0/24"
+            FIREWALL_OUTBOUND_SUBNETS: "${PODNET},${SVCNET},${LAN_NET}"
     # QBT_TORRENTING_PORT is derived from the torrent port and rewritten into qBittorrent.conf on every start: keep it = AirVPN forwarded port
     service:
       torrent:

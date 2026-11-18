@@ -127,42 +127,42 @@ spec:
         enabled: true
         type: nfs
         server: ${NFS_SERVER_0}
-        path: /mnt/bulk-storage/downloads/k8s/immich/library
+        path: ${NFS_PATH_IMMICH_LIBRARY}
         autoPermissions:
           enabled: false
       uploads:
         enabled: true
         type: nfs
         server: ${NFS_SERVER_0}
-        path: /mnt/bulk-storage/downloads/k8s/immich/upload
+        path: ${NFS_PATH_IMMICH_UPLOAD}
         autoPermissions:
           enabled: false
       backups:
         enabled: true
         type: nfs
         server: ${NFS_SERVER_0}
-        path: /mnt/bulk-storage/downloads/k8s/immich/backups
+        path: ${NFS_PATH_IMMICH_BACKUPS}
         autoPermissions:
           enabled: false
       thumbs:
         enabled: true
         type: nfs
         server: ${NFS_SERVER_0}
-        path: /mnt/bulk-storage/downloads/k8s/immich/thumbnails
+        path: ${NFS_PATH_IMMICH_THUMBS}
         autoPermissions:
           enabled: false
       video:
         enabled: true
         type: nfs
         server: ${NFS_SERVER_0}
-        path: /mnt/bulk-storage/downloads/k8s/immich/videos
+        path: ${NFS_PATH_IMMICH_VIDEO}
         autoPermissions:
           enabled: false
       profile:
         enabled: true
         type: nfs
         server: ${NFS_SERVER_0}
-        path: /mnt/nvme-storage/k8s/immich/profiles
+        path: ${NFS_PATH_IMMICH_PROFILE}
         autoPermissions:
           enabled: false
     securityContext:

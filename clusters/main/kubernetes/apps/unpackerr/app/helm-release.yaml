@@ -41,7 +41,7 @@ spec:
         enabled: true
         type: nfs
         server: ${NFS_SERVER_0}
-        path: /mnt/bulk-storage/downloads/k8s/download-cache
+        path: ${NFS_PATH_DOWNLOAD_CACHE}
         mountPath: /downloads
         readOnly: false
         autoPermissions:

@@ -73,7 +73,7 @@ spec:
         enabled: true
         type: nfs
         server: ${NFS_SERVER_0}
-        path: /mnt/bulk-storage/downloads/k8s/download-cache
+        path: ${NFS_PATH_DOWNLOAD_CACHE}
         autoPermissions:
           enabled: false
         targetSelector:
@@ -84,7 +84,7 @@ spec:
         enabled: true
         type: nfs
         server: ${NFS_SERVER_0}
-        path: /mnt/bulk-storage/multimedia/Video/TV-Series
+        path: ${NFS_PATH_MEDIA_TV}
         autoPermissions:
           enabled: false
         targetSelector:

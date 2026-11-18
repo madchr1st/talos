@@ -84,6 +84,22 @@ clusters/main/kubernetes/apps/<app-name>/
 2. Reference it in `clusters/main/kubernetes/apps/kustomization.yaml`
 3. If the app needs secrets, use `${VAR}` substitution from `clusterenv.yaml` or create a `values-sec.yaml` (must be SOPS-encrypted)
 
+## Cluster Variables (conventions)
+
+The repo is public: IPs, NAS paths, hostnames, e-mail addresses and group names go into `clusterenv.yaml`
+(SOPS) and are referenced as `${VAR}` in manifests. Never hardcode them.
+
+- Domains: `<app>.${DOMAIN_0}`
+- MetalLB IPs: `<APP>_IP` (e.g. `PLEX_IP`, `ADGUARD_IP`, `TRAEFIK_INTERNAL_IP`)
+- NFS: `server: ${NFS_SERVER_0}`, `path: ${NFS_PATH_<APP>_<VOLUME>}` (shared paths: `NFS_PATH_DOWNLOAD_CACHE`, `NFS_PATH_MEDIA_*`)
+- Networks: `PODNET`, `SVCNET`, `LAN_NET`
+- CNPG S3 backups: `credentials.mys3` from `${CNPG_BACKUP_AWS_S3_*}`
+- App secrets: `values-sec.yaml` (SOPS) via `valuesFrom`
+
+A new variable must be added to both `clusters/main/clusterenv.yaml` and
+`clusters/main/kubernetes/flux-system/flux/clustersettings.secret.yaml` (the `cluster-config` ConfigMap that Flux
+substitutes from; substitution is strict, a missing variable breaks the whole Kustomization).
+
 ## File Conventions
 
 - `.ct` suffix — ForgeTool-managed cluster template files. **Do not edit these directly**; they are regenerated from `clusterenv.yaml`. The comment "DO NOT ALTER THIS FILE, CHANGE DO NOT PERSIST" confirms this.
