@@ -78,7 +78,7 @@ spec:
       web:
         http:
           redirections:
-            entryPoint: 
+            entryPoint:
               to: websecure
               scheme: https
               permanent: true
@@ -108,3 +108,7 @@ spec:
         serviceMonitor:
           # -- Enable optional CR for Prometheus Operator. See EXAMPLES.md for more details.
           enabled: true
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi

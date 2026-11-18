@@ -45,4 +45,8 @@ spec:
         kubernetes.io/tls-acme: true
         cert-manager.io/cluster-issuer: domain-0-le-prod
       tlsSecret: longhorn-tls-0
-
+    longhornManager:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 256Mi

@@ -28,6 +28,10 @@ spec:
       enabled: false
     speaker:
       ignoreExcludeLB: true
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
     prometheus:
       serviceAccount: kube-prometheus-stack-prometheus
       namespace: kube-prometheus-stack
@@ -36,3 +40,8 @@ spec:
       serviceMonitor:
         # enable support for Prometheus Operator
         enabled: true
+    controller:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
