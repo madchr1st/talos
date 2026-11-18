@@ -4,3 +4,4 @@ resources:
   - ingress_trek-ext.yaml
   - helm-release.yaml
   - namespace.yaml
+  - networkpolicy.yaml

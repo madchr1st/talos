@@ -103,3 +103,42 @@ spec:
         memory: 1Gi
     image:
       tag: 1.43.5.11079 # = K3s version: library DB shared over NFS during the rollback window
+    # Ingress only (egress stays open). Kubelet probes come from the host and are always allowed.
+    networkPolicy:
+      # same namespace, Traefik, Prometheus, CNPG operator, callers: tautulli, seerr, sonarr, radarr, LoadBalancer/LAN ports
+      ingress:
+        enabled: true
+        policyType: ingress
+        podSelector:
+          matchExpressions:
+            - key: app.kubernetes.io/instance
+              operator: Exists
+        ingress:
+          - from:
+              - podSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/instance
+                      operator: Exists
+          - from:
+              - namespaceSelector:
+                  matchExpressions:
+                    - key: kubernetes.io/metadata.name
+                      operator: In
+                      values:
+                        - traefik-internal
+                        - traefik-external
+                        - kube-prometheus-stack
+                        - cloudnative-pg
+                        - tautulli
+                        - seerr
+                        - sonarr
+                        - radarr
+          - from:
+              - ipBlock:
+                  cidr: 0.0.0.0/0
+              - namespaceSelector:
+                  matchLabels:
+                    kubernetes.io/metadata.name: tailscale
+            ports:
+              - port: 32400
+                protocol: TCP
