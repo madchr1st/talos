@@ -114,7 +114,7 @@ spec:
                 ENABLE_CACHE_FILE: true
                 ENABLE_FIREBASE_FILE: false
                 NTFY_BASE_URL: https://ntfy.${DOMAIN_0}
-                NTFY_UPSTREAM_BASE_URL: https://ntfy.sh
+                NTFY_UPSTREAM_BASE_URL: https://ntfy.${DOMAIN_0}  # same as on K3s
                 NTFY_BEHIND_PROXY: true
                 NTFY_AUTH_DEFAULT_ACCESS: deny-all
                 NTFY_CACHE_DURATION: 12h
