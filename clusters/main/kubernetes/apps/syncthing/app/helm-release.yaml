@@ -117,3 +117,42 @@ spec:
         integrations:
           metallb:
             enabled: true
+    # Ingress only (egress stays open). Kubelet probes come from the host and are always allowed.
+    networkPolicy:
+      # same namespace, Traefik, Prometheus, CNPG operator, LoadBalancer/LAN ports
+      ingress:
+        enabled: true
+        policyType: ingress
+        podSelector:
+          matchExpressions:
+            - key: app.kubernetes.io/instance
+              operator: Exists
+        ingress:
+          - from:
+              - podSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/instance
+                      operator: Exists
+          - from:
+              - namespaceSelector:
+                  matchExpressions:
+                    - key: kubernetes.io/metadata.name
+                      operator: In
+                      values:
+                        - traefik-internal
+                        - traefik-external
+                        - kube-prometheus-stack
+                        - cloudnative-pg
+          - from:
+              - ipBlock:
+                  cidr: 0.0.0.0/0
+              - namespaceSelector:
+                  matchLabels:
+                    kubernetes.io/metadata.name: tailscale
+            ports:
+              - port: 22000
+                protocol: TCP
+              - port: 22000
+                protocol: UDP
+              - port: 21027
+                protocol: UDP
