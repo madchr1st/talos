@@ -87,7 +87,7 @@ spec:
       ext:
         enabled: true
         hosts:
-          - host: sso-new.${DOMAIN_0}
+          - host: sso.${DOMAIN_0}
             paths:
               - path: /
                 pathType: Prefix
@@ -106,7 +106,7 @@ spec:
         enabled: true
         primary: true
         hosts:
-          - host: sso-new.${DOMAIN_0}
+          - host: sso.${DOMAIN_0}
             paths:
               - path: /
                 pathType: Prefix

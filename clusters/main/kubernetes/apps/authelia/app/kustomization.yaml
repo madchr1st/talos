@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - helm-release.yaml
+  - forward-auth.yaml
 secretGenerator:
   - name: authelia-config
     namespace: authelia

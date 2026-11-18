@@ -94,12 +94,12 @@ spec:
             entrypoints:
             - websecure
             forceTLS: true
-            middlewares: []
-            # - name: traefik-forward-auth-authelia
-            #   namespace: traefik-internal
-            #   expandObjectName: false
+            middlewares:
+              - name: forward-auth-authelia
+                namespace: authelia
+                expandObjectName: false
       ext:
-        enabled: false
+        enabled: true
         hosts:
         - host: bitwarden-test.${DOMAIN_0}
           paths:
@@ -115,10 +115,10 @@ spec:
             entrypoints:
             - websecure
             forceTLS: true
-            middlewares: []
-            # - name: traefik-forward-auth-authelia
-            #   namespace: traefik-internal
-            #   expandObjectName: false
+            middlewares:
+              - name: forward-auth-authelia
+                namespace: authelia
+                expandObjectName: false
     persistence:
       data:
         autoPermissions:

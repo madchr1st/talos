@@ -84,6 +84,13 @@ spec:
           tls:
             enabled: true
             options: "default"
+        # TEMPORARY (K3s -> Talos migration): the old TrueNAS K3s Traefik on the NAS
+        # (192.168.10.150) forwards migrated hostnames here via TCP passthrough with
+        # PROXY protocol v2, so the real client IP survives (Authelia network policies).
+        # Remove when the UDR forwards point here directly and K3s is gone.
+        proxyProtocol:
+          trustedIPs:
+            - 192.168.10.150/32
     ingressRoute:
       dashboard:
         enabled: true

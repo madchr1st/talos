@@ -82,7 +82,7 @@ spec:
       main:
         enabled: true
         hosts:
-        - host: ldap-new.${DOMAIN_0}
+        - host: ldap.${DOMAIN_0}
           paths:
           - path: /
             pathType: Prefix
@@ -147,7 +147,7 @@ spec:
               - /app/lldap
               env:
                 LLDAP_HTTP_PORT: '{{ .Values.service.main.ports.main.port }}'
-                LLDAP_HTTP_URL: 'https://lldap-new.${DOMAIN_0}'
+                LLDAP_HTTP_URL: 'https://lldap.${DOMAIN_0}'
                 LLDAP_LDAP_BASE_DN: ${LLDAP_LDAP_BASE_DN}
                 LLDAP_LDAP_PORT: '{{ .Values.service.ldap.ports.ldap.port }}'
                 LLDAP_LDAP_USER_DN: ${LLDAP_LDAP_USER_DN}
