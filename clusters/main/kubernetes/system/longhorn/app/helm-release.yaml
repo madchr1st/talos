@@ -52,3 +52,13 @@ spec:
         requests:
           cpu: 50m
           memory: 256Mi
+    # single node: one replica per CSI sidecar/UI/global manager (3x each only adds memory and OOM-kill victims)
+    csi:
+      attacherReplicaCount: 1
+      provisionerReplicaCount: 1
+      resizerReplicaCount: 1
+      snapshotterReplicaCount: 1
+    longhornUI:
+      replicas: 1
+    longhornGlobalManager:
+      replicas: 1
