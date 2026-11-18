@@ -35,10 +35,6 @@ spec:
       name: vaultwarden-prod-values-sec
       valuesKey: values-sec.yaml
   values:
-    workload:
-      main:
-        # W5: 0 until the K3s instance is stopped and the DB is recovered from S3, then removed
-        replicas: 0
     database:
       type: postgresql
       wal: true
