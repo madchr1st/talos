@@ -48,7 +48,10 @@ spec:
             enabled: true
             entrypoints:
               - websecure
-            middlewares: []
+            middlewares:
+              - name: forward-auth-authelia
+                namespace: authelia
+                expandObjectName: false
       ext:
         enabled: true
         ingressClassName: traefik-external
@@ -65,7 +68,10 @@ spec:
             enabled: true
             entrypoints:
               - websecure
-            middlewares: []
+            middlewares:
+              - name: forward-auth-authelia
+                namespace: authelia
+                expandObjectName: false
     persistence:
       # index DB (SQLite) + keys -> block storage, copied from K3s; synced data stays on the NAS
       config:
