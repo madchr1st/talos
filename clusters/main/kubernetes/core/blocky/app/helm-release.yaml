@@ -47,6 +47,10 @@ spec:
             port: 853
             targetPort: 853
             protocol: tcp
+      k8sgateway:
+        enabled: false
+    # k8s_gateway replaced by customDNS (values-sec.yaml): it doesn't see Traefik IngressRoutes and can answer
+    # with the external ingress IP; customDNS maps ${DOMAIN_0} and all subdomains to traefik-internal.
     k8sgateway:
       # -- list of processed domains
       domains:
@@ -64,10 +68,12 @@ spec:
         options:
           - name: tls_servername
             value: cloudflare-dns.com
+      enabled: false
     # CANNOT be defined in above yaml section
     queryLog:
       # optional one of: mysql, postgresql, csv, csv-client. If empty, log to console only
-      type: ""
+      type: "postgresql"
+      logRetentionDays: 90
     configmap:
       dashboard:
         enabled: true
@@ -82,7 +88,7 @@ spec:
       main:
         enabled: true
         cluster:
-          instances: 2
+          instances: 1
           storage:
             size: "2Gi"
           walStorage:
@@ -113,3 +119,67 @@ spec:
           main:
             main:
               mountPath: /certs
+    customDNS:
+      customTTL: 1h
+      filterUnmappedTypes: true
+    # AdGuard parity (migration/BLOCKY-MIGRATION.md): lean lists (HaGeZi Pro + TIF medium + OISD Big), the AdGuard
+    # "blocked services" as an inline wildcard group, AdGuard's allow rules. Client groups (which IPs get which
+    # groups) and all IP mappings are in values-sec.yaml.
+    blocking:
+      blacklist:
+        - name: lean
+          lists:
+            - https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/wildcard/pro-onlydomains.txt
+            - https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/wildcard/tif.medium-onlydomains.txt
+            - https://big.oisd.nl/domainswild2
+        - name: services
+          lists:
+            - |
+              *.tiktok.com
+              *.tiktokv.com
+              *.tiktokcdn.com
+              *.tiktokcdn-us.com
+              *.tiktokv.us
+              *.byteoversea.com
+              *.ibytedtos.com
+              *.musical.ly
+              *.ttwstatic.com
+              *.temu.com
+              *.kwcdn.com
+              *.wechat.com
+              *.weixin.qq.com
+              *.wechatapp.com
+              *.weibo.com
+              *.weibo.cn
+              *.sinaimg.cn
+              *.mail.ru
+              *.imgsmail.ru
+              *.ok.ru
+              *.odnoklassniki.ru
+              *.mycdn.me
+              *.zhihu.com
+              *.zhimg.com
+              *.xiaohongshu.com
+              *.xhscdn.com
+              *.yy.com
+              *.yystatic.com
+      whitelist:
+        - name: lean
+          lists:
+            - |
+              *.onesignal.com
+              *.learn.cisecurity.org
+              *.app-measurement.com
+              *.app.community.engage.redhat.com
+              *.www.googletagmanager.com
+              *.incoming.telemetry.mozilla.org
+              *.sdk.split.io
+              *.auth.split.io
+              *.support.optimizely.com
+              *.cdn.optimizely.com
+              *.www.siderolabs.com
+              *.vlscppe.microsoft.com
+  valuesFrom:
+    - kind: Secret
+      name: blocky-values-sec
+      valuesKey: values-sec.yaml

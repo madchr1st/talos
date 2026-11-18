@@ -4,3 +4,10 @@ resources:
   - namespace.yaml
   - helm-release.yaml
   - encrypted-dns.yaml
+secretGenerator:
+  - name: blocky-values-sec
+    namespace: blocky
+    files:
+      - values-sec.yaml
+configurations:
+  - kustomizeconfig.yaml
