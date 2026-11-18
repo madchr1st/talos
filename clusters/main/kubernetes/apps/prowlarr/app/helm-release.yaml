@@ -30,9 +30,6 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    # W2: stays stopped until the data has been copied from K3s (migration/w2/cutover.sh), then this block is removed
-    global:
-      stopAll: true
     ingress:
       main:
         enabled: true
