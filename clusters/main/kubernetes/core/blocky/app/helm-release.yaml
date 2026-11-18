@@ -122,16 +122,17 @@ spec:
     customDNS:
       customTTL: 1h
       filterUnmappedTypes: true
-    # AdGuard parity (migration/BLOCKY-MIGRATION.md): lean lists (HaGeZi Pro + TIF medium + OISD Big), the AdGuard
+    # AdGuard parity: lean lists (HaGeZi Pro + TIF medium + OISD Big) in "Wildcard Asterisk" format (*.domain; Blocky
+    # matches plain domain entries exactly, without subdomains), the AdGuard
     # "blocked services" as an inline wildcard group, AdGuard's allow rules. Client groups (which IPs get which
     # groups) and all IP mappings are in values-sec.yaml.
     blocking:
       blacklist:
         - name: lean
           lists:
-            - https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/wildcard/pro-onlydomains.txt
-            - https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/wildcard/tif.medium-onlydomains.txt
-            - https://big.oisd.nl/domainswild2
+            - https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/wildcard/pro.txt
+            - https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/wildcard/tif.medium.txt
+            - https://big.oisd.nl/domainswild
         - name: services
           lists:
             - |
