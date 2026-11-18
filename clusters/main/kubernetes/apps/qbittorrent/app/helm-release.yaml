@@ -97,6 +97,9 @@ spec:
             FIREWALL_VPN_INPUT_PORTS: "58955"
             DNS_KEEP_NAMESERVER: "off"
             WIREGUARD_PERSISTENT_KEEPALIVE_INTERVAL: 16s
-            # Cilium gives the pod a /32, so gluetun would route replies to probes/traefik into the tunnel.
-            # Keep pod CIDR, service CIDR and LAN outside the VPN (on K3s the flannel /16 was "local").
+            # Cilium gives the pod a /32, so without these routes gluetun sends replies to kubelet probes and
+            # traefik into the tunnel (on K3s the flannel /16 was "local"). Outbound subnets only take effect
+            # with the gluetun firewall on, which also gives a kill switch (it was off on K3s).
+            FIREWALL: "on"
+            FIREWALL_INPUT_PORTS: "10095"
             FIREWALL_OUTBOUND_SUBNETS: "172.16.0.0/16,172.17.0.0/16,192.168.10.0/24"
