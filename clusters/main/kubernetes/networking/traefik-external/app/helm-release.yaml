@@ -42,10 +42,13 @@ spec:
         type: LoadBalancer
         externalTrafficPolicy: Local
     log:
-      general:
-        level: INFO
-      access:
-        enabled: true
+      level: INFO
+    accessLog:
+      enabled: true
+      format: json
+      fields:
+        headers:
+          defaultMode: drop
     ingressClass:
       enabled: true
       isDefaultClass: false
