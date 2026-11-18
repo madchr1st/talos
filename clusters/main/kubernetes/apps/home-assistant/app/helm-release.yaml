@@ -33,10 +33,6 @@ spec:
     image:
       # = K3s version: config is shared over NFS; upgrade after the rollback window
       tag: 2026.11.1
-    workload:
-      main:
-        # W3: 0 until the CNPG recovery from the K3s S3 backup has finished (migration/w3), then removed
-        replicas: 0
     cnpg:
       main:
         enabled: true
