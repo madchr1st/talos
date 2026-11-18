@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: adguard-home
+  labels:
+    # runs as root (binds :53); the chart adds NET_RAW for root containers
+    pod-security.kubernetes.io/enforce: privileged
