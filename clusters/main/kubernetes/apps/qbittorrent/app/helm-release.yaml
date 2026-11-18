@@ -57,7 +57,7 @@ spec:
             enabled: true
             entrypoints:
               - websecure
-            middlewares: 
+            middlewares:
               - name: forward-auth-authelia
                 namespace: authelia
                 expandObjectName: false
@@ -103,3 +103,9 @@ spec:
             FIREWALL: "on"
             FIREWALL_INPUT_PORTS: "10095"
             FIREWALL_OUTBOUND_SUBNETS: "172.16.0.0/16,172.17.0.0/16,192.168.10.0/24"
+    # QBT_TORRENTING_PORT is derived from the torrent port and rewritten into qBittorrent.conf on every start: keep it = AirVPN forwarded port
+    service:
+      torrent:
+        ports:
+          torrent:
+            port: 58955
