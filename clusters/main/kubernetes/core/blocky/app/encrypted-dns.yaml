@@ -1,0 +1,110 @@
+# Encrypted DNS for the LAN (not reachable from the internet: an open resolver would be abused).
+#   DoT: dns.${DOMAIN_0}:853 on the Blocky LoadBalancer IP (${BLOCKY_IP}), served by Blocky itself with this certificate.
+#        Android's default "Private DNS: Automatic" uses DoT to the DHCP-assigned DNS server on its own, falls back
+#        to plain DNS elsewhere -> no phone settings needed. Strict clients use the host name dns.${DOMAIN_0}.
+#   DoH: https://doh.${DOMAIN_0}/dns-query via traefik-internal, only /dns-query (Blocky's REST API stays internal).
+#        Blocky does not read X-Forwarded-For: DoH clients appear as the Traefik pod in Blocky's logs.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: dns-tls
+  namespace: blocky
+spec:
+  secretName: dns-tls
+  dnsNames:
+    - dns.${DOMAIN_0}
+    - doh.${DOMAIN_0}
+  issuerRef:
+    kind: ClusterIssuer
+    name: domain-0-le-prod
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: blocky-doh
+  namespace: blocky
+  annotations:
+    kubernetes.io/ingress.class: traefik-internal
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`doh.${DOMAIN_0}`) && PathPrefix(`/dns-query`)
+      kind: Rule
+      services:
+        - name: blocky
+          port: 4000
+  tls:
+    secretName: dns-tls
+---
+# Blocky reads its certificate only at start (blocky issue #311). cert-manager renews 30 days before expiry,
+# a weekly rolling restart (2 replicas -> no DNS gap) picks up the renewed certificate in time.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: blocky-restart
+  namespace: blocky
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: blocky-restart
+  namespace: blocky
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    resourceNames: ["blocky"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: blocky-restart
+  namespace: blocky
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: blocky-restart
+subjects:
+  - kind: ServiceAccount
+    name: blocky-restart
+    namespace: blocky
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: blocky-restart
+  namespace: blocky
+spec:
+  schedule: "15 4 * * 0"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          serviceAccountName: blocky-restart
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: restart
+              image: registry.k8s.io/kubectl:v1.36.6
+              args: ["-n", "blocky", "rollout", "restart", "deployment/blocky"]
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  memory: 64Mi
