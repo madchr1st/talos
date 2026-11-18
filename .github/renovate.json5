@@ -6,6 +6,13 @@
   ],
   "packageRules": [
     {
+      // Stay on Kubernetes 1.36 (talconfig.yaml + upgradesettings.yaml): 1.37 needs a newer Talos.
+      // Lift together with the Talos 1.14 upgrade.
+      "description": "Keep Kubernetes (kubelet) below 1.37",
+      "matchPackageNames": ["ghcr.io/siderolabs/kubelet"],
+      "allowedVersions": "<1.37.0"
+    },
+    {
       // Longhorn only supports upgrading from the previous minor version, and a
       // failed pre-upgrade check leaves the release stuck. Review these manually.
       "description": "Do not automerge Longhorn chart updates",
