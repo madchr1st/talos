@@ -30,6 +30,8 @@ spec:
       # Overprovisioning might be needed when using volsync
       storageOverProvisioningPercentage: "100000"
       # v2DataEngine: true
+
+      storageMinimalAvailablePercentage: "10" # Disk is shared with ~90G of container images (Spegel keeps layers); 25% blocked new replicas at 66G free
     persistence:
       # Set to false to pick another CSI as default
       defaultClass: true
