@@ -1,0 +1,17 @@
+# ClusterIP only: lets traefik-internal reach this instance's dashboard (entrypoint "traefik", :8080) at
+# https://traefik-external.${DOMAIN_0} (networking/traefik-internal/app/dashboards.yaml). Not exposed by the LoadBalancer.
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-external-dashboard
+  namespace: traefik-external
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: traefik
+    app.kubernetes.io/instance: traefik-external-traefik-external
+  ports:
+    - name: traefik
+      port: 8080
+      targetPort: traefik
+      protocol: TCP

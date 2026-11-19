@@ -1,0 +1,63 @@
+# Both Traefik dashboards, served by traefik-internal (LAN/tailnet only), behind Authelia:
+#   https://traefik-internal.${DOMAIN_0}  -> this instance (api@internal, chart ingressRoute.dashboard in helm-release.yaml)
+#   https://traefik-external.${DOMAIN_0}  -> traefik-external's dashboard on its "traefik" entrypoint (:8080, Service in
+#                                            networking/traefik-external/app/dashboard-service.yaml; never exposed externally)
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: traefik-dashboards-tls
+  namespace: traefik-internal
+spec:
+  secretName: traefik-dashboards-tls
+  dnsNames:
+    - traefik-internal.${DOMAIN_0}
+    - traefik-external.${DOMAIN_0}
+  issuerRef:
+    kind: ClusterIssuer
+    name: domain-0-le-prod
+---
+# "/" -> "/dashboard/" (the dashboard only lives below /dashboard and /api); $$ = literal $ for Flux substitution
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: dashboard-root-internal
+  namespace: traefik-internal
+spec:
+  redirectRegex:
+    regex: ^https://[^/]+/?$$
+    replacement: https://traefik-internal.${DOMAIN_0}/dashboard/
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: dashboard-root-external
+  namespace: traefik-internal
+spec:
+  redirectRegex:
+    regex: ^https://[^/]+/?$$
+    replacement: https://traefik-external.${DOMAIN_0}/dashboard/
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-external-dashboard
+  namespace: traefik-internal
+  annotations:
+    kubernetes.io/ingress.class: traefik-internal
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`traefik-external.${DOMAIN_0}`)
+      kind: Rule
+      middlewares:
+        - name: forward-auth-authelia
+          namespace: authelia
+        - name: dashboard-root-external
+          namespace: traefik-internal
+      services:
+        - name: traefik-external-dashboard
+          namespace: traefik-external
+          port: 8080
+  tls:
+    secretName: traefik-dashboards-tls
