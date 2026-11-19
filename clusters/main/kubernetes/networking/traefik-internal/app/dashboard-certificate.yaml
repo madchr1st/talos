@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: traefik-dashboard-tls
+  namespace: traefik-internal
+spec:
+  secretName: traefik-dashboard-tls
+  dnsNames:
+    - traefik.${DOMAIN_0}
+  issuerRef:
+    kind: ClusterIssuer
+    name: domain-0-le-prod

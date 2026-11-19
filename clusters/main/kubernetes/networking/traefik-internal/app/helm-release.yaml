@@ -88,8 +88,19 @@ spec:
             enabled: true
             options: "default"
     ingressRoute:
+      # Dashboard on https://traefik.${DOMAIN_0} (LAN/tailnet), behind Authelia. Authelia has dedicated rules for this host ahead of its global /api bypass, so the dashboard API is protected too.
       dashboard:
         enabled: true
+        annotations:
+          kubernetes.io/ingress.class: traefik-internal
+        matchRule: Host(`traefik.${DOMAIN_0}`)
+        entryPoints:
+          - websecure
+        middlewares:
+          - name: forward-auth-authelia
+            namespace: authelia
+        tls:
+          secretName: traefik-dashboard-tls
     metrics:
       ## Prometheus is enabled by default.
       ## It can be disabled by setting "prometheus: null"
