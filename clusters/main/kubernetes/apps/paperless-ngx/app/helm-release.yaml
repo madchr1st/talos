@@ -36,7 +36,7 @@ spec:
       valuesKey: values-sec.yaml
   values:
     image:
-      # = K3s version. 3.x has breaking changes (API v1, consumer, encryption removed): upgrade as a separate step
+      # pinned: 3.x has breaking changes (API v1, consumer, encryption removed) -> upgrade as a separate, tested step
       tag: 2.20.15
     cnpg:
       main:

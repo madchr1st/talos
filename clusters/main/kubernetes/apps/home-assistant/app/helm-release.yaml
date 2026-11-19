@@ -30,9 +30,6 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    image:
-      # = K3s version for the rollback window (K3s keeps its own config copy), upgrade afterwards
-      tag: 2026.11.1
     cnpg:
       main:
         enabled: true

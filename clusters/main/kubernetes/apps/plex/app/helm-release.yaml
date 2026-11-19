@@ -101,8 +101,6 @@ spec:
       requests:
         cpu: 500m
         memory: 1Gi
-    image:
-      tag: 1.43.5.11079 # = K3s version: library DB shared over NFS during the rollback window
     # Ingress only (egress stays open). Kubelet probes come from the host and are always allowed.
     networkPolicy:
       # same namespace, Traefik, Prometheus, CNPG operator, callers: tautulli, seerr, sonarr, radarr, LoadBalancer/LAN ports

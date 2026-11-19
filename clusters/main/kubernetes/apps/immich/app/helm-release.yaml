@@ -30,7 +30,7 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    # = K3s version. Immich 3.x needs VectorChord instead of pgvecto.rs: upgrade as a separate step
+    # pinned: Immich 3.x needs VectorChord instead of pgvecto.rs (DB migration) -> upgrade as a separate, tested step
     image:
       tag: v2.7.5
     mlImage:

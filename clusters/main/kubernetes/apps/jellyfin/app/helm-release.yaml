@@ -33,7 +33,6 @@ spec:
     image:
       repository: oci.trueforge.org/containerforge/jellyfin
       pullPolicy: IfNotPresent
-      tag: 12.4.0 # config shared over NFS with the stopped K3s copy (rollback window): Renovate PRs are not automerged
     ingress:
       main:
         enabled: true
