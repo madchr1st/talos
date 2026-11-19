@@ -51,6 +51,20 @@ spec:
         enabled: true
       ui:
         enabled: true
+        # Hubble UI on https://hubble.${DOMAIN_0} (LAN/tailnet), behind Authelia (dedicated rules ahead of its global /api bypass: the UI reads all flows via /api)
+        ingress:
+          enabled: true
+          className: traefik-internal
+          annotations:
+            cert-manager.io/cluster-issuer: domain-0-le-prod
+            traefik.ingress.kubernetes.io/router.entrypoints: websecure
+            traefik.ingress.kubernetes.io/router.middlewares: authelia-forward-auth-authelia@kubernetescrd
+          hosts:
+            - hubble.${DOMAIN_0}
+          tls:
+            - secretName: hubble-ui-tls
+              hosts:
+                - hubble.${DOMAIN_0}
     ipam:
       mode: kubernetes
     ipv4NativeRoutingCIDR: ${PODNET}
