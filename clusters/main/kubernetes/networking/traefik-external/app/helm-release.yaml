@@ -90,8 +90,11 @@ spec:
             enabled: true
             options: "default"
     ingressRoute:
+      # Dashboard on the internal "traefik" entrypoint (:8080), served to the LAN by traefik-internal at traefik-external.${DOMAIN_0}. The annotation is needed: the CRD provider only picks up routes of its ingress class.
       dashboard:
         enabled: true
+        annotations:
+          kubernetes.io/ingress.class: traefik-external
     metrics:
       ## Prometheus is enabled by default.
       ## It can be disabled by setting "prometheus: null"
