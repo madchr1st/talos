@@ -30,11 +30,6 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    # pinned: Immich 3.x needs VectorChord instead of pgvecto.rs (DB migration) -> upgrade as a separate, tested step
-    image:
-      tag: v2.7.5
-    mlImage:
-      tag: v2.7.5
     cnpg:
       main:
         enabled: true
@@ -199,11 +194,3 @@ spec:
                         - traefik-external
                         - kube-prometheus-stack
                         - cloudnative-pg
-    # TEMPORARY: Immich stopped during the pgvecto.rs -> VectorChord migration (migration/UPGRADE-PAPERLESS-IMMICH.md)
-    workload:
-      main:
-        replicas: 0
-      microservices:
-        replicas: 0
-      machinelearning:
-        replicas: 0

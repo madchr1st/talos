@@ -18,17 +18,6 @@
       "description": "Do not automerge Longhorn chart updates",
       "matchDepNames": ["longhorn"],
       "automerge": false
-    },
-    {
-      // Immich is pinned (helm-release.yaml) until its major upgrade is done:
-      // Immich 3.x needs the pgvecto.rs -> VectorChord DB migration (migration/UPGRADE-PAPERLESS-IMMICH.md).
-      "description": "Major updates of Immich need a manual migration",
-      "matchPackageNames": [
-        "ghcr.io/immich-app/immich-server",
-        "ghcr.io/immich-app/immich-machine-learning"
-      ],
-      "matchUpdateTypes": ["major"],
-      "automerge": false
     }
   ]
 }
