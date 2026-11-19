@@ -199,3 +199,11 @@ spec:
                         - traefik-external
                         - kube-prometheus-stack
                         - cloudnative-pg
+    # TEMPORARY: Immich stopped during the pgvecto.rs -> VectorChord migration (migration/UPGRADE-PAPERLESS-IMMICH.md)
+    workload:
+      main:
+        replicas: 0
+      microservices:
+        replicas: 0
+      machinelearning:
+        replicas: 0
