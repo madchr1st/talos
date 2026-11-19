@@ -35,9 +35,6 @@ spec:
       name: paperless-ngx-values-sec
       valuesKey: values-sec.yaml
   values:
-    image:
-      # pinned: 3.x has breaking changes (API v1, consumer, encryption removed) -> upgrade as a separate, tested step
-      tag: 2.20.15
     cnpg:
       main:
         enabled: true
@@ -134,6 +131,11 @@ spec:
                 PAPERLESS_WEBSERVER_WORKERS: 2
                 PAPERLESS_ADMIN_USER: admin
                 PAPERLESS_ADMIN_MAIL: admin@admin.com
+                # v3 defaults changed; keep the v2 behaviour:
+                PAPERLESS_CONSUMER_DELETE_DUPLICATES: "true"
+                PAPERLESS_ARCHIVE_FILE_GENERATION: always
+                # consume folder is NFS: inotify doesn't see files written by the scanner on another host
+                PAPERLESS_CONSUMER_POLLING_INTERVAL: "60"
     # Ingress only (egress stays open). Kubelet probes come from the host and are always allowed.
     networkPolicy:
       # Redis/CNPG: same namespace, Traefik, Prometheus, CNPG operator

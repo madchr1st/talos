@@ -20,11 +20,10 @@
       "automerge": false
     },
     {
-      // Paperless and Immich are pinned (helm-release.yaml) until their major upgrades are done:
-      // Paperless 3.x has breaking changes, Immich 3.x needs the pgvecto.rs -> VectorChord DB migration.
-      "description": "Major updates of Paperless and Immich need a manual migration",
+      // Immich is pinned (helm-release.yaml) until its major upgrade is done:
+      // Immich 3.x needs the pgvecto.rs -> VectorChord DB migration (migration/UPGRADE-PAPERLESS-IMMICH.md).
+      "description": "Major updates of Immich need a manual migration",
       "matchPackageNames": [
-        "ghcr.io/paperless-ngx/paperless-ngx",
         "ghcr.io/immich-app/immich-server",
         "ghcr.io/immich-app/immich-machine-learning"
       ],
