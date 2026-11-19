@@ -41,8 +41,8 @@ spec:
         user: immich
         database: immich
         pgVersion: 16
-        # pgvecto.rs image, same digest as on K3s (physical recovery needs the same extensions)
-        type: vectors
+        # VectorChord (Immich 3.x); migrated from pgvecto.rs on 2026-11-19 (migration/UPGRADE-PAPERLESS-IMMICH.md)
+        type: vectorchord
         # Bootstrapped from the K3s cluster's S3 backup + WAL (s3://.../immich/cnpg)
         mode: recovery
         recovery:
