@@ -119,7 +119,7 @@ Every app allows its own namespace plus `cnpg-operator`, `ingress` and `monitori
 | `ingress` | traefik-external, traefik-internal | all apps |
 | `ingress-internal` | traefik-internal | internal-only apps (headlamp), Paperless web, traefik-external dashboard |
 | `ldap-clients` | authelia, jellyfin, syncthing | lldap |
-| `media` | the media/*arr apps | each other |
+| `media` | apps that call other media apps (*arr, Seerr, Tautulli, Kometa, ...; not qbittorrent/flaresolverr/plex/jellyfin/tdarr) | media apps |
 | `monitoring` | gatus, kube-prometheus-stack | all apps |
 | `ntfy-clients` | apps that send notifications | ntfy |
 | `tailscale` | tailscale | LoadBalancer ports |
