@@ -105,13 +105,13 @@
             "uid": "prometheus"
           },
           "exemplar": true,
-          "expr": "speedtest_up{instance=\"$instance\", job=\"$job\"}",
+          "expr": "max(up{namespace=\"speedtest-tracker\", job=\"speedtest-tracker\"})",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
         }
       ],
-      "title": "Status of the Speedtest-Exporter",
+      "title": "Speedtest Tracker scrape",
       "type": "stat"
     },
     {
@@ -159,7 +159,7 @@
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "value",
+        "textMode": "name",
         "wideLayout": true
       },
       "pluginVersion": "12.1.1",
@@ -170,13 +170,13 @@
             "uid": "prometheus"
           },
           "exemplar": true,
-          "expr": "speedtest_server_id{instance=\"$instance\", job=\"$job\"}",
+          "expr": "max by (server_name, server_location) (speedtest_tracker_result_id)",
           "interval": "",
-          "legendFormat": "",
+          "legendFormat": "{{server_name}} ({{server_location}})",
           "refId": "A"
         }
       ],
-      "title": "ServerID (Last test done)",
+      "title": "Server (last test)",
       "type": "stat"
     },
     {
@@ -248,7 +248,7 @@
             "uid": "prometheus"
           },
           "exemplar": true,
-          "expr": "speedtest_download_bits_per_second{instance=\"$instance\", job=\"$job\"}*10^-6",
+          "expr": "max(speedtest_tracker_download_bits) / 1e6",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -312,7 +312,7 @@
             "uid": "prometheus"
           },
           "exemplar": true,
-          "expr": "speedtest_upload_bits_per_second{instance=\"$instance\", job=\"$job\"}*10^-6",
+          "expr": "max(speedtest_tracker_upload_bits) / 1e6",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -376,7 +376,7 @@
             "uid": "prometheus"
           },
           "exemplar": true,
-          "expr": "speedtest_ping_latency_milliseconds{instance=\"$instance\", job=\"$job\"}",
+          "expr": "max(speedtest_tracker_ping_ms)",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -440,7 +440,7 @@
             "uid": "prometheus"
           },
           "exemplar": true,
-          "expr": "speedtest_jitter_latency_milliseconds{instance=\"$instance\", job=\"$job\"}",
+          "expr": "max(speedtest_tracker_ping_jitter_ms)",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -558,7 +558,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "speedtest_download_bits_per_second{instance=\"$instance\", job=\"$job\"}*10^-6",
+          "expr": "max(speedtest_tracker_download_bits) / 1e6",
           "interval": "",
           "legendFormat": "Download Speed (Mbits/s)",
           "range": true,
@@ -662,7 +662,7 @@
             "uid": "prometheus"
           },
           "exemplar": true,
-          "expr": "speedtest_upload_bits_per_second{instance=\"$instance\", job=\"$job\"}*10^-6",
+          "expr": "max(speedtest_tracker_upload_bits) / 1e6",
           "interval": "",
           "legendFormat": "Upload Speed (Mbits/s)",
           "refId": "A"
@@ -766,7 +766,7 @@
             "uid": "prometheus"
           },
           "exemplar": true,
-          "expr": "speedtest_ping_latency_milliseconds{instance=\"$instance\", job=\"$job\"}",
+          "expr": "max(speedtest_tracker_ping_ms)",
           "interval": "",
           "legendFormat": "Ping (ms)",
           "refId": "A"
@@ -777,7 +777,7 @@
             "uid": "prometheus"
           },
           "exemplar": true,
-          "expr": "speedtest_jitter_latency_milliseconds{instance=\"$instance\", job=\"$job\"}",
+          "expr": "max(speedtest_tracker_ping_jitter_ms)",
           "instant": false,
           "interval": "",
           "legendFormat": "Jitter (ms)",
@@ -807,38 +807,6 @@
         "refresh": 1,
         "regex": "",
         "type": "datasource"
-      },
-      {
-        "current": {},
-        "datasource": "prometheus",
-        "definition": "label_values(speedtest_up, instance)",
-        "includeAll": false,
-        "label": "Instance",
-        "name": "instance",
-        "options": [],
-        "query": {
-          "query": "label_values(speedtest_up, instance)",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "type": "query"
-      },
-      {
-        "current": {},
-        "datasource": "prometheus",
-        "definition": "label_values(speedtest_up, job)",
-        "includeAll": false,
-        "label": "Job",
-        "name": "job",
-        "options": [],
-        "query": {
-          "query": "label_values(speedtest_up, job)",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "type": "query"
       }
     ]
   },
