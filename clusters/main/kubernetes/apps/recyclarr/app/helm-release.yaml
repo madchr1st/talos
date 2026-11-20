@@ -38,6 +38,7 @@ spec:
     TZ: Europe/Zurich
     # recyclarr.yml lives in Git (configmap); API keys come from values-sec.yaml (secret "api-keys").
     # Only the TRaSH profiles below are managed; the existing hand-made profiles stay untouched.
+    # Default TRaSH CF groups only: the optional Golden Rule (x265 penalty) is not synced.
     configmap:
       config:
         enabled: true
@@ -58,11 +59,6 @@ spec:
                   - trash_id: d1498e7d189fbe6c7110ceaabb7473e6  # WEB-2160p
                     reset_unmatched_scores:
                       enabled: true
-                custom_format_groups:
-                  add:
-                    - trash_id: 158188097a58d7687dee647e04af0da3  # [Optional] Golden Rule HD
-                      exclude:
-                        - 47435ece6b99a0b477caf360e79ba0bb  # x265 (HD): x265 stays allowed for 1080p
             radarr:
               radarr:
                 base_url: http://radarr.radarr.svc.cluster.local:7878
@@ -77,11 +73,6 @@ spec:
                   - trash_id: 64fb5f9858489bdac2af690e27c8f42f  # UHD Bluray + WEB
                     reset_unmatched_scores:
                       enabled: true
-                custom_format_groups:
-                  add:
-                    - trash_id: f8bf8eab4617f12dfdbd16303d8da245  # [Optional] Golden Rule HD
-                      exclude:
-                        - dc98083864ea246d05a42df0d05f81cc  # x265 (HD): x265 stays allowed for 1080p
     workload:
       main:
         podSpec:
