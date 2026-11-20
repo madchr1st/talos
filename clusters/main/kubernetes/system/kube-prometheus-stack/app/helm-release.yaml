@@ -63,7 +63,25 @@ spec:
                 http_config:
                   authorization:
                     credentials_file: /etc/alertmanager/secrets/alertmanager-ntfy/token
+      # UI behind Authelia (dedicated rule without the /api bypass: the API can create silences)
+      ingress:
+        enabled: true
+        ingressClassName: traefik-internal
+        annotations:
+          cert-manager.io/cluster-issuer: domain-0-le-prod
+          traefik.ingress.kubernetes.io/router.entrypoints: websecure
+          traefik.ingress.kubernetes.io/router.middlewares: authelia-forward-auth-authelia@kubernetescrd
+        hosts:
+          - alertmanager.${DOMAIN_0}
+        paths:
+          - /
+        tls:
+          - secretName: alertmanager-tls
+            hosts:
+              - alertmanager.${DOMAIN_0}
       alertmanagerSpec:
+        # links in notifications (the chart would derive http://)
+        externalUrl: https://alertmanager.${DOMAIN_0}/
         secrets:
           - alertmanager-ntfy
         resources:
@@ -82,9 +100,25 @@ spec:
     kubeProxy:
       enabled: false
     prometheus:
+      # UI behind Authelia (dedicated rule without the /api bypass: the admin API is enabled)
       ingress:
-        enabled: false
+        enabled: true
+        ingressClassName: traefik-internal
+        annotations:
+          cert-manager.io/cluster-issuer: domain-0-le-prod
+          traefik.ingress.kubernetes.io/router.entrypoints: websecure
+          traefik.ingress.kubernetes.io/router.middlewares: authelia-forward-auth-authelia@kubernetescrd
+        hosts:
+          - prometheus.${DOMAIN_0}
+        paths:
+          - /
+        tls:
+          - secretName: prometheus-tls
+            hosts:
+              - prometheus.${DOMAIN_0}
       prometheusSpec:
+        # generatorURL of every alert ("Source:" link in the ntfy message) -> the UI behind traefik-internal (LAN/VPN)
+        externalUrl: https://prometheus.${DOMAIN_0}/
         disableCompaction: true
         podMonitorSelectorNilUsesHelmValues: false
         probeSelectorNilUsesHelmValues: false
