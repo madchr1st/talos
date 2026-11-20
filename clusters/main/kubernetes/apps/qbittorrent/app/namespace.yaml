@@ -5,3 +5,4 @@ metadata:
   labels:
     # gluetun needs NET_ADMIN
     pod-security.kubernetes.io/enforce: privileged
+    policy-group/media: "true"

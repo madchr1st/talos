@@ -82,9 +82,9 @@ spec:
           - apiGroups: [rbac.authorization.k8s.io]
             resources: [roles, rolebindings, clusterroles, clusterrolebindings]
             verbs: [get, list, watch]
-    # Ingress only (egress stays open). Kubelet probes come from the host and are always allowed.
+    # Ingress only (egress stays open), by policy group (gen-netpols.py). Kubelet probes are always allowed.
     networkPolicy:
-      # same namespace, Traefik, Prometheus, CNPG operator
+      # same namespace + groups: cnpg-operator, ingress-internal, monitoring
       ingress:
         enabled: true
         policyType: ingress
@@ -98,13 +98,12 @@ spec:
                   matchExpressions:
                     - key: app.kubernetes.io/instance
                       operator: Exists
-          - from:
               - namespaceSelector:
-                  matchExpressions:
-                    - key: kubernetes.io/metadata.name
-                      operator: In
-                      values:
-                        - traefik-internal
-                        - kube-prometheus-stack
-                        - cloudnative-pg
-                        - gatus
+                  matchLabels:
+                    policy-group/cnpg-operator: "true"
+              - namespaceSelector:
+                  matchLabels:
+                    policy-group/ingress-internal: "true"
+              - namespaceSelector:
+                  matchLabels:
+                    policy-group/monitoring: "true"

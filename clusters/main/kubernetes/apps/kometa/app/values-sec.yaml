@@ -6,7 +6,7 @@ secret:
     enabled: ENC[AES256_GCM,data:DQxOcQ==,iv:CyozefM+aUaS/raXPTESAWJiHDw2+8mtMJjI6VZrv2o=,tag:5gxGr/mDFHTh+tKYQx07pg==,type:bool]
     data:
       KOMETA_PLEXTOKEN: ENC[AES256_GCM,data:O1rsuUvEIU4nqEkS35Tm0LdNj4c=,iv:K8SXWclyl99CFBGPp3lTfVjb+HPTRBawU3rIdtmuGIU=,tag:iqKNtpycL9sAn8cuIA/Gew==,type:str]
-      KOMETA_TMDBKEY: ENC[AES256_GCM,data:NsIGdhb6e10=,iv:dnzVSnRuxOel6IYYuVf2cwl+wuyOpWjLg2uUyBk5XfQ=,tag:RjCqCDBJ7tIE3MGhsHrHZA==,type:str]
+      KOMETA_TMDBKEY: ENC[AES256_GCM,data:LTKscYiV9Zf08ROZPtoICES2fiO5czNJO/toMcpJUmY=,iv:LbjaS3lFl4hO6seHpTHpQFcEAYthyrhyTY+XYcr/WtI=,tag:DNamfSggQ8641G4bf3fNww==,type:str]
 sops:
   age:
     - recipient: age1uaud96tmvkrmct5ssh20a4dwqy825ru5tqsdp8hu3syxlp4p9glqkamlya
@@ -18,7 +18,7 @@ sops:
         a3lWaEo3eWcwYSszbGhrRDJHUXNJWjQKgq5wSgMD6OvV+2bGULpgJ78E8wcYb2u9
         D4vE+2D2uHxpkB0VG6lR2vgrlwykBtkNWjwyd3wgsKy3UaqWyriWuw==
         -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2026-11-20T07:33:50Z"
-  mac: ENC[AES256_GCM,data:nI752wP+f6Bl8bk3QnNNDXVJC2ZxGrCeDW/3zzFA1Bc8tzWJwcdfiqncYLn/XH+65g/NuHPy098Z7azym5IRI8nBn213tA0OqMQMc+lB86WzSouL7fU1z0D1LDlqvwpQBK9vbZSJL4zcyPp5m10uzYLe6w2tJBiobxIr8WQd8g0=,iv:Htll0cyWdNyZiAlvmBfyvVihFOvCOFh33vOZzRMwn+8=,tag:+/UDsV6HOl8/NHgF3Uq3Iw==,type:str]
+  lastmodified: "2026-11-20T08:00:50Z"
+  mac: ENC[AES256_GCM,data:UpME3sK0t+1pg5va1KIAMQ9UOfQM7qLf3oz6r6CuQ2jYUekSR4WJF8nJqm87ICOLsKiWJmIhb+OZuGsjQiJynK2uz5VadBTocu22NnnpYGSCMjjaCp1FKuVel2v48eNfGsYQIBEzSxMOUUrj5IU6g3nSWoQ+Aqje2HPsMRaZVNw=,iv:N15Qsb3/M2KhJ5uZ/YpDGllCPZCwc0iJJ9hCbLhIxVs=,tag:fkDWPhmc3H/6sGVezW31Ag==,type:str]
   encrypted_regex: .
   version: 3.12.1

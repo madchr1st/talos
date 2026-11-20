@@ -134,9 +134,9 @@ spec:
                 NTFY_SMTP_SERVER_LISTEN: ":2525"
                 NTFY_SMTP_SERVER_DOMAIN: ${DOMAIN_0}
                 NTFY_SMTP_SERVER_ADDR_PREFIX: ntfy-
-    # Ingress only (egress stays open). Kubelet probes come from the host and are always allowed.
+    # Ingress only (egress stays open), by policy group (gen-netpols.py). Kubelet probes are always allowed.
     networkPolicy:
-      # same namespace, Traefik, Prometheus, CNPG operator, callers: sonarr, radarr, prowlarr, tautulli, home-assistant, grafana, bazarr, maintainerr, speedtest-tracker, LoadBalancer/LAN ports
+      # same namespace + groups: cnpg-operator, ingress, monitoring, ntfy-clients + LoadBalancer/LAN ports
       ingress:
         enabled: true
         policyType: ingress
@@ -150,26 +150,18 @@ spec:
                   matchExpressions:
                     - key: app.kubernetes.io/instance
                       operator: Exists
-          - from:
               - namespaceSelector:
-                  matchExpressions:
-                    - key: kubernetes.io/metadata.name
-                      operator: In
-                      values:
-                        - traefik-internal
-                        - traefik-external
-                        - kube-prometheus-stack
-                        - cloudnative-pg
-                        - gatus
-                        - sonarr
-                        - radarr
-                        - prowlarr
-                        - tautulli
-                        - home-assistant
-                        - grafana
-                        - bazarr
-                        - maintainerr
-                        - speedtest-tracker
+                  matchLabels:
+                    policy-group/cnpg-operator: "true"
+              - namespaceSelector:
+                  matchLabels:
+                    policy-group/ingress: "true"
+              - namespaceSelector:
+                  matchLabels:
+                    policy-group/monitoring: "true"
+              - namespaceSelector:
+                  matchLabels:
+                    policy-group/ntfy-clients: "true"
           - from:
               - ipBlock:
                   cidr: 10.0.0.0/8
@@ -179,7 +171,7 @@ spec:
                   cidr: 192.168.0.0/16
               - namespaceSelector:
                   matchLabels:
-                    kubernetes.io/metadata.name: tailscale
+                    policy-group/tailscale: "true"
             ports:
               - port: 2525
                 protocol: TCP

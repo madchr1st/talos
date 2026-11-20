@@ -1,5 +1,5 @@
-# Ingress only (egress stays open). Trek is not a TrueCharts chart, so a plain NetworkPolicy:
-# Traefik and Prometheus may reach it; kubelet probes come from the host and are always allowed.
+# Ingress only (egress stays open). Trek is not a TrueCharts chart, so a plain NetworkPolicy by policy group
+# (same model as migration/tools/gen-netpols.py). Kubelet probes come from the host and are always allowed.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -13,11 +13,8 @@ spec:
     - from:
         - podSelector: {}
         - namespaceSelector:
-            matchExpressions:
-              - key: kubernetes.io/metadata.name
-                operator: In
-                values:
-                  - traefik-internal
-                  - traefik-external
-                  - kube-prometheus-stack
-                  - gatus
+            matchLabels:
+              policy-group/ingress: "true"
+        - namespaceSelector:
+            matchLabels:
+              policy-group/monitoring: "true"

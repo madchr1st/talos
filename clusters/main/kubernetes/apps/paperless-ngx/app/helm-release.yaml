@@ -136,9 +136,9 @@ spec:
                 PAPERLESS_ARCHIVE_FILE_GENERATION: always
                 # consume folder is NFS: inotify doesn't see files written by the scanner on another host
                 PAPERLESS_CONSUMER_POLLING_INTERVAL: "60"
-    # Ingress only (egress stays open). Kubelet probes come from the host and are always allowed.
+    # Ingress only (egress stays open), by policy group (gen-netpols.py). Kubelet probes are always allowed.
     networkPolicy:
-      # Redis/CNPG: same namespace, Traefik, Prometheus, CNPG operator
+      # Redis/CNPG: same namespace + groups: cnpg-operator, ingress, monitoring
       ingress:
         enabled: true
         policyType: ingress
@@ -156,18 +156,16 @@ spec:
                   matchExpressions:
                     - key: app.kubernetes.io/instance
                       operator: Exists
-          - from:
               - namespaceSelector:
-                  matchExpressions:
-                    - key: kubernetes.io/metadata.name
-                      operator: In
-                      values:
-                        - traefik-internal
-                        - traefik-external
-                        - kube-prometheus-stack
-                        - cloudnative-pg
-                        - gatus
-      # Paperless trusts the Remote-User header from Authelia: only traefik-internal may reach the web pod
+                  matchLabels:
+                    policy-group/cnpg-operator: "true"
+              - namespaceSelector:
+                  matchLabels:
+                    policy-group/ingress: "true"
+              - namespaceSelector:
+                  matchLabels:
+                    policy-group/monitoring: "true"
+      # Paperless trusts the Remote-User header from Authelia: only ingress-internal may reach the web pod
       web:
         enabled: true
         policyType: ingress
@@ -178,8 +176,5 @@ spec:
         ingress:
           - from:
               - namespaceSelector:
-                  matchExpressions:
-                    - key: kubernetes.io/metadata.name
-                      operator: In
-                      values:
-                        - traefik-internal
+                  matchLabels:
+                    policy-group/ingress-internal: "true"

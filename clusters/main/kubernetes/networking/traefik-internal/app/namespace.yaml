@@ -2,3 +2,6 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: traefik-internal
+  labels:
+    policy-group/ingress: "true"
+    policy-group/ingress-internal: "true"

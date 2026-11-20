@@ -172,9 +172,9 @@ spec:
               extraArgs: []
         replicas: 2
         type: Deployment
-    # Ingress only (egress stays open). Kubelet probes come from the host and are always allowed.
+    # Ingress only (egress stays open), by policy group (gen-netpols.py). Kubelet probes are always allowed.
     networkPolicy:
-      # same namespace, Traefik, Prometheus, CNPG operator, callers: authelia, syncthing, jellyfin, LoadBalancer/LAN ports
+      # same namespace + groups: cnpg-operator, ingress, ldap-clients, monitoring + LoadBalancer/LAN ports
       ingress:
         enabled: true
         policyType: ingress
@@ -188,20 +188,18 @@ spec:
                   matchExpressions:
                     - key: app.kubernetes.io/instance
                       operator: Exists
-          - from:
               - namespaceSelector:
-                  matchExpressions:
-                    - key: kubernetes.io/metadata.name
-                      operator: In
-                      values:
-                        - traefik-internal
-                        - traefik-external
-                        - kube-prometheus-stack
-                        - cloudnative-pg
-                        - gatus
-                        - authelia
-                        - syncthing
-                        - jellyfin
+                  matchLabels:
+                    policy-group/cnpg-operator: "true"
+              - namespaceSelector:
+                  matchLabels:
+                    policy-group/ingress: "true"
+              - namespaceSelector:
+                  matchLabels:
+                    policy-group/ldap-clients: "true"
+              - namespaceSelector:
+                  matchLabels:
+                    policy-group/monitoring: "true"
           - from:
               - ipBlock:
                   cidr: 10.0.0.0/8
@@ -211,7 +209,7 @@ spec:
                   cidr: 192.168.0.0/16
               - namespaceSelector:
                   matchLabels:
-                    kubernetes.io/metadata.name: tailscale
+                    policy-group/tailscale: "true"
             ports:
               - port: 3890
                 protocol: TCP
