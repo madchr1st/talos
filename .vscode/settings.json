@@ -12,5 +12,10 @@
           "path": "/usr/bin/fish"
         }
       },
-    "terminal.integrated.defaultProfile.linux": "fish"
+    "terminal.integrated.defaultProfile.linux": "fish",
+    "editor.fontSize": 16,
+    "chat.fontFamily": "Roboto",
+    "chat.fontSize": 16,
+    "chat.editor.fontFamily": "Roboto",
+    "chat.editor.fontSize": 16
 }
