@@ -78,10 +78,6 @@ spec:
         primary: true
         ingressClassName: traefik-internal
         hosts:
-          - host: immich.${DOMAIN_0}
-            paths:
-              - path: /
-                pathType: Prefix
           - host: photos.${DOMAIN_0}
             paths:
               - path: /
@@ -99,10 +95,6 @@ spec:
         enabled: true
         ingressClassName: traefik-external
         hosts:
-          - host: immich.${DOMAIN_0}
-            paths:
-              - path: /
-                pathType: Prefix
           - host: photos.${DOMAIN_0}
             paths:
               - path: /
