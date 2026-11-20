@@ -1,0 +1,344 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: homepage
+  namespace: homepage
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: homepage
+      version: 14.5.0
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 15m
+  timeout: 20m
+  maxHistory: 3
+  driftDetection:
+    mode: warn
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    TZ: Europe/Zurich
+    ingress:
+      main:
+        enabled: true
+        primary: true
+        ingressClassName: traefik-internal
+        hosts:
+          - host: homepage.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+        integrations:
+          certManager:
+            enabled: true
+            certificateIssuer: domain-0-le-prod
+          traefik:
+            enabled: true
+            entrypoints:
+              - websecure
+            middlewares:
+              - name: forward-auth-authelia
+                namespace: authelia
+                expandObjectName: false
+    # Config lives in Git (configmap); edit services/bookmarks here. Widgets with API keys: HOMEPAGE_VAR_* from a secret later.
+    forceConfigFromValues: true
+    persistence:
+      # only logs land here (config files come from the configmap)
+      config:
+        enabled: true
+        type: emptyDir
+    configmap:
+      config:
+        enabled: true
+        data:
+          custom.js: ""
+          custom.css: ""
+          kubernetes.yaml: |
+            ---
+            mode: cluster
+          settings.yaml: |
+            ---
+            title: Home
+            theme: dark
+            color: slate
+            headerStyle: clean
+            statusStyle: dot
+            hideVersion: true
+            layout:
+              Media:
+                style: row
+                columns: 4
+              Arr:
+                style: row
+                columns: 4
+              Home:
+                style: row
+                columns: 4
+              Infra:
+                style: row
+                columns: 4
+          widgets.yaml: |
+            ---
+            - kubernetes:
+                cluster:
+                  show: true
+                  cpu: true
+                  memory: true
+                  showLabel: true
+                  label: cluster
+                nodes:
+                  show: false
+            - datetime:
+                text_size: md
+                format:
+                  dateStyle: long
+                  timeStyle: short
+            - search:
+                provider: duckduckgo
+                target: _blank
+          services.yaml: |
+            ---
+            - Media:
+                - Plex:
+                    href: https://plex.${DOMAIN_0}
+                    icon: plex.png
+                    description: Media server
+                    namespace: plex
+                    app: plex
+                - Jellyfin:
+                    href: https://jellyfin.${DOMAIN_0}
+                    icon: jellyfin.png
+                    description: Media server
+                    namespace: jellyfin
+                    app: jellyfin
+                - Seerr:
+                    href: https://request.${DOMAIN_0}
+                    icon: overseerr.png
+                    description: Requests (Plex)
+                    namespace: seerr
+                    app: seerr
+                - Jellyseerr:
+                    href: https://jellyseerr.${DOMAIN_0}
+                    icon: jellyseerr.png
+                    description: Requests (Jellyfin)
+                    namespace: jellyseerr
+                    app: jellyseerr
+                - Tautulli:
+                    href: https://tautulli.${DOMAIN_0}
+                    icon: tautulli.png
+                    description: Plex statistics
+                    namespace: tautulli
+                    app: tautulli
+                - Jellystat:
+                    href: https://jellystat.${DOMAIN_0}
+                    icon: jellystat.png
+                    description: Jellyfin statistics
+                    namespace: jellystat
+                    app: jellystat
+                - Maintainerr:
+                    href: https://maintainerr.${DOMAIN_0}
+                    icon: maintainerr.png
+                    description: Library clean-up
+                    namespace: maintainerr
+                    app: maintainerr
+                - Tdarr:
+                    href: https://tdarr.${DOMAIN_0}
+                    icon: tdarr.png
+                    description: Transcoding
+                    namespace: tdarr
+                    app: tdarr
+            - Arr:
+                - Sonarr:
+                    href: https://sonarr.${DOMAIN_0}
+                    icon: sonarr.png
+                    description: TV
+                    namespace: sonarr
+                    app: sonarr
+                - Radarr:
+                    href: https://radarr.${DOMAIN_0}
+                    icon: radarr.png
+                    description: Movies
+                    namespace: radarr
+                    app: radarr
+                - Prowlarr:
+                    href: https://prowlarr.${DOMAIN_0}
+                    icon: prowlarr.png
+                    description: Indexers
+                    namespace: prowlarr
+                    app: prowlarr
+                - Bazarr:
+                    href: https://bazarr.${DOMAIN_0}
+                    icon: bazarr.png
+                    description: Subtitles
+                    namespace: bazarr
+                    app: bazarr
+                - qBittorrent:
+                    href: https://qbittorrent.${DOMAIN_0}
+                    icon: qbittorrent.png
+                    description: Downloads
+                    namespace: qbittorrent
+                    app: qbittorrent
+            - Home:
+                - Home Assistant:
+                    href: https://home-assistant.${DOMAIN_0}
+                    icon: home-assistant.png
+                    description: Smart home
+                    namespace: home-assistant
+                    app: home-assistant
+                - Immich:
+                    href: https://immich.${DOMAIN_0}
+                    icon: immich.png
+                    description: Photos
+                    namespace: immich
+                    app: immich
+                - Paperless:
+                    href: https://papierlos.${DOMAIN_0}
+                    icon: paperless-ngx.png
+                    description: Documents
+                    namespace: paperless-ngx
+                    app: paperless-ngx
+                - Stirling-PDF:
+                    href: https://stirling-pdf.${DOMAIN_0}
+                    icon: stirling-pdf.png
+                    description: PDF tools
+                    namespace: stirling-pdf
+                    app: stirling-pdf
+                - Tandoor:
+                    href: https://tandoor.${DOMAIN_0}
+                    icon: tandoor-recipes.png
+                    description: Recipes
+                    namespace: tandoor
+                    app: tandoor-recipes
+                - TREK:
+                    href: https://trek.${DOMAIN_0}
+                    icon: mdi-map-marker-path
+                    description: Trips
+                - Vaultwarden:
+                    href: https://bitwarden.${DOMAIN_0}
+                    icon: vaultwarden.png
+                    description: Passwords
+                    namespace: vaultwarden-prod
+                    app: vaultwarden
+                - Syncthing:
+                    href: https://sync.${DOMAIN_0}
+                    icon: syncthing.png
+                    description: File sync
+                    namespace: syncthing
+                    app: syncthing
+            - Infra:
+                - Gatus:
+                    href: https://gatus.${DOMAIN_0}
+                    icon: gatus.png
+                    description: Status / uptime
+                    namespace: gatus
+                    app: gatus
+                - Grafana:
+                    href: https://grafana.${DOMAIN_0}
+                    icon: grafana.png
+                    description: Dashboards
+                    namespace: grafana
+                    app: grafana
+                - Speedtest Tracker:
+                    href: https://speedtest.${DOMAIN_0}
+                    icon: speedtest-tracker.png
+                    description: Internet speed
+                    namespace: speedtest-tracker
+                    app: speedtest-tracker
+                - Headlamp:
+                    href: https://headlamp.${DOMAIN_0}
+                    icon: headlamp.png
+                    description: Kubernetes
+                    namespace: headlamp
+                    app: headlamp
+                - Hubble:
+                    href: https://hubble.${DOMAIN_0}
+                    icon: cilium.png
+                    description: Network flows
+                - Traefik internal:
+                    href: https://traefik-internal.${DOMAIN_0}
+                    icon: traefik.png
+                    description: Ingress (LAN)
+                - Traefik external:
+                    href: https://traefik-external.${DOMAIN_0}
+                    icon: traefik.png
+                    description: Ingress (internet)
+                - ntfy:
+                    href: https://ntfy.${DOMAIN_0}
+                    icon: ntfy.png
+                    description: Notifications
+                    namespace: ntfy
+                    app: ntfy
+                - pgAdmin:
+                    href: https://pgadmin.${DOMAIN_0}
+                    icon: pgadmin.png
+                    description: PostgreSQL
+                    namespace: pgadmin
+                    app: pgadmin
+                - LLDAP:
+                    href: https://ldap.${DOMAIN_0}
+                    icon: lldap.png
+                    description: Users and groups
+                    namespace: lldap
+                    app: lldap
+                - Authelia:
+                    href: https://sso.${DOMAIN_0}
+                    icon: authelia.png
+                    description: SSO
+                    namespace: authelia
+                    app: authelia
+          bookmarks.yaml: |
+            ---
+            - Admin:
+                - GitHub repo:
+                    - abbr: GH
+                      href: https://github.com/madchr1st/talos
+                - TrueCharts:
+                    - abbr: TC
+                      href: https://truecharts.org
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                HOMEPAGE_ALLOWED_HOSTS: homepage.${DOMAIN_0}
+    # Ingress only (egress stays open). Kubelet probes come from the host and are always allowed.
+    networkPolicy:
+      # same namespace, Traefik, Prometheus, CNPG operator
+      ingress:
+        enabled: true
+        policyType: ingress
+        podSelector:
+          matchExpressions:
+            - key: app.kubernetes.io/instance
+              operator: Exists
+        ingress:
+          - from:
+              - podSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/instance
+                      operator: Exists
+          - from:
+              - namespaceSelector:
+                  matchExpressions:
+                    - key: kubernetes.io/metadata.name
+                      operator: In
+                      values:
+                        - traefik-internal
+                        - traefik-external
+                        - kube-prometheus-stack
+                        - cloudnative-pg
+                        - gatus

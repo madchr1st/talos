@@ -135,6 +135,7 @@ spec:
                         - traefik-external
                         - kube-prometheus-stack
                         - cloudnative-pg
+                        - gatus
                         - sonarr
                         - radarr
                         - prowlarr

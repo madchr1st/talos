@@ -91,6 +91,7 @@ spec:
                         - traefik-external
                         - kube-prometheus-stack
                         - cloudnative-pg
+                        - gatus
                         - sonarr
                         - radarr
     # Allowed Hosts: public names (Traefik) + in-cluster service names (Prowlarr, Seerr, Unpackerr, exportarr); localhost and the pod hostname are always allowed

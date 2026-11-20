@@ -143,6 +143,7 @@ spec:
                         - traefik-external
                         - kube-prometheus-stack
                         - cloudnative-pg
+                        - gatus
           - from:
               - ipBlock:
                   cidr: 0.0.0.0/0

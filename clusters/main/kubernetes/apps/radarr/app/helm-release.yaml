@@ -101,7 +101,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
     # Ingress only (egress stays open). Kubelet probes come from the host and are always allowed.
     networkPolicy:
-      # same namespace, Traefik, Prometheus, CNPG operator, callers: prowlarr, seerr, jellyseerr, unpackerr
+      # same namespace, Traefik, Prometheus, CNPG operator, callers: prowlarr, seerr, jellyseerr, unpackerr, bazarr, recyclarr, maintainerr
       ingress:
         enabled: true
         policyType: ingress
@@ -125,10 +125,14 @@ spec:
                         - traefik-external
                         - kube-prometheus-stack
                         - cloudnative-pg
+                        - gatus
                         - prowlarr
                         - seerr
                         - jellyseerr
                         - unpackerr
+                        - bazarr
+                        - recyclarr
+                        - maintainerr
     # Allowed Hosts: public names (Traefik) + in-cluster service names (Prowlarr, Seerr, Unpackerr, exportarr); localhost and the pod hostname are always allowed
     workload:
       main:

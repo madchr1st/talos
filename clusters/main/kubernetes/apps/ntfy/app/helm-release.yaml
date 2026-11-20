@@ -136,7 +136,7 @@ spec:
                 NTFY_SMTP_SERVER_ADDR_PREFIX: ntfy-
     # Ingress only (egress stays open). Kubelet probes come from the host and are always allowed.
     networkPolicy:
-      # same namespace, Traefik, Prometheus, CNPG operator, callers: sonarr, radarr, prowlarr, tautulli, home-assistant, grafana, LoadBalancer/LAN ports
+      # same namespace, Traefik, Prometheus, CNPG operator, callers: sonarr, radarr, prowlarr, tautulli, home-assistant, grafana, bazarr, maintainerr, speedtest-tracker, LoadBalancer/LAN ports
       ingress:
         enabled: true
         policyType: ingress
@@ -160,12 +160,16 @@ spec:
                         - traefik-external
                         - kube-prometheus-stack
                         - cloudnative-pg
+                        - gatus
                         - sonarr
                         - radarr
                         - prowlarr
                         - tautulli
                         - home-assistant
                         - grafana
+                        - bazarr
+                        - maintainerr
+                        - speedtest-tracker
           - from:
               - ipBlock:
                   cidr: 10.0.0.0/8
