@@ -1,7 +1,7 @@
 # Ingress for the traefik-external pods:
 #   web/websecure (8000/8443): from anywhere (internet via the UDR port forward, Cloudflare, pods)
-#   traefik (8080, dashboard + API WITHOUT auth): only from traefik-internal, which serves it behind Authelia
-#   metrics (9100): only from Prometheus
+#   traefik (8080, dashboard + API WITHOUT auth): only from policy group ingress-internal (traefik-internal, behind Authelia)
+#   metrics (9100): only from policy group monitoring
 # Kubelet probes (/ping on 8080) come from the host and are always allowed by Cilium.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -28,14 +28,14 @@ spec:
     - from:
         - namespaceSelector:
             matchLabels:
-              kubernetes.io/metadata.name: traefik-internal
+              policy-group/ingress-internal: "true"
       ports:
         - port: 8080
           protocol: TCP
     - from:
         - namespaceSelector:
             matchLabels:
-              kubernetes.io/metadata.name: kube-prometheus-stack
+              policy-group/monitoring: "true"
       ports:
         - port: 9100
           protocol: TCP

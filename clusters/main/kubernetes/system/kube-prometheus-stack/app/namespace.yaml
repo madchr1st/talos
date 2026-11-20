@@ -4,3 +4,4 @@ metadata:
   name: kube-prometheus-stack
   labels:
     pod-security.kubernetes.io/enforce: privileged
+    policy-group/monitoring: "true"

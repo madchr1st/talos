@@ -105,6 +105,26 @@ substitutes from; substitution is strict, a missing variable breaks the whole Ku
 - `.ct` suffix — ForgeTool-managed cluster template files. **Do not edit these directly**; they are regenerated from `clusterenv.yaml`. The comment "DO NOT ALTER THIS FILE, CHANGE DO NOT PERSIST" confirms this.
 - `values-sec.yaml` — Fully SOPS-encrypted Helm values for secrets.
 - `*.secret.yaml` — SOPS-encrypted Kubernetes Secret manifests.
+- Keep lists sorted alphabetically: `kustomization.yaml` resources, namespace/group lists, hosts, Authelia domains.
+- Prefer the simplest setup that works; maintainability beats fine-grained tightness.
+
+## NetworkPolicies (policy groups)
+
+Ingress-only policies that reference **namespace labels `policy-group/<group>: "true"` only**, never namespace names.
+Every app allows its own namespace plus `cnpg-operator`, `ingress` and `monitoring` (+ app-specific groups / LoadBalancer ports).
+
+| Group | Members (callers) | Allowed into |
+|---|---|---|
+| `cnpg-operator` | cloudnative-pg | all apps |
+| `ingress` | traefik-external, traefik-internal | all apps |
+| `ingress-internal` | traefik-internal | internal-only apps (headlamp), Paperless web, traefik-external dashboard |
+| `ldap-clients` | authelia, jellyfin, syncthing | lldap |
+| `media` | apps that call other media apps (*arr, Seerr, Tautulli, Kometa, ...; not qbittorrent/flaresolverr/plex/jellyfin/tdarr) | media apps |
+| `monitoring` | gatus, kube-prometheus-stack | all apps |
+| `ntfy-clients` | apps that send notifications | ntfy |
+| `tailscale` | tailscale | LoadBalancer ports |
+
+To add an app or caller: put the namespace into the group (label in its `namespace.yaml`) and list the group for the target.
 
 ## Ingress Classes
 
