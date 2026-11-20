@@ -1,0 +1,21 @@
+secret:
+  api-keys:
+    enabled: ENC[AES256_GCM,data:w7zWiA==,iv:b9pi4ekCE21RRn4p37k2cx8V2jJ5/WHyvb17xHoMvLc=,tag:rrlpvRIgoqP6mrYuNu1CyA==,type:bool]
+    data:
+      SONARR_API_KEY: ENC[AES256_GCM,data:rgBYOWsMdQF40qFjKu0ZcCvLUv2m+gdhlaVrFqWCdPg=,iv:s/FF0nVGq1sdky46GscFovAcMbY8FYCaJNHRzFyhzzo=,tag:MeMDwxacGzjS2vRx5uTQjg==,type:str]
+      RADARR_API_KEY: ENC[AES256_GCM,data:kWtxGDom0Po4lfHh3b5N9Z7tI9mmpLNBkVHBBrrp4wY=,iv:UWLWm3lNy5l9OPoHxFeDNb8Aqno2rDGL1bR25AAyWco=,tag:0vyUUCvTvBszOSH0ce9Qaw==,type:str]
+sops:
+  age:
+    - recipient: age1uaud96tmvkrmct5ssh20a4dwqy825ru5tqsdp8hu3syxlp4p9glqkamlya
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB6bXNqSEFMaTdDK05tdVYv
+        VXAwVUpoSFZRTnZqNUw5aWx5SjFmcVV6ZGxNClpVSWFLK2dBb2lxSWgzN3h6dUgy
+        UmNJMlRPT0xGenNWS2RsVjY3dUZ2NEkKLS0tIHVaRVhBNTkvd3NVSjJYNk8yTFRi
+        Ly9WZkNIbVYwcGs5OXlFVklNMnUzVWsKQW+rHJGxKYO80dzg4uIrHtpqLgW4Ylr8
+        clXdhz7sDT8E5X/ZSra1C0fdRQGd5DjWEcnQ1e2DGbDUNDBysdBgBg==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-11-20T07:33:50Z"
+  mac: ENC[AES256_GCM,data:O6ARpblmByovv+JIs2fCSaC6fSxWA2MOVH0M9CTEZPJaZ9Y20kdwTW0M1xL4C0adyXDLe2Vcz0lMuh2ZU9F/J73OvXnQQ2PrPxcSrn64LUNSVckngc94fteumtyymF/fUBfO588AdVc5NdqPqA5fGy5aNIdaj8y4cUZ7zAadhJg=,iv:ZQ++gj3MNTwgn5wvsVCBKy+/sf2i8l13U0P/0YD8AXc=,tag:jRbV4fatuxvXCZO3oNm5VA==,type:str]
+  encrypted_regex: .
+  version: 3.12.1

@@ -1,0 +1,840 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: gatus
+  namespace: gatus
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: gatus
+      version: 5.3.5
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 15m
+  timeout: 20m
+  maxHistory: 3
+  driftDetection:
+    mode: warn
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  valuesFrom:
+    # SOPS-encrypted secrets (values-sec.yaml)
+    - kind: Secret
+      name: gatus-values-sec
+      valuesKey: values-sec.yaml
+  values:
+    TZ: Europe/Zurich
+    ingress:
+      main:
+        enabled: true
+        primary: true
+        ingressClassName: traefik-internal
+        hosts:
+          - host: gatus.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+        integrations:
+          certManager:
+            enabled: true
+            certificateIssuer: domain-0-le-prod
+          traefik:
+            enabled: true
+            entrypoints:
+              - websecure
+            middlewares:
+              - name: forward-auth-authelia
+                namespace: authelia
+                expandObjectName: false
+    cnpg:
+      main:
+        enabled: true
+        user: gatus
+        database: gatus
+        cluster:
+          # single node: a 2nd instance adds RAM but no real HA; S3 backups stay enabled
+          instances: 1
+          singleNode: true
+          storage:
+            size: 2Gi
+          walStorage:
+            size: 2Gi
+        monitoring:
+          enablePodMonitor: true
+        backups:
+          enabled: true
+          credentials: mys3
+          scheduledBackups:
+            - name: daily-backup
+              schedule: "0 0 0 * * *"
+              backupOwnerReference: self
+              immediate: true
+              suspend: false
+          retentionPolicy: 30d
+    credentials:
+      mys3:
+        type: s3
+        url: ${CNPG_BACKUP_AWS_S3_URL}
+        bucket: ${CNPG_BACKUP_AWS_S3_BUCKET}
+        accessKey: ${CNPG_BACKUP_AWS_S3_ACCESS_KEY}
+        secretKey: ${CNPG_BACKUP_AWS_S3_SECRET_KEY}
+        encrKey: ${CNPG_BACKUP_AWS_S3_ENCRYPTION_KEY}
+    configmap:
+      config:
+        enabled: true
+        data:
+          config.yaml: |
+            {{- if .Values.cnpg.main.enabled }}
+            storage:
+              type: postgres
+              path: {{ (printf "%s?client_encoding=utf8" (.Values.cnpg.main.creds.std | trimAll "\"")) | quote }}
+            {{- end }}
+            metrics: true
+            ui:
+              title: Status
+              header: Status
+            alerting:
+              ntfy:
+                url: http://ntfy.ntfy.svc.cluster.local:10222
+                topic: gatus
+                # double dollar = escaped for Flux; Gatus expands the variable from its env (secret from values-sec.yaml)
+                token: $${NTFY_TOKEN}
+                priority: 4
+                default-alert:
+                  enabled: true
+                  failure-threshold: 3
+                  success-threshold: 2
+                  send-on-resolved: true
+            endpoints:
+              - name: Authelia
+                group: Auth
+                url: "http://authelia.authelia.svc.cluster.local:9091/api/health"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                alerts:
+                  - type: ntfy
+              - name: LLDAP
+                group: Auth
+                url: "http://lldap.lldap.svc.cluster.local:17170/health"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                alerts:
+                  - type: ntfy
+              - name: Vaultwarden
+                group: Auth
+                url: "http://vaultwarden-prod.vaultwarden-prod.svc.cluster.local:10102/alive"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                alerts:
+                  - type: ntfy
+              - name: Plex
+                group: Media
+                url: "http://plex.plex.svc.cluster.local:32400/identity"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                alerts:
+                  - type: ntfy
+              - name: Jellyfin
+                group: Media
+                url: "http://jellyfin.jellyfin.svc.cluster.local:8096/health"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                  - "[BODY] == Healthy"
+                alerts:
+                  - type: ntfy
+              - name: Seerr
+                group: Media
+                url: "http://seerr.seerr.svc.cluster.local:10241/api/v1/status"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                alerts:
+                  - type: ntfy
+              - name: Jellyseerr
+                group: Media
+                url: "http://jellyseerr.jellyseerr.svc.cluster.local:10241/api/v1/status"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                alerts:
+                  - type: ntfy
+              - name: Tautulli
+                group: Media
+                url: "http://tautulli.tautulli.svc.cluster.local:8181/status"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                alerts:
+                  - type: ntfy
+              - name: Jellystat
+                group: Media
+                url: "http://jellystat.jellystat.svc.cluster.local:10681/"
+                interval: 2m
+                conditions:
+                  - "[STATUS] < 500"
+                alerts:
+                  - type: ntfy
+              - name: Sonarr
+                group: Arr
+                url: "http://sonarr.sonarr.svc.cluster.local:8989/ping"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                alerts:
+                  - type: ntfy
+              - name: Radarr
+                group: Arr
+                url: "http://radarr.radarr.svc.cluster.local:7878/ping"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                alerts:
+                  - type: ntfy
+              - name: Prowlarr
+                group: Arr
+                url: "http://prowlarr.prowlarr.svc.cluster.local:9696/ping"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                alerts:
+                  - type: ntfy
+              - name: Bazarr
+                group: Arr
+                url: "http://bazarr.bazarr.svc.cluster.local:6767/"
+                interval: 2m
+                conditions:
+                  - "[STATUS] < 500"
+                alerts:
+                  - type: ntfy
+              - name: qBittorrent
+                group: Arr
+                url: "http://qbittorrent.qbittorrent.svc.cluster.local:10095/"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                alerts:
+                  - type: ntfy
+              - name: FlareSolverr
+                group: Arr
+                url: "http://flaresolverr.flaresolverr.svc.cluster.local:8191/health"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                alerts:
+                  - type: ntfy
+              - name: Home Assistant
+                group: Home
+                url: "http://home-assistant.home-assistant.svc.cluster.local:8123/manifest.json"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                alerts:
+                  - type: ntfy
+              - name: Immich
+                group: Home
+                url: "http://immich.immich.svc.cluster.local:10323/api/server/ping"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                alerts:
+                  - type: ntfy
+              - name: Paperless
+                group: Home
+                url: "http://paperless-ngx.paperless-ngx.svc.cluster.local:10140/"
+                interval: 2m
+                conditions:
+                  - "[STATUS] < 500"
+                alerts:
+                  - type: ntfy
+              - name: Tandoor
+                group: Home
+                url: "http://tandoor-tandoor-recipes.tandoor.svc.cluster.local:10029/"
+                interval: 2m
+                conditions:
+                  - "[STATUS] < 500"
+                alerts:
+                  - type: ntfy
+              - name: Syncthing
+                group: Home
+                url: "http://syncthing.syncthing.svc.cluster.local:8384/rest/noauth/health"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                alerts:
+                  - type: ntfy
+              - name: Firefox Sync
+                group: Home
+                url: "http://firefox-syncserver.firefox-syncserver.svc.cluster.local:10051/__heartbeat__"
+                interval: 2m
+                conditions:
+                  - "[STATUS] < 500"
+                alerts:
+                  - type: ntfy
+              - name: TREK
+                group: Home
+                url: "http://trek.trek.svc.cluster.local:3000/"
+                interval: 2m
+                conditions:
+                  - "[STATUS] < 500"
+                alerts:
+                  - type: ntfy
+              - name: Stirling-PDF
+                group: Home
+                url: "http://stirling-pdf.stirling-pdf.svc.cluster.local:18080/api/v1/info/status"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                alerts:
+                  - type: ntfy
+              - name: ntfy
+                group: Infra
+                url: "http://ntfy.ntfy.svc.cluster.local:10222/v1/health"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                  - "[BODY].healthy == true"
+                alerts:
+                  - type: ntfy
+              - name: Grafana
+                group: Infra
+                url: "http://grafana.grafana.svc.cluster.local:3000/api/health"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                alerts:
+                  - type: ntfy
+              - name: pgAdmin
+                group: Infra
+                url: "http://pgadmin.pgadmin.svc.cluster.local:10024/misc/ping"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                alerts:
+                  - type: ntfy
+              - name: Speedtest Tracker
+                group: Infra
+                url: "http://speedtest-tracker.speedtest-tracker.svc.cluster.local:9004/api/healthcheck"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                alerts:
+                  - type: ntfy
+              - name: Headlamp
+                group: Infra
+                url: "http://headlamp.headlamp.svc.cluster.local:80/"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                alerts:
+                  - type: ntfy
+              - name: Maintainerr
+                group: Infra
+                url: "http://maintainerr.maintainerr.svc.cluster.local:6246/"
+                interval: 2m
+                conditions:
+                  - "[STATUS] < 500"
+                alerts:
+                  - type: ntfy
+              - name: Tdarr
+                group: Infra
+                url: "http://tdarr.tdarr.svc.cluster.local:8265/api/v2/status"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                alerts:
+                  - type: ntfy
+              - name: Blocky (LAN)
+                group: DNS
+                url: "${BLOCKY_IP}"
+                interval: 2m
+                dns:
+                  query-name: "sso.${DOMAIN_0}"
+                  query-type: A
+                conditions:
+                  - "[DNS_RCODE] == NOERROR"
+                alerts:
+                  - type: ntfy
+              - name: sso
+                group: Certificates
+                url: "https://sso.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: bitwarden
+                group: Certificates
+                url: "https://bitwarden.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: plex
+                group: Certificates
+                url: "https://plex.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: jellyfin
+                group: Certificates
+                url: "https://jellyfin.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: request
+                group: Certificates
+                url: "https://request.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: jellyseerr
+                group: Certificates
+                url: "https://jellyseerr.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: immich
+                group: Certificates
+                url: "https://immich.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: photos
+                group: Certificates
+                url: "https://photos.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: ntfy
+                group: Certificates
+                url: "https://ntfy.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: sync
+                group: Certificates
+                url: "https://sync.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: tandoor
+                group: Certificates
+                url: "https://tandoor.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: firefox-sync
+                group: Certificates
+                url: "https://firefox-sync.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: home-assistant
+                group: Certificates
+                url: "https://home-assistant.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: papierlos
+                group: Certificates
+                url: "https://papierlos.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: grafana
+                group: Certificates
+                url: "https://grafana.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: sonarr
+                group: Certificates
+                url: "https://sonarr.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: radarr
+                group: Certificates
+                url: "https://radarr.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: prowlarr
+                group: Certificates
+                url: "https://prowlarr.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: qbittorrent
+                group: Certificates
+                url: "https://qbittorrent.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: tautulli
+                group: Certificates
+                url: "https://tautulli.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: jellystat
+                group: Certificates
+                url: "https://jellystat.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: ldap
+                group: Certificates
+                url: "https://ldap.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: pgadmin
+                group: Certificates
+                url: "https://pgadmin.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: trek
+                group: Certificates
+                url: "https://trek.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: doh
+                group: Certificates
+                url: "https://doh.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: traefik-internal
+                group: Certificates
+                url: "https://traefik-internal.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: traefik-external
+                group: Certificates
+                url: "https://traefik-external.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: hubble
+                group: Certificates
+                url: "https://hubble.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: bazarr
+                group: Certificates
+                url: "https://bazarr.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: speedtest
+                group: Certificates
+                url: "https://speedtest.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: gatus
+                group: Certificates
+                url: "https://gatus.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: headlamp
+                group: Certificates
+                url: "https://headlamp.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: homepage
+                group: Certificates
+                url: "https://homepage.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: maintainerr
+                group: Certificates
+                url: "https://maintainerr.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: stirling-pdf
+                group: Certificates
+                url: "https://stirling-pdf.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+              - name: tdarr
+                group: Certificates
+                url: "https://tdarr.${DOMAIN_0}/"
+                interval: 30m
+                client:
+                  dns-resolver: tcp://${BLOCKY_IP}:53
+                  ignore-redirect: true
+                conditions:
+                  - "[STATUS] < 500"
+                  - "[CERTIFICATE_EXPIRATION] > 336h"
+                alerts:
+                  - type: ntfy
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              envFrom:
+                - secretRef:
+                    name: ntfy
+    # Ingress only (egress stays open). Kubelet probes come from the host and are always allowed.
+    networkPolicy:
+      # same namespace, Traefik, Prometheus, CNPG operator
+      ingress:
+        enabled: true
+        policyType: ingress
+        podSelector:
+          matchExpressions:
+            - key: app.kubernetes.io/instance
+              operator: Exists
+        ingress:
+          - from:
+              - podSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/instance
+                      operator: Exists
+          - from:
+              - namespaceSelector:
+                  matchExpressions:
+                    - key: kubernetes.io/metadata.name
+                      operator: In
+                      values:
+                        - traefik-internal
+                        - traefik-external
+                        - kube-prometheus-stack
+                        - cloudnative-pg
+                        - gatus

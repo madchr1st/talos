@@ -90,7 +90,7 @@ spec:
                 DB_NAME: ""
     # Ingress only (egress stays open). Kubelet probes come from the host and are always allowed.
     networkPolicy:
-      # same namespace, Traefik, Prometheus, CNPG operator
+      # same namespace, Traefik, Prometheus, CNPG operator, callers: maintainerr
       ingress:
         enabled: true
         policyType: ingress
@@ -114,3 +114,5 @@ spec:
                         - traefik-external
                         - kube-prometheus-stack
                         - cloudnative-pg
+                        - gatus
+                        - maintainerr

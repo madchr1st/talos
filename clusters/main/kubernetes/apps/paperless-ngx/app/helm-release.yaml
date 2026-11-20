@@ -166,6 +166,7 @@ spec:
                         - traefik-external
                         - kube-prometheus-stack
                         - cloudnative-pg
+                        - gatus
       # Paperless trusts the Remote-User header from Authelia: only traefik-internal may reach the web pod
       web:
         enabled: true

@@ -226,3 +226,4 @@ spec:
                         - traefik-external
                         - kube-prometheus-stack
                         - cloudnative-pg
+                        - gatus

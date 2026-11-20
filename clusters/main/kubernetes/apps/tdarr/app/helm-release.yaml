@@ -1,0 +1,131 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: tdarr
+  namespace: tdarr
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: tdarr
+      version: 15.9.0
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 15m
+  timeout: 20m
+  maxHistory: 3
+  driftDetection:
+    mode: warn
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    TZ: Europe/Zurich
+    ingress:
+      main:
+        enabled: true
+        primary: true
+        ingressClassName: traefik-internal
+        hosts:
+          - host: tdarr.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+        integrations:
+          certManager:
+            enabled: true
+            certificateIssuer: domain-0-le-prod
+          traefik:
+            enabled: true
+            entrypoints:
+              - websecure
+            middlewares:
+              - name: forward-auth-authelia
+                namespace: authelia
+                expandObjectName: false
+    # Libraries/transcoding are configured in the UI after the GPU passthrough (RTX 2070).
+    persistence:
+      configs:
+        enabled: true
+        type: pvc
+        size: 1Gi
+      # server DB (SQLite) + backups
+      server:
+        enabled: true
+        type: pvc
+        size: 5Gi
+      logs:
+        enabled: true
+        type: pvc
+        size: 1Gi
+      # cache for in-progress transcodes: on the NAS next to the download cache (a remux can be 50+ GB)
+      transcode-cache:
+        enabled: true
+        type: nfs
+        server: ${NFS_SERVER_0}
+        path: ${NFS_PATH_DOWNLOAD_CACHE}/tdarr-cache
+        mountPath: /temp
+        autoPermissions:
+          enabled: false
+      media:
+        enabled: false
+      tv:
+        enabled: true
+        type: nfs
+        server: ${NFS_SERVER_0}
+        path: ${NFS_PATH_MEDIA_TV}
+        mountPath: /media/tv
+        autoPermissions:
+          enabled: false
+      movies:
+        enabled: true
+        type: nfs
+        server: ${NFS_SERVER_0}
+        path: ${NFS_PATH_MEDIA_MOVIES}
+        mountPath: /media/movies
+        autoPermissions:
+          enabled: false
+    # the image starts as root and drops to PUID/PGID: 1000 owns the media on the NAS (root is squashed)
+    securityContext:
+      container:
+        PUID: 1000
+      pod:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+    # Ingress only (egress stays open). Kubelet probes come from the host and are always allowed.
+    networkPolicy:
+      # same namespace, Traefik, Prometheus, CNPG operator
+      ingress:
+        enabled: true
+        policyType: ingress
+        podSelector:
+          matchExpressions:
+            - key: app.kubernetes.io/instance
+              operator: Exists
+        ingress:
+          - from:
+              - podSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/instance
+                      operator: Exists
+          - from:
+              - namespaceSelector:
+                  matchExpressions:
+                    - key: kubernetes.io/metadata.name
+                      operator: In
+                      values:
+                        - traefik-internal
+                        - traefik-external
+                        - kube-prometheus-stack
+                        - cloudnative-pg
+                        - gatus

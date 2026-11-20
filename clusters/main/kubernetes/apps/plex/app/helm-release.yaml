@@ -103,7 +103,7 @@ spec:
         memory: 1Gi
     # Ingress only (egress stays open). Kubelet probes come from the host and are always allowed.
     networkPolicy:
-      # same namespace, Traefik, Prometheus, CNPG operator, callers: tautulli, seerr, sonarr, radarr, LoadBalancer/LAN ports
+      # same namespace, Traefik, Prometheus, CNPG operator, callers: tautulli, seerr, sonarr, radarr, kometa, maintainerr, LoadBalancer/LAN ports
       ingress:
         enabled: true
         policyType: ingress
@@ -127,10 +127,13 @@ spec:
                         - traefik-external
                         - kube-prometheus-stack
                         - cloudnative-pg
+                        - gatus
                         - tautulli
                         - seerr
                         - sonarr
                         - radarr
+                        - kometa
+                        - maintainerr
           - from:
               - ipBlock:
                   cidr: 0.0.0.0/0

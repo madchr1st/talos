@@ -20,3 +20,4 @@ spec:
                   - traefik-internal
                   - traefik-external
                   - kube-prometheus-stack
+                  - gatus

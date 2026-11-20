@@ -1,0 +1,150 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kometa
+  namespace: kometa
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: kometa
+      version: 7.1.5
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 15m
+  timeout: 20m
+  maxHistory: 3
+  driftDetection:
+    mode: warn
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  valuesFrom:
+    # SOPS-encrypted secrets (values-sec.yaml)
+    - kind: Secret
+      name: kometa-values-sec
+      valuesKey: values-sec.yaml
+  values:
+    TZ: Europe/Zurich
+    # config.yml lives in Git (configmap, read-only); Plex token and TMDb key come from values-sec.yaml.
+    kometa:
+      run: false
+      no_countdown: true
+      times:
+        - "03:00"
+    configmap:
+      config:
+        enabled: true
+        data:
+          config.yml: |
+            plex:
+              url: http://plex.plex.svc.cluster.local:32400
+              token: <<plextoken>>
+              timeout: 60
+              db_cache: 40
+              clean_bundles: false
+              empty_trash: false
+              optimize: false
+              verify_ssl: false
+            tmdb:
+              apikey: <<tmdbkey>>
+              cache_expiration: 60
+              language: en
+              region: CH
+            libraries:
+              Movies:
+                remove_overlays: false
+                collection_files:
+                  - default: basic
+                  - default: imdb
+                overlay_files:
+                  - default: resolution
+              TV Shows:
+                remove_overlays: false
+                collection_files:
+                  - default: basic
+                  - default: imdb
+                overlay_files:
+                  - default: resolution
+            settings:
+              run_order:
+                - operations
+                - metadata
+                - collections
+                - overlays
+              cache: true
+              cache_expiration: 60
+              asset_directory:
+                - config/assets
+              sync_mode: append
+              minimum_items: 1
+              delete_below_minimum: true
+              run_again_delay: 2
+    workload:
+      main:
+        podSpec:
+          initContainers:
+            # config comes from Git, no downloaded template
+            create-init-config-file:
+              enabled: false
+          containers:
+            main:
+              env:
+                KOMETA_READ_ONLY_CONFIG: "true"
+              envFrom:
+                - secretRef:
+                    name: secret
+                - secretRef:
+                    name: keys
+    persistence:
+      # cache, logs, overlay backups
+      config:
+        enabled: true
+        type: pvc
+        size: 5Gi
+        mountPath: /config
+        targetSelectAll: true
+      config-yml:
+        enabled: true
+        type: configmap
+        objectName: config
+        mountPath: /config/config.yml
+        subPath: config.yml
+        readOnly: true
+    # Ingress only (egress stays open). Kubelet probes come from the host and are always allowed.
+    networkPolicy:
+      # same namespace, Traefik, Prometheus, CNPG operator
+      ingress:
+        enabled: true
+        policyType: ingress
+        podSelector:
+          matchExpressions:
+            - key: app.kubernetes.io/instance
+              operator: Exists
+        ingress:
+          - from:
+              - podSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/instance
+                      operator: Exists
+          - from:
+              - namespaceSelector:
+                  matchExpressions:
+                    - key: kubernetes.io/metadata.name
+                      operator: In
+                      values:
+                        - traefik-internal
+                        - traefik-external
+                        - kube-prometheus-stack
+                        - cloudnative-pg
+                        - gatus

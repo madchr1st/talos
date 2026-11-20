@@ -1,0 +1,20 @@
+secret:
+  ntfy:
+    enabled: ENC[AES256_GCM,data:4OlhnA==,iv:9sbrqNm2xCqiN1blKArvupcmzwSyuU12LhYsnBEuiEI=,tag:AKd9VWXrquQxrbzat8pomQ==,type:bool]
+    data:
+      NTFY_TOKEN: ENC[AES256_GCM,data:PUBK0XRBmvL4G0IDBSaePrWc1U7NOE9i17BKfI5+94U=,iv:idWxoVBFrUiRSAeok57242W2zrjY2CPIUrmm6PMRy7M=,tag:AFEEq+l4OKTF3yh9xUQoCA==,type:str]
+sops:
+  age:
+    - recipient: age1uaud96tmvkrmct5ssh20a4dwqy825ru5tqsdp8hu3syxlp4p9glqkamlya
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAwMytxblRBUHJtNWRYV3lq
+        d2NSK0pZeXNDbjFuYm4zSE9IUHpHRGtCZTBRCkY3aXdYZWJZdmk1bmE0R1lBQm5i
+        MlpJWWc4MG9nY2lmN0VyRGpJQjlnQmcKLS0tIEhHais0SFZ0cnpUeHVmemhiYlQ2
+        cUNmT2NYQ1FaLy8wbDZzdEk0QUhNdGsKXSfj6NXXI6qgvrrR6xnkoKwhnMFL6spf
+        clYVKadSu3F2vdoPaYZjZgykLpkLthF0zx+hfLbj2CpaTuAISyII0w==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-11-20T07:33:50Z"
+  mac: ENC[AES256_GCM,data:6A/EVVVBoxU5oikWUIn2w9SU9syuiI92AWJG115W5a80uEI60973vAn5zLzT51LGqYyednfMWq0l6iTxGL3XykMPwK6pBr67lOUUADbXADYXNujBWyryB1ScuH7YKTGh08rSINMqK60h/EUpZEbzFrW/sSJtgJr9CllE7IH7leo=,iv:1hVlVH5xlWVfRNRoOt4kjVLasjEvOCyDyPiPt+B2yBE=,tag:XZNQRi5qqE8Os2/xs71AKA==,type:str]
+  encrypted_regex: .
+  version: 3.12.1

@@ -1,0 +1,139 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: recyclarr
+  namespace: recyclarr
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: recyclarr
+      version: 16.2.4
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 15m
+  timeout: 20m
+  maxHistory: 3
+  driftDetection:
+    mode: warn
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  valuesFrom:
+    # SOPS-encrypted secrets (values-sec.yaml)
+    - kind: Secret
+      name: recyclarr-values-sec
+      valuesKey: values-sec.yaml
+  values:
+    TZ: Europe/Zurich
+    # recyclarr.yml lives in Git (configmap); API keys come from values-sec.yaml (secret "api-keys").
+    # Only the TRaSH profiles below are managed; the existing hand-made profiles stay untouched.
+    configmap:
+      config:
+        enabled: true
+        data:
+          recyclarr.yml: |
+            # yaml-language-server: $schema=https://schemas.recyclarr.dev/v8/config-schema.json
+            sonarr:
+              sonarr:
+                base_url: http://sonarr.sonarr.svc.cluster.local:8989
+                api_key: !env_var SONARR_API_KEY
+                delete_old_custom_formats: true
+                quality_definition:
+                  type: series
+                quality_profiles:
+                  - trash_id: 72dae194fc92bf828f32cde7744e51a1  # WEB-1080p
+                    reset_unmatched_scores:
+                      enabled: true
+                  - trash_id: d1498e7d189fbe6c7110ceaabb7473e6  # WEB-2160p
+                    reset_unmatched_scores:
+                      enabled: true
+                custom_format_groups:
+                  add:
+                    - trash_id: 158188097a58d7687dee647e04af0da3  # [Optional] Golden Rule HD
+                      exclude:
+                        - 47435ece6b99a0b477caf360e79ba0bb  # x265 (HD): x265 stays allowed for 1080p
+            radarr:
+              radarr:
+                base_url: http://radarr.radarr.svc.cluster.local:7878
+                api_key: !env_var RADARR_API_KEY
+                delete_old_custom_formats: true
+                quality_definition:
+                  type: movie
+                quality_profiles:
+                  - trash_id: d1d67249d3890e49bc12e275d989a7e9  # HD Bluray + WEB
+                    reset_unmatched_scores:
+                      enabled: true
+                  - trash_id: 64fb5f9858489bdac2af690e27c8f42f  # UHD Bluray + WEB
+                    reset_unmatched_scores:
+                      enabled: true
+                custom_format_groups:
+                  add:
+                    - trash_id: f8bf8eab4617f12dfdbd16303d8da245  # [Optional] Golden Rule HD
+                      exclude:
+                        - dc98083864ea246d05a42df0d05f81cc  # x265 (HD): x265 stays allowed for 1080p
+    workload:
+      main:
+        podSpec:
+          initContainers:
+            # config comes from Git, no generated template
+            initconfig:
+              enabled: false
+          containers:
+            main:
+              env:
+                CRON_SCHEDULE: "@daily"
+              envFrom:
+                - secretRef:
+                    name: api-keys
+    persistence:
+      # repo cache + logs
+      config:
+        enabled: true
+        type: pvc
+        size: 1Gi
+        mountPath: /config
+      recyclarr-yml:
+        enabled: true
+        type: configmap
+        objectName: config
+        mountPath: /config/recyclarr.yml
+        subPath: recyclarr.yml
+        readOnly: true
+    # Ingress only (egress stays open). Kubelet probes come from the host and are always allowed.
+    networkPolicy:
+      # same namespace, Traefik, Prometheus, CNPG operator
+      ingress:
+        enabled: true
+        policyType: ingress
+        podSelector:
+          matchExpressions:
+            - key: app.kubernetes.io/instance
+              operator: Exists
+        ingress:
+          - from:
+              - podSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/instance
+                      operator: Exists
+          - from:
+              - namespaceSelector:
+                  matchExpressions:
+                    - key: kubernetes.io/metadata.name
+                      operator: In
+                      values:
+                        - traefik-internal
+                        - traefik-external
+                        - kube-prometheus-stack
+                        - cloudnative-pg
+                        - gatus
