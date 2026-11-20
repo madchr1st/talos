@@ -199,7 +199,7 @@ spec:
                     namespace: home-assistant
                     app: home-assistant
                 - Immich:
-                    href: https://immich.${DOMAIN_0}
+                    href: https://photos.${DOMAIN_0}
                     icon: immich.png
                     description: Photos
                     namespace: immich
