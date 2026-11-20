@@ -125,7 +125,7 @@ spec:
         ruleSelectorNilUsesHelmValues: false
         scrapeConfigSelectorNilUsesHelmValues: false
         serviceMonitorSelectorNilUsesHelmValues: false
-        enableAdminAPI: true
+        enableAdminAPI: false
         walCompression: true
         enableFeatures:
           - memory-snapshot-on-shutdown
