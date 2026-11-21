@@ -68,9 +68,14 @@ spec:
                   - ip: ${NFS_SERVER_0}
                     hostnames:
                       - ${TRUENAS_API_HOST}
+          # Talos: the kubelet checks hostPaths in its own mount namespace, where /etc/iscsi (iscsi-tools extension) does not
+          # exist; the driver does not read it -> DirectoryOrCreate. Upstream issue truenas/truenas-csi#80.
           - target:
               kind: DaemonSet
             patch: |
+              - op: replace
+                path: /spec/template/spec/volumes/5/hostPath/type
+                value: DirectoryOrCreate
               - op: add
                 path: /spec/template/spec/hostAliases
                 value:
