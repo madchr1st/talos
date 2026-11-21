@@ -215,14 +215,6 @@ spec:
                   - "[STATUS] == 200"
                 alerts:
                   - type: ntfy
-              - name: Bazarr
-                group: Arr
-                url: "http://bazarr.bazarr.svc.cluster.local:6767/"
-                interval: 2m
-                conditions:
-                  - "[STATUS] < 500"
-                alerts:
-                  - type: ntfy
               - name: qBittorrent
                 group: Arr
                 url: "http://qbittorrent.qbittorrent.svc.cluster.local:10095/"
@@ -285,22 +277,6 @@ spec:
                 interval: 2m
                 conditions:
                   - "[STATUS] < 500"
-                alerts:
-                  - type: ntfy
-              - name: TREK
-                group: Home
-                url: "http://trek.trek.svc.cluster.local:3000/"
-                interval: 2m
-                conditions:
-                  - "[STATUS] < 500"
-                alerts:
-                  - type: ntfy
-              - name: Stirling-PDF
-                group: Home
-                url: "http://stirling-pdf.stirling-pdf.svc.cluster.local:18080/api/v1/info/status"
-                interval: 2m
-                conditions:
-                  - "[STATUS] == 200"
                 alerts:
                   - type: ntfy
               - name: ntfy
@@ -635,18 +611,6 @@ spec:
                   - "[CERTIFICATE_EXPIRATION] > 336h"
                 alerts:
                   - type: ntfy
-              - name: trek
-                group: Certificates
-                url: "https://trek.${DOMAIN_0}/"
-                interval: 30m
-                client:
-                  dns-resolver: tcp://${BLOCKY_IP}:53
-                  ignore-redirect: true
-                conditions:
-                  - "[STATUS] < 500"
-                  - "[CERTIFICATE_EXPIRATION] > 336h"
-                alerts:
-                  - type: ntfy
               - name: doh
                 group: Certificates
                 url: "https://doh.${DOMAIN_0}/"
@@ -686,18 +650,6 @@ spec:
               - name: hubble
                 group: Certificates
                 url: "https://hubble.${DOMAIN_0}/"
-                interval: 30m
-                client:
-                  dns-resolver: tcp://${BLOCKY_IP}:53
-                  ignore-redirect: true
-                conditions:
-                  - "[STATUS] < 500"
-                  - "[CERTIFICATE_EXPIRATION] > 336h"
-                alerts:
-                  - type: ntfy
-              - name: bazarr
-                group: Certificates
-                url: "https://bazarr.${DOMAIN_0}/"
                 interval: 30m
                 client:
                   dns-resolver: tcp://${BLOCKY_IP}:53
@@ -758,18 +710,6 @@ spec:
               - name: maintainerr
                 group: Certificates
                 url: "https://maintainerr.${DOMAIN_0}/"
-                interval: 30m
-                client:
-                  dns-resolver: tcp://${BLOCKY_IP}:53
-                  ignore-redirect: true
-                conditions:
-                  - "[STATUS] < 500"
-                  - "[CERTIFICATE_EXPIRATION] > 336h"
-                alerts:
-                  - type: ntfy
-              - name: stirling-pdf
-                group: Certificates
-                url: "https://stirling-pdf.${DOMAIN_0}/"
                 interval: 30m
                 client:
                   dns-resolver: tcp://${BLOCKY_IP}:53
