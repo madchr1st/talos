@@ -60,12 +60,14 @@ spec:
         database: speedtest-tracker
         cluster:
           # single node: a 2nd instance adds RAM but no real HA; S3 backups stay enabled
-          instances: 1
+          instances: 2
           singleNode: true
           storage:
             size: 2Gi
+            storageClass: truenas-iscsi
           walStorage:
             size: 2Gi
+            storageClass: truenas-iscsi
         monitoring:
           enablePodMonitor: true
         backups:
@@ -91,6 +93,7 @@ spec:
         enabled: true
         type: pvc
         size: 1Gi
+        storageClass: truenas-iscsi
     workload:
       main:
         podSpec:
@@ -118,6 +121,7 @@ spec:
       persistence:
         data:
           size: 1Gi
+          storageClass: truenas-iscsi
     # Ingress only (egress stays open), by policy group (gen-netpols.py). Kubelet probes are always allowed.
     networkPolicy:
       # same namespace + groups: cnpg-operator, ingress, monitoring
