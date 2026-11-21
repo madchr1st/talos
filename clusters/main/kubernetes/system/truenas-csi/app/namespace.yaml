@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: truenas-csi
+  labels:
+    # the node plugin mounts host paths and logs in to iSCSI targets
+    pod-security.kubernetes.io/enforce: privileged

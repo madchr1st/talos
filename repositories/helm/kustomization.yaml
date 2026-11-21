@@ -17,4 +17,5 @@ resources:
   - spegel.yaml
   - traefik.yaml
   - truecharts.yaml
+  - truenas-csi.yaml
 # more goes here!

@@ -125,6 +125,7 @@ NFS_PATH_IMMICH_PROFILE: ENC[AES256_GCM,data:pHatGawI2w+bNl7+LIdjIU/KeismUFAOIVG
 NFS_PATH_VAULTWARDEN_PROD_DATA: ENC[AES256_GCM,data:v8acsNtBhOWaaO/csAC9FfA+MqqgCj+11rJXfPkUXqoUejU4TSPfB5+qZ8T5,iv:lIJ9h9V95wzNi+Ogo3gYx8sabQilIU9xMt7p9LZemrw=,tag:mFII5zkbkgoeeC5R00mSjg==,type:str]
 TAILSCALE_HOSTNAME: ENC[AES256_GCM,data:vYylNUUlRiNLc7iasQ==,iv:aAs7A8s+1lu9rfsc1WZAWPd1jeiRxUfV1JcySWCjYmo=,tag:ZBoCxLoAksn6L0tVuIteMA==,type:str]
 GRAFANA_EDITOR_GROUP: ENC[AES256_GCM,data:NB2Oxfy8,iv:5po4hPuSaA5+JsyxWeGFaAWDg/g63zH7fQjsTlygWyI=,tag:cCOuUcO9krndnjG3HTduzw==,type:str]
+TRUENAS_API_HOST: ENC[AES256_GCM,data:3FSIQrUO87HJbp0Rc9hhLsi5hQ7AcpMz,iv:ZvJyJEDcce7ws5AZMi17YGw2KBSikY4l/TChUZz4W3A=,tag:o2S5EkwCvPYtV2WEyV6eyg==,type:str]
 sops:
   shamir_threshold: 3
   age:
@@ -137,7 +138,7 @@ sops:
         UnhYRk1aSVZIMVRlZ2JKUC9PaktmckUK194PMyuT0osLGFqjaaMCrmwZO4L/tmr+
         x/8lHFFLAiJ88/IWzLCSAGUPYPUldJlIYkjwWWpBQ8igzUTW/3FZQQ==
         -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2026-11-21T08:14:35Z"
-  mac: ENC[AES256_GCM,data:Xevu+gf5C9ROGu48bBVmWBXzRJX+HliYK6Bs4ZWuQc6MCDTNywJEvB0JfFWQCUuCmhu39v6wQ3TeD0Yy4TYKIK3E+MwuRtOA5wlgsgEGxajvSlLcJTVlJ6mI0ZphTd4zBre8PxKo/SGvnD7o1w/+HCggI8gAG0gU57ImCraC5kE=,iv:XPX5rjkrpVf/FYbx3RB9AfOw1cq/mFqW8zmCAPiqkwE=,tag:kGZCy+kCP9gkJsor5jWC8g==,type:str]
+  lastmodified: "2026-11-21T09:07:11Z"
+  mac: ENC[AES256_GCM,data:4N4QJoBgqn8kNOjN99EKnpFJbulQQRlgaHXF7FiZfbuHncE5dmUEqofhPEFG2r42VulJQa3YmXYm64OTXGgEM9+vIQ1XOZtd6ZRZ/SWpg+LHWxM4aYy3VkxPKRGvfPqA51jGx6Rx/1euczRZuFg7gm/iZFWu/OVh/xdzeSyCT7s=,iv:RKb43e3dS5XdqAR2PmkXOa5gZ34dTxgfti7Wul2/DFI=,tag:NJxbAiHPwTrQ8se3UuQL4g==,type:str]
   unencrypted_suffix: _unencrypted
   version: 3.13.1
