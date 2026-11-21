@@ -73,11 +73,13 @@ spec:
         type: pvc
         size: 1Gi
         mountPath: /etc/ntfy
+        storageClass: truenas-iscsi
       cache:
         enabled: true
         type: pvc
         size: 5Gi
         mountPath: /var/cache/ntfy
+        storageClass: truenas-iscsi
     securityContext:
       container:
         runAsUser: 1000
@@ -114,7 +116,7 @@ spec:
                 ENABLE_CACHE_FILE: true
                 ENABLE_FIREBASE_FILE: false
                 NTFY_BASE_URL: https://ntfy.${DOMAIN_0}
-                NTFY_UPSTREAM_BASE_URL: https://ntfy.sh  # iOS instant notifications; must differ from base-url
+                NTFY_UPSTREAM_BASE_URL: https://ntfy.sh # iOS instant notifications; must differ from base-url
                 NTFY_BEHIND_PROXY: true
                 NTFY_AUTH_DEFAULT_ACCESS: deny-all
                 NTFY_CACHE_DURATION: 12h

@@ -73,6 +73,7 @@ spec:
         type: pvc
         size: 2Gi
         mountPath: /app/config
+        storageClass: truenas-iscsi
     securityContext:
       container:
         runAsUser: 1000

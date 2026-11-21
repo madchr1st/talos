@@ -65,6 +65,7 @@ spec:
             exportarr:
               mountPath: /config
               readOnly: true
+        storageClass: truenas-iscsi
     # Ingress only (egress stays open), by policy group (gen-netpols.py). Kubelet probes are always allowed.
     networkPolicy:
       # same namespace + groups: cnpg-operator, ingress, media, monitoring

@@ -79,6 +79,7 @@ spec:
         type: pvc
         size: 2Gi
         mountPath: /var/syncthing
+        storageClass: truenas-iscsi
       data:
         enabled: true
         type: nfs

@@ -73,6 +73,7 @@ spec:
         type: pvc
         size: 2Gi
         mountPath: /app/config
+        storageClass: truenas-iscsi
     # Keep SQLite as on K3s (chart default is now Postgres). Switching to CNPG can come later.
     cnpg:
       main:

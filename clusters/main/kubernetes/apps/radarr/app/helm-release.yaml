@@ -69,6 +69,7 @@ spec:
             exportarr:
               mountPath: /config
               readOnly: true
+        storageClass: truenas-iscsi
       downloads:
         enabled: true
         type: nfs
