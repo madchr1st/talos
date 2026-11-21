@@ -88,7 +88,7 @@ spec:
       main:
         enabled: true
         cluster:
-          instances: 1
+          instances: 2
           storage:
             size: "2Gi"
             storageClass: truenas-iscsi
