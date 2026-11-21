@@ -151,7 +151,7 @@ spec:
               resources:
                 requests:
                   storage: 60Gi
-
+              storageClassName: truenas-iscsi
     prometheus-node-exporter:
       fullnameOverride: node-exporter
       prometheus:
@@ -168,4 +168,3 @@ spec:
       forceDeployDashboards: true
       defaultDashboardsEnabled: true
       forceDeployDatasources: true
-  
