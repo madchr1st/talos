@@ -76,7 +76,7 @@ spec:
                         apiextensions.k8s.io, metrics.k8s.io, gateway.networking.k8s.io, cilium.io,
                         helm.toolkit.fluxcd.io, kustomize.toolkit.fluxcd.io, source.toolkit.fluxcd.io,
                         notification.toolkit.fluxcd.io, image.toolkit.fluxcd.io, cert-manager.io, acme.cert-manager.io,
-                        postgresql.cnpg.io, longhorn.io, traefik.io, metallb.io, monitoring.coreos.com, upgrade.cattle.io]
+                        postgresql.cnpg.io, traefik.io, metallb.io, monitoring.coreos.com, upgrade.cattle.io]
             resources: ["*"]
             verbs: [get, list, watch]
           - apiGroups: [rbac.authorization.k8s.io]

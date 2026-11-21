@@ -62,7 +62,7 @@ The Kubernetes directory is layered with explicit dependencies:
 |---|---|---|
 | `flux-system` | `kubernetes/flux-system/` | FluxCD bootstrap, SOPS secret, GitRepository |
 | `kube-system` | `kubernetes/kube-system/` | Core components: Cilium CNI, metrics-server, descheduler, kubelet-csr-approver |
-| `system` | `kubernetes/system/` | Platform infra: cert-manager, CloudNative-PG, MetalLB, Longhorn, OpenEBS, kube-prometheus-stack, Spegel, VolSync |
+| `system` | `kubernetes/system/` | Platform infra: cert-manager, CloudNative-PG, MetalLB, OpenEBS, kube-prometheus-stack, Spegel, truenas-csi (default StorageClass `truenas-iscsi`), VolSync |
 | `core` | `kubernetes/core/` | Cluster services: Blocky DNS, ClusterIssuers, MetalLB config, system-upgrade-controller |
 | `networking` | `kubernetes/networking/` | Ingress: traefik-internal/external, Tailscale |
 | `apps` | `kubernetes/apps/` | User applications: Authelia, LLDAP, Grafana, Vaultwarden, etc. |
