@@ -37,6 +37,7 @@ spec:
         type: pvc
         size: 1Gi
         mountPath: /config
+        storageClass: truenas-iscsi
       downloads:
         enabled: true
         type: nfs

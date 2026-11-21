@@ -61,6 +61,7 @@ spec:
         type: pvc
         size: 1Gi
         mountPath: /var/lib/pgadmin
+        storageClass: truenas-iscsi
     securityContext:
       container:
         runAsUser: 5050

@@ -114,6 +114,7 @@ spec:
         size: 5Gi
         mountPath: /config
         targetSelectAll: true
+        storageClass: truenas-iscsi
       config-yml:
         enabled: true
         type: configmap

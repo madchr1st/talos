@@ -59,15 +59,18 @@ spec:
         enabled: true
         type: pvc
         size: 1Gi
+        storageClass: truenas-iscsi
       # server DB (SQLite) + backups
       server:
         enabled: true
         type: pvc
         size: 5Gi
+        storageClass: truenas-iscsi
       logs:
         enabled: true
         type: pvc
         size: 1Gi
+        storageClass: truenas-iscsi
       # cache for in-progress transcodes: on the NAS next to the download cache (a remux can be 50+ GB)
       transcode-cache:
         enabled: true
