@@ -107,11 +107,12 @@ spec:
         enabled: true
         mountPath: /config/transcodes
         type: emptyDir
-        medium: "" # disk, not RAM: CPU transcodes until the GPU arrives
+        medium: "" # disk, not RAM: large segments when the GPU transcodes 4K
     resources:
       limits:
         cpu: 6000m
         memory: 6Gi
+        nvidia.com/gpu: 1
       requests:
         cpu: 100m
         memory: 512Mi
@@ -151,6 +152,7 @@ spec:
                 JELLYFIN_LOG_DIR: /logs
                 JELLYFIN_CACHE_DIR: /cache
                 JELLYFIN_PublishedServerUrl: '{{ $.Values.chartContext.appUrl }}'
+          runtimeClassName: nvidia
         replicas: 1
         type: Deployment
     # Ingress only (egress stays open), by policy group (gen-netpols.py). Kubelet probes are always allowed.

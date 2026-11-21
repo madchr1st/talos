@@ -82,7 +82,7 @@ spec:
       transcode:
         enabled: true
         type: emptyDir
-        # on disk, not RAM: no GPU until W4b, CPU transcodes write a lot
+        # on disk, not RAM: large segments when the GPU transcodes 4K
         medium: ""
         mountPath: /transcode
         targetSelectAll: true
@@ -98,6 +98,7 @@ spec:
       limits:
         cpu: 6000m
         memory: 6Gi
+        nvidia.com/gpu: 1
       requests:
         cpu: 500m
         memory: 1Gi
@@ -138,3 +139,7 @@ spec:
             ports:
               - port: 32400
                 protocol: TCP
+    workload:
+      main:
+        podSpec:
+          runtimeClassName: nvidia
