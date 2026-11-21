@@ -59,6 +59,7 @@ spec:
         enabled: true
         type: pvc
         size: 1Gi
+        storageClass: truenas-iscsi
     # the image runs as node (1000) by default
     securityContext:
       container:
