@@ -43,7 +43,7 @@ spec:
           method: object_store
           credentials: mys3
         cluster:
-          instances: 2
+          instances: 1
           singleNode: true
           storage:
             size: 20Gi
