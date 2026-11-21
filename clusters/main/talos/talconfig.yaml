@@ -43,6 +43,8 @@ nodes:
 controlPlane:
     patches:
         - '@./patches/controlplane.yaml'
+        # GTX 1060 (Pascal) passed through from TrueNAS: proprietary NVIDIA LTS driver (R580, last branch with Pascal)
+        - '@./patches/nvidia.yaml'
     kernelModules:
      - name: nvme_tcp
      - name: vfio_pci
@@ -54,9 +56,11 @@ controlPlane:
                 - net.ifnames=0
             systemExtensions:
                 officialExtensions:
-                    - siderolabs/util-linux-tools
                     - siderolabs/iscsi-tools
+                    - siderolabs/nonfree-kmod-nvidia-lts
+                    - siderolabs/nvidia-container-toolkit-lts
                     - siderolabs/qemu-guest-agent
+                    - siderolabs/util-linux-tools
     machineFiles:
     - content: |
         [plugins."io.containerd.cri.v1.images"]
