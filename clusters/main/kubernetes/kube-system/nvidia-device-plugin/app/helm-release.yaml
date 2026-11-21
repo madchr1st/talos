@@ -26,9 +26,18 @@ spec:
       retries: 3
   uninstall:
     keepHistory: false
-  # Only schedules on nodes with an NVIDIA PCI device (NFD label feature.node.kubernetes.io/pci-10de.present, chart default affinity).
   values:
     runtimeClassName: nvidia
+    # Only on nodes with an NVIDIA PCI device. Our NFD labels class+vendor (pci-0300_10de), the chart default expects pci-10de.
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: feature.node.kubernetes.io/pci-0300_10de.present
+                  operator: In
+                  values:
+                    - "true"
     # GTX 1060 shared by Plex and Jellyfin: time-slicing advertises 2 nvidia.com/gpu per physical GPU
     config:
       default: default
