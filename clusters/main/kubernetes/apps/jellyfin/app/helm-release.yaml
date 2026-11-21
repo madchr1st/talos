@@ -110,7 +110,7 @@ spec:
         medium: "" # disk, not RAM: large segments when the GPU transcodes 4K
     resources:
       limits:
-        cpu: 6000m
+        cpu: 2000m
         memory: 6Gi
         nvidia.com/gpu: 1
       requests:

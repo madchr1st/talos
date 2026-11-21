@@ -96,7 +96,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
     resources:
       limits:
-        cpu: 6000m
+        cpu: 2000m
         memory: 6Gi
         nvidia.com/gpu: 1
       requests:
