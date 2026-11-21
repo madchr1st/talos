@@ -179,12 +179,6 @@ spec:
                     description: Indexers
                     namespace: prowlarr
                     app: prowlarr
-                - Bazarr:
-                    href: https://bazarr.${DOMAIN_0}
-                    icon: bazarr.png
-                    description: Subtitles
-                    namespace: bazarr
-                    app: bazarr
                 - qBittorrent:
                     href: https://qbittorrent.${DOMAIN_0}
                     icon: qbittorrent.png
@@ -210,22 +204,12 @@ spec:
                     description: Documents
                     namespace: paperless-ngx
                     app: paperless-ngx
-                - Stirling-PDF:
-                    href: https://stirling-pdf.${DOMAIN_0}
-                    icon: stirling-pdf.png
-                    description: PDF tools
-                    namespace: stirling-pdf
-                    app: stirling-pdf
                 - Tandoor:
                     href: https://tandoor.${DOMAIN_0}
                     icon: tandoor-recipes.png
                     description: Recipes
                     namespace: tandoor
                     app: tandoor-recipes
-                - TREK:
-                    href: https://trek.${DOMAIN_0}
-                    icon: mdi-map-marker-path
-                    description: Trips
                 - Vaultwarden:
                     href: https://bitwarden.${DOMAIN_0}
                     icon: vaultwarden.png
