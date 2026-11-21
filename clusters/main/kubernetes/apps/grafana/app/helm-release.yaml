@@ -34,7 +34,7 @@ spec:
     - kind: Secret
       name: grafana-values-sec
       valuesKey: values-sec.yaml
-  values:    
+  values:
     # cnpg config
     cnpg:
       main:
@@ -49,7 +49,6 @@ spec:
             size: "1Gi"
         monitoring:
           enablePodMonitor: true
-
     # ingress config
     ingress:
       main:
@@ -75,7 +74,6 @@ spec:
             entrypoints:
               - websecure
             forceTLS: true
-
     # persistence config
     persistence:
       data:
@@ -83,7 +81,7 @@ spec:
         mountPath: "/var/lib/grafana"
         type: pvc
         size: 10Gi
-
+        storageClass: truenas-iscsi
     # Define extra dashboards to be provisioned
     # Supports 2 formats:
     # - Importing directly from `grafana.com` via Grafana dashboard ID & revision
@@ -159,7 +157,6 @@ spec:
                   secretKeyRef:
                     name: cnpg-main-user
                     key: password
-              
             dashboards:
               enabled: true
               env:

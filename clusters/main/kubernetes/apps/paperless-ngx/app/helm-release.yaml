@@ -98,11 +98,13 @@ spec:
         type: pvc
         size: 5Gi
         mountPath: /data
+        storageClass: truenas-iscsi
       media:
         enabled: true
         type: pvc
         size: 20Gi
         mountPath: /media
+        storageClass: truenas-iscsi
       # scanner drop folder on the NAS (as on K3s)
       consume:
         enabled: true

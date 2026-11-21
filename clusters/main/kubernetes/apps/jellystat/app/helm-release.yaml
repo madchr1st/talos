@@ -88,6 +88,7 @@ spec:
         type: pvc
         size: 5Gi
         mountPath: /app/backend/backup-data
+        storageClass: truenas-iscsi
     # Ingress only (egress stays open), by policy group (gen-netpols.py). Kubelet probes are always allowed.
     networkPolicy:
       # same namespace + groups: cnpg-operator, ingress, media, monitoring

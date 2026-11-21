@@ -127,6 +127,7 @@ spec:
         size: 5Gi
         mountPath: /config
         targetSelectAll: true
+        storageClass: truenas-iscsi
     securityContext:
       container:
         runAsUser: 0
