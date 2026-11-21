@@ -83,6 +83,7 @@ spec:
       persistence:
         data:
           size: 1Gi
+          storageClass: truenas-iscsi
     # cnpg config
     cnpg:
       main:

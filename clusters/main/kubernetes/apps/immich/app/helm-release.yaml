@@ -187,3 +187,8 @@ spec:
               - namespaceSelector:
                   matchLabels:
                     policy-group/monitoring: "true"
+    redis:
+      persistence:
+        data:
+          storageClass: truenas-iscsi
+          size: 1Gi

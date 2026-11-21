@@ -141,6 +141,7 @@ spec:
       persistence:
         data:
           size: 1Gi
+          storageClass: truenas-iscsi
     resources:
       limits:
         memory: 4Gi
