@@ -54,8 +54,10 @@ spec:
           singleNode: true
           storage:
             size: 5Gi
+            storageClass: truenas-iscsi
           walStorage:
             size: 2Gi
+            storageClass: truenas-iscsi
         monitoring:
           enablePodMonitor: true
         backups:

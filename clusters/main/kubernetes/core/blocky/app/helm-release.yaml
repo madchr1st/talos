@@ -91,8 +91,10 @@ spec:
           instances: 1
           storage:
             size: "2Gi"
+            storageClass: truenas-iscsi
           walStorage:
             size: "2Gi"
+            storageClass: truenas-iscsi
         monitoring:
           enablePodMonitor: true
     # Upstreams over DoH/DoT instead of plain DNS to ten public resolvers (same provider as AdGuard:

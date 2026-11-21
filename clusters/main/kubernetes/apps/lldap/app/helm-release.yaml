@@ -59,12 +59,14 @@ spec:
           method: object_store
           credentials: mys3
         cluster:
-          instances: 2
+          instances: 1
           singleNode: true
           storage:
             size: 5Gi
+            storageClass: truenas-iscsi
           walStorage:
             size: 5Gi
+            storageClass: truenas-iscsi
         database: "${CNPG_DB_LLDAP_NAME}"
         enabled: true
         hibernate: false
@@ -83,10 +85,10 @@ spec:
       main:
         enabled: true
         hosts:
-        - host: ldap.${DOMAIN_0}
-          paths:
-          - path: /
-            pathType: Prefix
+          - host: ldap.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
         ingressClassName: traefik-internal
         integrations:
           certManager:
@@ -95,7 +97,7 @@ spec:
           traefik:
             enabled: true
             entrypoints:
-            - websecure
+              - websecure
     persistence:
       data:
         autoPermissions:
@@ -143,9 +145,9 @@ spec:
           containers:
             main:
               args:
-              - run
+                - run
               command:
-              - /app/lldap
+                - /app/lldap
               env:
                 LLDAP_HTTP_PORT: '{{ .Values.service.main.ports.main.port }}'
                 LLDAP_HTTP_URL: 'https://lldap.${DOMAIN_0}'

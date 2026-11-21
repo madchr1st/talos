@@ -57,12 +57,14 @@ spec:
           method: object_store
           credentials: mys3
         cluster:
-          instances: 2
+          instances: 1
           singleNode: true
           storage:
             size: 5Gi
+            storageClass: truenas-iscsi
           walStorage:
             size: 5Gi
+            storageClass: truenas-iscsi
         database: "${CNPG_DB_VAULTWARDEN_TEST_NAME}"
         enabled: true
         hibernate: false
@@ -81,10 +83,10 @@ spec:
       main:
         enabled: true
         hosts:
-        - host: bitwarden-test.${DOMAIN_0}
-          paths:
-          - path: /
-            pathType: Prefix
+          - host: bitwarden-test.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
         ingressClassName: traefik-internal
         integrations:
           certManager:
@@ -93,7 +95,7 @@ spec:
           traefik:
             enabled: true
             entrypoints:
-            - websecure
+              - websecure
             forceTLS: true
             middlewares:
               - name: forward-auth-authelia
@@ -102,10 +104,10 @@ spec:
       ext:
         enabled: true
         hosts:
-        - host: bitwarden-test.${DOMAIN_0}
-          paths:
-          - path: /
-            pathType: Prefix
+          - host: bitwarden-test.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
         ingressClassName: traefik-external
         integrations:
           certManager:
@@ -114,7 +116,7 @@ spec:
           traefik:
             enabled: true
             entrypoints:
-            - websecure
+              - websecure
             forceTLS: true
             middlewares:
               - name: forward-auth-authelia
