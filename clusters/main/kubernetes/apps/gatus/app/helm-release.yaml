@@ -445,18 +445,6 @@ spec:
                   - type: ntfy
               - name: immich
                 group: Certificates
-                url: "https://immich.${DOMAIN_0}/"
-                interval: 30m
-                client:
-                  dns-resolver: tcp://${BLOCKY_IP}:53
-                  ignore-redirect: true
-                conditions:
-                  - "[STATUS] < 500"
-                  - "[CERTIFICATE_EXPIRATION] > 336h"
-                alerts:
-                  - type: ntfy
-              - name: photos
-                group: Certificates
                 url: "https://photos.${DOMAIN_0}/"
                 interval: 30m
                 client:
