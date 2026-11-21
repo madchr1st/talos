@@ -39,7 +39,7 @@ spec:
     storageClasses:
       # zvols under nvme-storage/k8s-csi, one iSCSI target per volume, only this node's initiator may log in
       - name: truenas-iscsi
-        isDefault: false
+        isDefault: true
         reclaimPolicy: Retain
         volumeBindingMode: WaitForFirstConsumer
         allowVolumeExpansion: true
