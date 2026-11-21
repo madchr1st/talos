@@ -42,7 +42,7 @@ spec:
         database: paperless-ng
         pgVersion: 16
         cluster:
-          instances: 1
+          instances: 2
           singleNode: true
           storage:
             size: 5Gi
