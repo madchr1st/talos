@@ -56,7 +56,7 @@ spec:
         database: jfstat
         pgVersion: 16
         cluster:
-          instances: 2
+          instances: 1
           singleNode: true
           storage:
             size: 5Gi
