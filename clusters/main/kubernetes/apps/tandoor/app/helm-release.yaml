@@ -43,7 +43,7 @@ spec:
         pgVersion: 16
         cluster:
           # single node: a 2nd instance adds RAM but no real HA; S3 backups stay enabled
-          instances: 2
+          instances: 1
           singleNode: true
           storage:
             size: 5Gi
