@@ -74,23 +74,17 @@ spec:
         mountPath: /cache
         type: emptyDir
       config:
-        autoPermissions:
-          enabled: false
         enabled: true
         mountPath: /config
         readOnly: false
-        type: nfs
-        path: ${NFS_PATH_JELLYFIN_CONFIG}
-        server: ${NFS_SERVER_0}
+        type: pvc
+        size: 30Gi
       data:
-        autoPermissions:
-          enabled: false
         enabled: true
         mountPath: /data
         readOnly: false
-        type: nfs
-        path: ${NFS_PATH_JELLYFIN_DATA}
-        server: ${NFS_SERVER_0}
+        type: pvc
+        size: 5Gi
       media:
         autoPermissions:
           enabled: false

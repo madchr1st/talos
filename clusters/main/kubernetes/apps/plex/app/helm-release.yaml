@@ -65,12 +65,9 @@ spec:
       # Preferences.xml + library DB stay on the NAS (as on K3s), media read from NFS
       config:
         enabled: true
-        type: nfs
-        server: ${NFS_SERVER_0}
-        path: ${NFS_PATH_PLEX_CONFIG}
+        type: pvc
         mountPath: /config
-        autoPermissions:
-          enabled: false
+        size: 40Gi
       media:
         enabled: true
         type: nfs
