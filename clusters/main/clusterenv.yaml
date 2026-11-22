@@ -46,7 +46,6 @@ PODNET: ENC[AES256_GCM,data:LsqA2T93mh7mTrzYpw==,iv:mLm9mwPrAJT32m8VePY3+88NeWj8
 SVCNET: ENC[AES256_GCM,data:RoER+RIrS6uQ6ct43w==,iv:CC6BsRNC9IMj09/z6V+k3xu4z3lLbJ48w+AFoQco5RA=,tag:Q2wnezxqn+PMVwbxHXCxKg==,type:str]
 #ENC[AES256_GCM,data:4wZyWiYHKXF+RkzT+mQHDShy6vUHkGpdxXzPte3t,iv:uJjqxnh8v5YnNr0lnTlxtcck/qXg+6Y4yjRUZdj4sAM=,tag:xjrCo5vtL96IzyjWf5jjfQ==,type:comment]
 TAILSCALE_AUTH_KEY: ENC[AES256_GCM,data:iua8095+4ecyTHIsfub8D7CyGlwubDKlfyjEp5U+RZZhruMbHHDsAhoUJyj+7l9m7VZ4eawWIngPqDszpA==,iv:5VB/a/1jyutAZbngyh0EsjHubhmusnqKfUXk7jYnoUo=,tag:bd3XhZ/XzXRupYdZoCcc3w==,type:str]
-TAILSCALE_AUTH_KEY_LONGHORN_UI: ENC[AES256_GCM,data:MMlrxqaGrCS1feVAfbvueAIPX4ncpL3SHEFuBR+fLpl8gj89dAOtWOutD1ihWl2U9bbxvEcJedDbZKi0ZA==,iv:HD1le49MagP9s4nou6NJkiQdbUL1RDj4DxU20kuQKlk=,tag:nanyZUQs0J6uhU4aSD90nA==,type:str]
 #
 #ENC[AES256_GCM,data:w51Dsg==,iv:6BTTa+50joWqKnK/o0SPlkeiI0gHspLLHCVkhEBImXo=,tag:1r2aS9x8G3HYEUlup/VY6A==,type:comment]
 NFS_SERVER_0: ENC[AES256_GCM,data:qb7KbwG/93ohGsVGXfU=,iv:HvUUzMZWXwq3+y4LndTvRiIdiRjdXDCGIkAmPc8Hnxo=,tag:tx1aoHXvyrrKA+UL8M+Pow==,type:str]
@@ -138,7 +137,7 @@ sops:
         UnhYRk1aSVZIMVRlZ2JKUC9PaktmckUK194PMyuT0osLGFqjaaMCrmwZO4L/tmr+
         x/8lHFFLAiJ88/IWzLCSAGUPYPUldJlIYkjwWWpBQ8igzUTW/3FZQQ==
         -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2026-11-21T09:07:11Z"
-  mac: ENC[AES256_GCM,data:4N4QJoBgqn8kNOjN99EKnpFJbulQQRlgaHXF7FiZfbuHncE5dmUEqofhPEFG2r42VulJQa3YmXYm64OTXGgEM9+vIQ1XOZtd6ZRZ/SWpg+LHWxM4aYy3VkxPKRGvfPqA51jGx6Rx/1euczRZuFg7gm/iZFWu/OVh/xdzeSyCT7s=,iv:RKb43e3dS5XdqAR2PmkXOa5gZ34dTxgfti7Wul2/DFI=,tag:NJxbAiHPwTrQ8se3UuQL4g==,type:str]
+  lastmodified: "2026-11-22T11:57:53Z"
+  mac: ENC[AES256_GCM,data:Qu5R4xkY78kcgsY+06kj7ZrYkiZzl2u3str8vuUSfL+gDwZqmKr0WdezCeljiukSkLwkkLdf536FHBd8TKdS0HA7bvHGIlFGugZ3GbwprGK8cL+ELofKdwpYfe5wdB+NSGkminW7x9Fd97N3qX3XXfYZc5ItUA2O1PTAMH5hiUk=,iv:RN6bdKIQXhHSd/dAkr2mS42VAELHS3qdNwWF2eh10XM=,tag:Wm+rWktclmdPmGs0qlyRaA==,type:str]
   unencrypted_suffix: _unencrypted
   version: 3.13.1
