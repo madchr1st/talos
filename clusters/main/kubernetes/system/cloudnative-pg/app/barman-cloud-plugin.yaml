@@ -1,0 +1,33 @@
+# Barman Cloud plugin (CNPG-I). TrueCharts "Common 2026" renders CNPG backups only through this plugin and
+# fails without it; charts switch from the in-tree barmanObjectStore as they move to the new common.
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: plugin-barman-cloud
+  namespace: cloudnative-pg
+spec:
+  interval: 5m
+  dependsOn:
+    - name: cloudnative-pg
+  chart:
+    spec:
+      chart: plugin-barman-cloud
+      version: 0.9.0
+      sourceRef:
+        kind: HelmRepository
+        name: cloudnative-pg
+        namespace: flux-system
+      interval: 5m
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  values:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
