@@ -13,6 +13,8 @@ spec:
   jobTemplate:
     spec:
       backoffLimit: 1
+      # a run takes ~30 min (14 d range queries against Prometheus); never block next week's run
+      activeDeadlineSeconds: 7200
       template:
         spec:
           serviceAccountName: krr
@@ -57,7 +59,18 @@ spec:
           containers:
             - name: report
               image: python:3.13.18-slim
-              command: ["cat", "/work/krr.json"]
+              command: ["python", "/scripts/krr-report.py"]
+              env:
+                - name: NTFY_URL
+                  value: http://ntfy.ntfy.svc.cluster.local:10222
+                - name: NTFY_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: krr
+                      key: NTFY_TOKEN
+                # false = report only | dry-run = print PR diffs | true = open/update PR (needs GITHUB_TOKEN in krr secret)
+                - name: CREATE_PR
+                  value: "false"
               resources:
                 requests:
                   cpu: 10m
@@ -69,9 +82,15 @@ spec:
                 capabilities:
                   drop: ["ALL"]
               volumeMounts:
+                - name: scripts
+                  mountPath: /scripts
+                  readOnly: true
                 - name: work
                   mountPath: /work
           volumes:
+            - name: scripts
+              configMap:
+                name: krr-report
             - name: work
               emptyDir: {}
             - name: tmp

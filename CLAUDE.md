@@ -131,6 +131,21 @@ To add an app or caller: put the namespace into the group (label in its `namespa
 - `traefik-internal` — LAN-only (do not port-forward)
 - `traefik-external` — Internet-facing (port-forward at router)
 
+## Right-sizing (KRR)
+
+`system/krr/` runs Robusta KRR (simple strategy) Mondays 06:00 UTC and posts a report to ntfy topic `krr`
+(full table also in the last Job's log; a run takes ~45 min). Sizing: CPU request = p95 capped at 1000m, no CPU limit
+(`limits.cpu: 0` on TrueForge charts); memory request = peak + 15 %, memory limit = max(request, floor).
+
+- Config `system/krr/app/krr-config.json`: `cpu_request_max_m`, memory floors for rare peaks (`namespace/container`,
+  main workload only; raise the limit, not the request), `full_history_from` (reports before it are "partial").
+- Only the main workload/container (both named like the HelmRelease) of a TrueForge chart is edited; CNPG
+  databases are not scanned by KRR at all.
+- Run now: `kubectl --context aarau-talos01 -n krr create job --from=cronjob/krr krr-manual`
+- Tests: `cd clusters/main/kubernetes/system/krr && python3 -m unittest discover -s tests`
+- PR mode: `CREATE_PR` env in `cronjob.yaml` (`false` | `dry-run` | `true`). `true` needs `GITHUB_TOKEN` in
+  `krr.secret.yaml` (fine-grained PAT, this repo only, Contents + Pull requests read/write).
+
 ## Dependency Update Automation
 
 Renovate is configured via `.github/renovate.json5` extending `github>trueforge-org/renovate-config`. The automerge workflow (`automerge.yaml`) squash-merges Renovate PRs after the placeholder CI passes.

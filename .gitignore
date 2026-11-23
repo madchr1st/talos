@@ -11,3 +11,6 @@ sopssecret*
 mounts/
 .decrypted*
 migration/
+
+# Python bytecode (system/krr tests)
+__pycache__/

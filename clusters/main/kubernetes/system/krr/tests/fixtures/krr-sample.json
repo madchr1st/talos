@@ -1,0 +1,613 @@
+{
+ "scans": [
+  {
+   "object": {
+    "cluster": null,
+    "name": "authelia",
+    "container": "authelia",
+    "hpa": null,
+    "namespace": "authelia",
+    "kind": "Deployment",
+    "allocations": {
+     "requests": {
+      "cpu": 0.01,
+      "memory": 52428800.0
+     },
+     "limits": {
+      "cpu": 1.5,
+      "memory": 4294967296.0
+     },
+     "info": {}
+    },
+    "warnings": [],
+    "labels": {
+     "app": "authelia-34.2.5",
+     "app.kubernetes.io/instance": "authelia",
+     "app.kubernetes.io/managed-by": "Helm",
+     "app.kubernetes.io/name": "authelia",
+     "app.kubernetes.io/version": "4.39.28",
+     "helm-revision": "27",
+     "helm.sh/chart": "authelia-34.2.5",
+     "helm.toolkit.fluxcd.io/name": "authelia",
+     "helm.toolkit.fluxcd.io/namespace": "authelia",
+     "release": "authelia"
+    }
+   },
+   "recommended": {
+    "requests": {
+     "cpu": {
+      "value": 0.012,
+      "severity": "GOOD"
+     },
+     "memory": {
+      "value": 158334976.0,
+      "severity": "OK"
+     }
+    },
+    "limits": {
+     "cpu": {
+      "value": null,
+      "severity": "WARNING"
+     },
+     "memory": {
+      "value": 158334976.0,
+      "severity": "CRITICAL"
+     }
+    },
+    "info": {
+     "cpu": null,
+     "memory": null
+    }
+   },
+   "severity": "CRITICAL"
+  },
+  {
+   "object": {
+    "cluster": null,
+    "name": "jellyfin",
+    "container": "jellyfin",
+    "hpa": null,
+    "namespace": "jellyfin",
+    "kind": "Deployment",
+    "allocations": {
+     "requests": {
+      "cpu": 0.1,
+      "memory": 536870912.0
+     },
+     "limits": {
+      "cpu": 2.0,
+      "memory": 6442450944.0
+     },
+     "info": {}
+    },
+    "warnings": [],
+    "labels": {
+     "app": "jellyfin-25.3.6",
+     "app.kubernetes.io/instance": "jellyfin",
+     "app.kubernetes.io/managed-by": "Helm",
+     "app.kubernetes.io/name": "jellyfin",
+     "app.kubernetes.io/version": "12.4.0",
+     "helm-revision": "10",
+     "helm.sh/chart": "jellyfin-25.3.6",
+     "helm.toolkit.fluxcd.io/name": "jellyfin",
+     "helm.toolkit.fluxcd.io/namespace": "jellyfin",
+     "release": "jellyfin"
+    }
+   },
+   "recommended": {
+    "requests": {
+     "cpu": {
+      "value": 5.5,
+      "severity": "CRITICAL"
+     },
+     "memory": {
+      "value": 2826960896.0,
+      "severity": "CRITICAL"
+     }
+    },
+    "limits": {
+     "cpu": {
+      "value": null,
+      "severity": "WARNING"
+     },
+     "memory": {
+      "value": 2826960896.0,
+      "severity": "CRITICAL"
+     }
+    },
+    "info": {
+     "cpu": null,
+     "memory": null
+    }
+   },
+   "severity": "CRITICAL"
+  },
+  {
+   "object": {
+    "cluster": null,
+    "name": "plex",
+    "container": "plex",
+    "hpa": null,
+    "namespace": "plex",
+    "kind": "Deployment",
+    "allocations": {
+     "requests": {
+      "cpu": 0.5,
+      "memory": 1073741824.0
+     },
+     "limits": {
+      "cpu": 2.0,
+      "memory": 6442450944.0
+     },
+     "info": {}
+    },
+    "warnings": [],
+    "labels": {
+     "app": "plex-23.1.7",
+     "app.kubernetes.io/instance": "plex",
+     "app.kubernetes.io/managed-by": "Helm",
+     "app.kubernetes.io/name": "plex",
+     "app.kubernetes.io/version": "1.43.5.11079",
+     "helm-revision": "11",
+     "helm.sh/chart": "plex-23.1.7",
+     "helm.toolkit.fluxcd.io/name": "plex",
+     "helm.toolkit.fluxcd.io/namespace": "plex",
+     "release": "plex"
+    }
+   },
+   "recommended": {
+    "requests": {
+     "cpu": {
+      "value": 5.21,
+      "severity": "CRITICAL"
+     },
+     "memory": {
+      "value": 2387607552.0,
+      "severity": "CRITICAL"
+     }
+    },
+    "limits": {
+     "cpu": {
+      "value": null,
+      "severity": "WARNING"
+     },
+     "memory": {
+      "value": 2387607552.0,
+      "severity": "CRITICAL"
+     }
+    },
+    "info": {
+     "cpu": null,
+     "memory": null
+    }
+   },
+   "severity": "CRITICAL"
+  },
+  {
+   "object": {
+    "cluster": null,
+    "name": "qbittorrent",
+    "container": "qbittorrent-gluetun",
+    "hpa": null,
+    "namespace": "qbittorrent",
+    "kind": "Deployment",
+    "allocations": {
+     "requests": {
+      "cpu": 0.075,
+      "memory": 209715200.0
+     },
+     "limits": {
+      "cpu": 1.5,
+      "memory": 2516582400.0
+     },
+     "info": {}
+    },
+    "warnings": [],
+    "labels": {
+     "app": "qbittorrent-26.2.5",
+     "app.kubernetes.io/instance": "qbittorrent",
+     "app.kubernetes.io/managed-by": "Helm",
+     "app.kubernetes.io/name": "qbittorrent",
+     "app.kubernetes.io/version": "5.3.0",
+     "helm-revision": "14",
+     "helm.sh/chart": "qbittorrent-26.2.5",
+     "helm.toolkit.fluxcd.io/name": "qbittorrent",
+     "helm.toolkit.fluxcd.io/namespace": "qbittorrent",
+     "release": "qbittorrent"
+    }
+   },
+   "recommended": {
+    "requests": {
+     "cpu": {
+      "value": 0.065,
+      "severity": "GOOD"
+     },
+     "memory": {
+      "value": 119537664.0,
+      "severity": "GOOD"
+     }
+    },
+    "limits": {
+     "cpu": {
+      "value": null,
+      "severity": "WARNING"
+     },
+     "memory": {
+      "value": 119537664.0,
+      "severity": "CRITICAL"
+     }
+    },
+    "info": {
+     "cpu": null,
+     "memory": null
+    }
+   },
+   "severity": "CRITICAL"
+  },
+  {
+   "object": {
+    "cluster": null,
+    "name": "sonarr",
+    "container": "sonarr-exportarr",
+    "hpa": null,
+    "namespace": "sonarr",
+    "kind": "Deployment",
+    "allocations": {
+     "requests": {
+      "cpu": 0.075,
+      "memory": 209715200.0
+     },
+     "limits": {
+      "cpu": 1.5,
+      "memory": 2516582400.0
+     },
+     "info": {}
+    },
+    "warnings": [],
+    "labels": {
+     "app": "sonarr-28.1.8",
+     "app.kubernetes.io/instance": "sonarr",
+     "app.kubernetes.io/managed-by": "Helm",
+     "app.kubernetes.io/name": "sonarr",
+     "app.kubernetes.io/version": "5.0.0.2997",
+     "helm-revision": "7",
+     "helm.sh/chart": "sonarr-28.1.8",
+     "helm.toolkit.fluxcd.io/name": "sonarr",
+     "helm.toolkit.fluxcd.io/namespace": "sonarr",
+     "release": "sonarr"
+    }
+   },
+   "recommended": {
+    "requests": {
+     "cpu": {
+      "value": 0.01,
+      "severity": "GOOD"
+     },
+     "memory": {
+      "value": 67108864.0,
+      "severity": "OK"
+     }
+    },
+    "limits": {
+     "cpu": {
+      "value": null,
+      "severity": "WARNING"
+     },
+     "memory": {
+      "value": 67108864.0,
+      "severity": "CRITICAL"
+     }
+    },
+    "info": {
+     "cpu": null,
+     "memory": null
+    }
+   },
+   "severity": "CRITICAL"
+  },
+  {
+   "object": {
+    "cluster": null,
+    "name": "sonarr",
+    "container": "sonarr",
+    "hpa": null,
+    "namespace": "sonarr",
+    "kind": "Deployment",
+    "allocations": {
+     "requests": {
+      "cpu": 0.075,
+      "memory": 209715200.0
+     },
+     "limits": {
+      "cpu": 1.5,
+      "memory": 2516582400.0
+     },
+     "info": {}
+    },
+    "warnings": [],
+    "labels": {
+     "app": "sonarr-28.1.8",
+     "app.kubernetes.io/instance": "sonarr",
+     "app.kubernetes.io/managed-by": "Helm",
+     "app.kubernetes.io/name": "sonarr",
+     "app.kubernetes.io/version": "5.0.0.2997",
+     "helm-revision": "7",
+     "helm.sh/chart": "sonarr-28.1.8",
+     "helm.toolkit.fluxcd.io/name": "sonarr",
+     "helm.toolkit.fluxcd.io/namespace": "sonarr",
+     "release": "sonarr"
+    }
+   },
+   "recommended": {
+    "requests": {
+     "cpu": {
+      "value": 0.175,
+      "severity": "GOOD"
+     },
+     "memory": {
+      "value": 960495616.0,
+      "severity": "CRITICAL"
+     }
+    },
+    "limits": {
+     "cpu": {
+      "value": null,
+      "severity": "WARNING"
+     },
+     "memory": {
+      "value": 960495616.0,
+      "severity": "CRITICAL"
+     }
+    },
+    "info": {
+     "cpu": null,
+     "memory": null
+    }
+   },
+   "severity": "CRITICAL"
+  },
+  {
+   "object": {
+    "cluster": null,
+    "name": "helm-controller",
+    "container": "manager",
+    "hpa": null,
+    "namespace": "flux-system",
+    "kind": "Deployment",
+    "allocations": {
+     "requests": {
+      "cpu": 0.1,
+      "memory": 67108864.0
+     },
+     "limits": {
+      "cpu": 1.0,
+      "memory": 2147483648.0
+     },
+     "info": {}
+    },
+    "warnings": [
+     "NoPrometheusPods"
+    ],
+    "labels": {
+     "app.kubernetes.io/component": "helm-controller",
+     "app.kubernetes.io/instance": "flux-system",
+     "app.kubernetes.io/part-of": "flux",
+     "app.kubernetes.io/version": "v2.10.1",
+     "control-plane": "controller",
+     "kustomize.toolkit.fluxcd.io/name": "flux",
+     "kustomize.toolkit.fluxcd.io/namespace": "flux-system"
+    }
+   },
+   "recommended": {
+    "requests": {
+     "cpu": {
+      "value": 0.014,
+      "severity": "GOOD"
+     },
+     "memory": {
+      "value": 325058560.0,
+      "severity": "OK"
+     }
+    },
+    "limits": {
+     "cpu": {
+      "value": null,
+      "severity": "WARNING"
+     },
+     "memory": {
+      "value": 325058560.0,
+      "severity": "CRITICAL"
+     }
+    },
+    "info": {
+     "cpu": null,
+     "memory": null
+    }
+   },
+   "severity": "CRITICAL"
+  },
+  {
+   "object": {
+    "cluster": null,
+    "name": "image-automation-controller",
+    "container": "manager",
+    "hpa": null,
+    "namespace": "flux-system",
+    "kind": "Deployment",
+    "allocations": {
+     "requests": {
+      "cpu": 0.1,
+      "memory": 67108864.0
+     },
+     "limits": {
+      "cpu": 1.0,
+      "memory": 1073741824.0
+     },
+     "info": {}
+    },
+    "warnings": [],
+    "labels": {
+     "app.kubernetes.io/component": "image-automation-controller",
+     "app.kubernetes.io/instance": "flux-system",
+     "app.kubernetes.io/part-of": "flux",
+     "control-plane": "controller"
+    }
+   },
+   "recommended": {
+    "requests": {
+     "cpu": {
+      "value": 0.02,
+      "severity": "GOOD"
+     },
+     "memory": {
+      "value": 89128960.0,
+      "severity": "GOOD"
+     }
+    },
+    "limits": {
+     "cpu": {
+      "value": null,
+      "severity": "WARNING"
+     },
+     "memory": {
+      "value": 89128960.0,
+      "severity": "CRITICAL"
+     }
+    },
+    "info": {
+     "cpu": null,
+     "memory": null
+    }
+   },
+   "severity": "CRITICAL"
+  },
+  {
+   "object": {
+    "cluster": null,
+    "name": "authelia-redis",
+    "container": "authelia-redis",
+    "hpa": null,
+    "namespace": "authelia",
+    "kind": "StatefulSet",
+    "allocations": {
+     "requests": {
+      "cpu": 0.075,
+      "memory": 209715200.0
+     },
+     "limits": {
+      "cpu": 1.5,
+      "memory": 2516582400.0
+     },
+     "info": {}
+    },
+    "warnings": [],
+    "labels": {
+     "app": "redis-3.1.7",
+     "app.kubernetes.io/instance": "authelia",
+     "app.kubernetes.io/managed-by": "Helm",
+     "app.kubernetes.io/name": "redis",
+     "app.kubernetes.io/version": "latest",
+     "helm-revision": "27",
+     "helm.sh/chart": "redis-3.1.7",
+     "helm.toolkit.fluxcd.io/name": "authelia",
+     "helm.toolkit.fluxcd.io/namespace": "authelia",
+     "release": "authelia"
+    }
+   },
+   "recommended": {
+    "requests": {
+     "cpu": {
+      "value": 0.011,
+      "severity": "GOOD"
+     },
+     "memory": {
+      "value": 67108864.0,
+      "severity": "OK"
+     }
+    },
+    "limits": {
+     "cpu": {
+      "value": null,
+      "severity": "WARNING"
+     },
+     "memory": {
+      "value": 67108864.0,
+      "severity": "CRITICAL"
+     }
+    },
+    "info": {
+     "cpu": null,
+     "memory": null
+    }
+   },
+   "severity": "CRITICAL"
+  },
+  {
+   "object": {
+    "cluster": null,
+    "name": "unknown-app",
+    "container": "unknown-app",
+    "hpa": null,
+    "namespace": "unknown-app",
+    "kind": "Deployment",
+    "allocations": {
+     "requests": {
+      "cpu": 0.01,
+      "memory": 52428800.0
+     },
+     "limits": {
+      "cpu": 1.5,
+      "memory": 4294967296.0
+     },
+     "info": {}
+    },
+    "warnings": [],
+    "labels": {
+     "helm.toolkit.fluxcd.io/name": "unknown-app",
+     "helm.toolkit.fluxcd.io/namespace": "unknown-app"
+    }
+   },
+   "recommended": {
+    "requests": {
+     "cpu": {
+      "value": "?",
+      "severity": "GOOD"
+     },
+     "memory": {
+      "value": 158334976.0,
+      "severity": "OK"
+     }
+    },
+    "limits": {
+     "cpu": {
+      "value": null,
+      "severity": "WARNING"
+     },
+     "memory": {
+      "value": 158334976.0,
+      "severity": "CRITICAL"
+     }
+    },
+    "info": {
+     "cpu": null,
+     "memory": null
+    }
+   },
+   "severity": "CRITICAL"
+  }
+ ],
+ "strategy": {
+  "name": "simple",
+  "settings": {
+   "history_duration": 336.0,
+   "timeframe_duration": 1.25,
+   "cpu_percentile": 95.0,
+   "memory_buffer_percentage": 15.0,
+   "points_required": 100,
+   "allow_hpa": false,
+   "use_oomkill_data": false,
+   "oom_memory_buffer_percentage": 25.0
+  }
+ },
+ "errors": []
+}
