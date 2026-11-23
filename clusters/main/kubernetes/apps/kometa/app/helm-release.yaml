@@ -38,7 +38,7 @@ spec:
     TZ: Europe/Zurich
     # config.yml lives in Git (configmap, read-only); Plex token and TMDb key come from values-sec.yaml.
     kometa:
-      run: false
+      run: true
       no_countdown: true
       times:
         - "03:00"
