@@ -210,5 +210,161 @@ class Ntfy(unittest.TestCase):
         self.assertIn("| Namespace | Workload |", out.getvalue())
 
 
+def strip_resources(text):
+    """Lines of a helm-release.yaml without the values.resources block."""
+    out, skip = [], False
+    for line in text.splitlines():
+        if line == "    resources:":
+            skip = True
+            continue
+        if skip and (line.startswith("      ") or not line.strip()):
+            continue
+        skip = False
+        out.append(line)
+    return out
+
+
+class UpdateResources(unittest.TestCase):
+    gpu = (FIXTURES / "helm-release-gpu.yaml").read_text()
+    plain = (FIXTURES / "helm-release-noresources.yaml").read_text()
+
+    def test_update_keeps_gpu_and_rest(self):
+        new = kr.update_resources_block(self.gpu, 150, 6144)
+        self.assertIn("    resources:\n"
+                      "      limits:\n"
+                      "        cpu: 0\n"
+                      "        memory: 6Gi\n"
+                      "        nvidia.com/gpu: 1\n"
+                      "      requests:\n"
+                      "        cpu: 150m\n"
+                      "        memory: 6Gi\n", new)
+        self.assertEqual(strip_resources(new), strip_resources(self.gpu))
+
+    def test_update_inserts_block(self):
+        new = kr.update_resources_block(self.plain, 20, 224)
+        lines = new.splitlines()
+        self.assertEqual(lines.count("    resources:"), 1)
+        i = lines.index("  values:")
+        self.assertEqual(lines[i + 1:i + 8], ["    resources:", "      limits:", "        cpu: 0",
+                                              "        memory: 224Mi", "      requests:", "        cpu: 20m",
+                                              "        memory: 224Mi"])
+        self.assertEqual(strip_resources(new), strip_resources(self.plain))
+        self.assertIn("{DOMAIN_0}", new)
+
+    def test_update_idempotent(self):
+        once = kr.update_resources_block(self.gpu, 150, 6144)
+        self.assertEqual(kr.update_resources_block(once, 150, 6144), once)
+
+
+class FakeGitHub:
+    def __init__(self, files):
+        self.files = files
+        self.paths = set(files)
+
+    def find_helm_releases(self):
+        path = "apps/sonarr/app/helm-release.yaml"
+        return {("sonarr", "sonarr"): path} if path in self.files else {}
+
+    def get_file(self, path):
+        return self.files[path], "sha"
+
+
+class PlanPr(unittest.TestCase):
+    plain = (FIXTURES / "helm-release-noresources.yaml").read_text()
+
+    def test_plan_pr_changes_truecharts(self):
+        gh = FakeGitHub({"apps/sonarr/app/helm-release.yaml": self.plain})
+        changes, result = kr.plan_pr(rows(scan(rec_cpu=0.02)), gh)
+        self.assertEqual(list(changes), ["apps/sonarr/app/helm-release.yaml"])
+        self.assertIn("        cpu: 20m", changes["apps/sonarr/app/helm-release.yaml"])
+        self.assertEqual(result[0].status, "change")
+
+    def test_plan_pr_skips_non_truecharts(self):
+        other = self.plain.replace("name: truecharts", "name: prometheus-community")
+        gh = FakeGitHub({"apps/sonarr/app/helm-release.yaml": other})
+        changes, result = kr.plan_pr(rows(scan(rec_cpu=0.02)), gh)
+        self.assertEqual(changes, {})
+        self.assertEqual((result[0].status, result[0].reason), ("manual", "not a TrueForge chart"))
+
+    def test_plan_pr_skips_resources_in_values_sec(self):
+        gh = FakeGitHub({"apps/sonarr/app/helm-release.yaml": self.plain,
+                         "apps/sonarr/app/values-sec.yaml": "resources:\n    limits: ENC[...]\n"})
+        changes, result = kr.plan_pr(rows(scan(rec_cpu=0.02)), gh)
+        self.assertEqual(changes, {})
+        self.assertEqual(result[0].reason, "resources in values-sec.yaml")
+
+    def test_plan_pr_missing_file(self):
+        gh = FakeGitHub({})
+        changes, result = kr.plan_pr(rows(scan(rec_cpu=0.02)), gh)
+        self.assertEqual((changes, result[0].status), ({}, "manual"))
+
+
+class RecordingGitHub(kr.GitHub):
+    def __init__(self, responses):
+        super().__init__("tk")
+        self.calls, self.responses = [], responses
+
+    def _req(self, method, path, body=None, allow_404=False):
+        self.calls.append((method, path.split("?")[0]))
+        for (m, prefix), resp in self.responses.items():
+            if m == method and path.startswith(prefix):
+                return resp
+        return {}
+
+
+class GitHubApi(unittest.TestCase):
+    def test_open_or_update_pr_existing(self):
+        gh = RecordingGitHub({
+            ("GET", "/repos/madchr1st/talos/git/ref/heads/main"): {"object": {"sha": "abc"}},
+            ("GET", "/repos/madchr1st/talos/git/ref/heads/krr/rightsizing"): {"object": {"sha": "old"}},
+            ("GET", "/repos/madchr1st/talos/pulls"): [{"number": 7, "html_url": "https://pr/7"}],
+            ("GET", "/repos/madchr1st/talos/contents/"): {"sha": "filesha"},
+        })
+        url = gh.open_or_update_pr({"a/helm-release.yaml": "x"}, "title", "body")
+        self.assertEqual(url, "https://pr/7")
+        self.assertNotIn(("POST", "/repos/madchr1st/talos/pulls"), gh.calls)
+        self.assertIn(("PATCH", "/repos/madchr1st/talos/pulls/7"), gh.calls)
+        self.assertIn(("PATCH", "/repos/madchr1st/talos/git/refs/heads/krr/rightsizing"), gh.calls)
+        self.assertIn(("PUT", "/repos/madchr1st/talos/contents/a/helm-release.yaml"), gh.calls)
+
+    def test_open_or_update_pr_new(self):
+        gh = RecordingGitHub({
+            ("GET", "/repos/madchr1st/talos/git/ref/heads/main"): {"object": {"sha": "abc"}},
+            ("GET", "/repos/madchr1st/talos/git/ref/heads/krr/rightsizing"): None,
+            ("GET", "/repos/madchr1st/talos/pulls"): [],
+            ("POST", "/repos/madchr1st/talos/pulls"): {"number": 8, "html_url": "https://pr/8"},
+            ("GET", "/repos/madchr1st/talos/contents/"): {"sha": "filesha"},
+        })
+        self.assertEqual(gh.open_or_update_pr({"a/helm-release.yaml": "x"}, "t", "b"), "https://pr/8")
+        self.assertIn(("POST", "/repos/madchr1st/talos/git/refs"), gh.calls)
+        self.assertIn(("POST", "/repos/madchr1st/talos/issues/8/labels"), gh.calls)
+
+    def test_dry_run_no_writes(self):
+        plain = (FIXTURES / "helm-release-noresources.yaml").read_text()
+        gh = RecordingGitHub({})
+        gh.find_helm_releases = lambda: {("sonarr", "sonarr"): "apps/sonarr/app/helm-release.yaml"}
+        gh.paths = {"apps/sonarr/app/helm-release.yaml"}
+        gh.get_file = lambda path: (plain, "sha")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            kr.run_pr_mode(rows(scan(rec_cpu=0.02)), gh, "dry-run", datetime.date(2026, 12, 2))
+        self.assertEqual({m for m, _ in gh.calls} - {"GET"}, set())
+        self.assertIn("+        cpu: 20m", out.getvalue())
+
+    def test_main_true_without_token(self):
+        with tempfile.TemporaryDirectory() as d:
+            krr_json = pathlib.Path(d, "krr.json")
+            krr_json.write_text(json.dumps({"scans": [scan()]}))
+            env = {"KRR_JSON": str(krr_json), "KRR_CONFIG": str(APP / "krr-config.json"),
+                   "NTFY_URL": "http://ntfy", "NTFY_TOKEN": "tk", "CREATE_PR": "true", "GITHUB_TOKEN": ""}
+            err = io.StringIO()
+            with mock.patch.dict(os.environ, env), \
+                    mock.patch.object(kr.urllib.request, "urlopen", lambda req, timeout=None: FakeResponse()), \
+                    contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
+                code = kr.main()
+        self.assertEqual(code, 1)
+        self.assertIn("GITHUB_TOKEN", err.getvalue())
+
+
 if __name__ == "__main__":
     unittest.main()

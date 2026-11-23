@@ -6,11 +6,14 @@ Flux substitution disabled, but keep the dollar-brace sequence out of this file 
 See docs/superpowers/specs/2026-11-23-krr-rightsizing-design.md.
 """
 
+import base64
 import datetime
+import difflib
 import json
 import math
 import os
 import sys
+import urllib.error
 import urllib.request
 from dataclasses import dataclass
 
@@ -210,6 +213,160 @@ def send_ntfy(url: str, token: str, title: str, summary: str, report_md: str, fi
             raise RuntimeError(f"ntfy returned HTTP {resp.status}")
 
 
+# ---------------------------------------------------------------- PR mode
+
+REPO = "madchr1st/talos"
+BRANCH = "krr/rightsizing"
+
+
+def _indent(line: str) -> int:
+    return len(line) - len(line.lstrip(" "))
+
+
+def update_resources_block(text: str, cpu_m: int, mem_mi: int) -> str:
+    """Set spec.values.resources (TrueForge layout, 4-space indent) textually; keep everything else."""
+    lines = text.split("\n")
+    v = lines.index("  values:")
+    end_values = next((i for i in range(v + 1, len(lines))
+                       if lines[i].strip() and _indent(lines[i]) <= 2), len(lines))
+    start = next((i for i in range(v + 1, end_values) if lines[i] == "    resources:"), None)
+
+    sections: dict[str, list[tuple[str, str]]] = {"limits": [], "requests": []}
+    extra: list[str] = []
+    if start is None:
+        start = end = v + 1
+    else:
+        end = start + 1
+        current = None
+        while end < end_values and (not lines[end].strip() or _indent(lines[end]) > 4):
+            line = lines[end]
+            if not line.strip():
+                break
+            if _indent(line) == 6 and line.strip().endswith(":"):
+                current = line.strip()[:-1]
+                sections.setdefault(current, [])
+            elif _indent(line) >= 8 and current is not None and ":" in line:
+                key, _, value = line.strip().partition(":")
+                sections[current].append((key, value.strip()))
+            else:
+                extra.append(line)
+            end += 1
+
+    want = {"limits": {"cpu": "0", "memory": fmt_mem(mem_mi)},
+            "requests": {"cpu": f"{cpu_m}m", "memory": fmt_mem(mem_mi)}}
+    block = ["    resources:"]
+    for name in ["limits", "requests"] + [n for n in sections if n not in ("limits", "requests")]:
+        block.append(f"      {name}:")
+        fixed = want.get(name, {})
+        for key, value in fixed.items():
+            block.append(f"        {key}: {value}")
+        for key, value in sections.get(name, []):
+            if key not in fixed:
+                block.append(f"        {key}: {value}")
+    block += extra
+    return "\n".join(lines[:start] + block + lines[end:])
+
+
+class GitHub:
+    def __init__(self, token: str, repo: str = REPO):
+        self.token, self.repo = token, repo
+        self.paths: set[str] = set()
+
+    def _req(self, method: str, path: str, body=None, allow_404: bool = False):
+        headers = {"Accept": "application/vnd.github+json", "User-Agent": "krr-report"}
+        if self.token:
+            headers["Authorization"] = f"Bearer {self.token}"
+        data = json.dumps(body).encode() if body is not None else None
+        req = urllib.request.Request(f"https://api.github.com{path}", data=data, method=method, headers=headers)
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                raw = resp.read()
+        except urllib.error.HTTPError as e:
+            if allow_404 and e.code == 404:
+                return None
+            raise RuntimeError(f"GitHub {method} {path}: HTTP {e.code} {e.read()[:300]!r}") from e
+        return json.loads(raw) if raw else {}
+
+    def find_helm_releases(self) -> dict[tuple[str, str], str]:
+        tree = self._req("GET", f"/repos/{self.repo}/git/trees/main?recursive=1")
+        self.paths = {t["path"] for t in tree["tree"] if t["type"] == "blob"}
+        found = {}
+        for path in sorted(p for p in self.paths if p.endswith("/helm-release.yaml")):
+            text, _ = self.get_file(path)
+            meta = text.split("\nspec:")[0]
+            name = next((l.split(":", 1)[1].strip() for l in meta.splitlines() if l.startswith("  name:")), None)
+            ns = next((l.split(":", 1)[1].strip() for l in meta.splitlines() if l.startswith("  namespace:")), None)
+            if name and ns:
+                found[(name, ns)] = path
+        return found
+
+    def get_file(self, path: str, ref: str = "main") -> tuple[str, str]:
+        data = self._req("GET", f"/repos/{self.repo}/contents/{path}?ref={ref}")
+        return base64.b64decode(data["content"]).decode(), data["sha"]
+
+    def open_or_update_pr(self, changes: dict[str, str], title: str, body: str) -> str:
+        r = f"/repos/{self.repo}"
+        main_sha = self._req("GET", f"{r}/git/ref/heads/main")["object"]["sha"]
+        if self._req("GET", f"{r}/git/ref/heads/{BRANCH}", allow_404=True):
+            self._req("PATCH", f"{r}/git/refs/heads/{BRANCH}", {"sha": main_sha, "force": True})
+        else:
+            self._req("POST", f"{r}/git/refs", {"ref": f"refs/heads/{BRANCH}", "sha": main_sha})
+        for path, text in sorted(changes.items()):
+            sha = self._req("GET", f"{r}/contents/{path}?ref={BRANCH}")["sha"]
+            self._req("PUT", f"{r}/contents/{path}", {
+                "message": f"chore(resources): KRR right-sizing {path}",
+                "content": base64.b64encode(text.encode()).decode(), "sha": sha, "branch": BRANCH})
+        owner = self.repo.split("/")[0]
+        prs = self._req("GET", f"{r}/pulls?state=open&head={owner}:{BRANCH}")
+        if prs:
+            number, url = prs[0]["number"], prs[0]["html_url"]
+            self._req("PATCH", f"{r}/pulls/{number}", {"title": title, "body": body})
+        else:
+            pr = self._req("POST", f"{r}/pulls", {"title": title, "head": BRANCH, "base": "main", "body": body})
+            number, url = pr["number"], pr["html_url"]
+        self._req("POST", f"{r}/issues/{number}/labels", {"labels": ["krr"]})
+        return url
+
+
+def plan_pr(rows: list[Row], gh) -> tuple[dict[str, str], list[Row]]:
+    releases = gh.find_helm_releases()
+    changes = {}
+    for row in rows:
+        if row.status != "change":
+            continue
+        path = releases.get((row.release, row.namespace))
+        if path is None:
+            row.status, row.reason = "manual", "HelmRelease file not found"
+            continue
+        text, _ = gh.get_file(path)
+        if "name: truecharts" not in text:
+            row.status, row.reason = "manual", "not a TrueForge chart"
+            continue
+        sec = path.rsplit("/", 1)[0] + "/values-sec.yaml"
+        if sec in gh.paths and any(l.startswith("resources:") for l in gh.get_file(sec)[0].splitlines()):
+            row.status, row.reason = "manual", "resources in values-sec.yaml"
+            continue
+        changes[path] = update_resources_block(text, row.rec_cpu_m, row.rec_mem_mi)
+    return changes, rows
+
+
+def run_pr_mode(rows: list[Row], gh, mode: str, today: datetime.date) -> str | None:
+    changes, rows = plan_pr(rows, gh)
+    if mode == "dry-run":
+        for path, new in sorted(changes.items()):
+            old, _ = gh.get_file(path)
+            print("".join(difflib.unified_diff(old.splitlines(True), new.splitlines(True), f"a/{path}", f"b/{path}")))
+        return None
+    if not changes:
+        return None
+    body = "Automated by the krr CronJob (system/krr). Review before merging; not auto-merged.\n\n"
+    body += TABLE_HEADER + "\n" + "\n".join(
+        f"| {r.namespace} | {r.workload} | {r.container} | {_m(r.cur_cpu_req_m)} → {_m(r.rec_cpu_m)} "
+        f"| {_mi(r.cur_mem_req_mi)}/{_mi(r.cur_mem_lim_mi)} → {_mi(r.rec_mem_mi)} | {r.status} | {r.reason} |"
+        for r in rows if r.status == "change")
+    return gh.open_or_update_pr(changes, f"chore(resources): KRR right-sizing {today.isoformat()}", body)
+
+
 def main() -> int:
     config = load_config(os.environ.get("KRR_CONFIG", "/scripts/krr-config.json"))
     with open(os.environ.get("KRR_JSON", "/work/krr.json")) as f:
@@ -226,6 +383,19 @@ def main() -> int:
     except Exception as e:  # report already printed; keep going so PR mode still runs
         print(f"ERROR: ntfy delivery failed: {e}", file=sys.stderr)
         failed = True
+
+    mode = os.environ.get("CREATE_PR", "false")
+    if mode in ("dry-run", "true"):
+        try:
+            token = os.environ.get("GITHUB_TOKEN", "")
+            if mode == "true" and not token:
+                raise RuntimeError("CREATE_PR=true needs GITHUB_TOKEN in the krr secret")
+            url = run_pr_mode(rows, GitHub(token), mode, today)
+            if url:
+                print(f"PR: {url}")
+        except Exception as e:
+            print(f"ERROR: PR mode failed: {e}", file=sys.stderr)
+            failed = True
     return 1 if failed else 0
 
 
