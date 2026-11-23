@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: krr
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    # posts the weekly report to ntfy
+    policy-group/ntfy-clients: "true"
