@@ -1,9 +1,16 @@
 """Tests for app/krr-report.py. Run: cd clusters/main/kubernetes/system/krr && python3 -m unittest discover -s tests -v"""
 
 import importlib.util
+import contextlib
+import datetime
+import io
 import json
+import os
 import pathlib
+import tempfile
 import unittest
+import urllib.error
+from unittest import mock
 
 HERE = pathlib.Path(__file__).resolve().parent
 APP = HERE.parent / "app"
@@ -125,6 +132,82 @@ class BuildRows(unittest.TestCase):
         result = kr.build_rows(krr, kr.load_config(str(APP / "krr-config.json")))
         self.assertTrue(result)
         self.assertTrue({r.status for r in result} <= {"change", "ok", "manual"})
+
+
+CONFIG = {"floors": {}, "full_history_from": "2026-12-02"}
+
+
+class Report(unittest.TestCase):
+    def test_summary_partial_flag(self):
+        r = rows(scan())
+        first = kr.render_summary(r, datetime.date(2026, 11, 30), CONFIG).splitlines()[0]
+        self.assertEqual(first, "KRR report 2026-11-30 (partial history)")
+        first = kr.render_summary(r, datetime.date(2026, 12, 2), CONFIG).splitlines()[0]
+        self.assertEqual(first, "KRR report 2026-12-02")
+
+    def test_summary_totals_and_counts(self):
+        r = rows(scan(cur_mem_lim=200 * MI), scan("radarr", "radarr", "radarr",
+                              {"helm.toolkit.fluxcd.io/name": "radarr", "helm.toolkit.fluxcd.io/namespace": "radarr"},
+                              rec_cpu=0.02, rec_mem=100 * MI))
+        text = kr.render_summary(r, datetime.date(2026, 12, 2), CONFIG)
+        self.assertIn("CPU requests: 150m -> 100m", text)
+        self.assertIn("change: 1, ok: 1, manual: 0", text)
+        self.assertIn("radarr/radarr", text)
+
+    def test_summary_size(self):
+        many = [scan(f"ns{i:03}", "app", "app",
+                     {"helm.toolkit.fluxcd.io/name": "app", "helm.toolkit.fluxcd.io/namespace": f"ns{i:03}"},
+                     rec_cpu=0.5, rec_mem=4000 * MI) for i in range(200)]
+        text = kr.render_summary(rows(*many), datetime.date(2026, 12, 2), CONFIG)
+        self.assertLessEqual(len(text.encode()), 4000)
+
+    def test_markdown_table(self):
+        md = kr.render_markdown(rows(scan(rec_cpu=0.02)), datetime.date(2026, 12, 2), CONFIG)
+        self.assertIn("| Namespace | Workload | Container | CPU req (cur → rec) | Mem req/limit (cur → rec) "
+                      "| Status | Note |", md)
+        self.assertIn("| sonarr | sonarr | sonarr | 75m → 20m | 200Mi/2400Mi → 224Mi | change |", md)
+
+
+class FakeResponse:
+    status = 200
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        return False
+
+    def read(self):
+        return b"{}"
+
+
+class Ntfy(unittest.TestCase):
+    def test_send_ntfy_headers(self):
+        seen = []
+        with mock.patch.object(kr.urllib.request, "urlopen", lambda req, timeout=None: seen.append(req) or FakeResponse()):
+            kr.send_ntfy("http://ntfy", "tk", "KRR report", "line1\nline2", "# report", "krr-report-2026-12-02.md")
+        (req,) = seen
+        self.assertEqual(req.get_method(), "PUT")
+        self.assertTrue(req.full_url.endswith("/krr"))
+        self.assertEqual(req.get_header("Authorization"), "Bearer tk")
+        self.assertTrue(req.get_header("X-filename").endswith(".md"))
+        self.assertNotIn("\n", req.get_header("X-message"))
+        self.assertEqual(req.data, b"# report")
+
+    def test_main_exits_1_when_ntfy_fails(self):
+        def boom(req, timeout=None):
+            raise urllib.error.URLError("refused")
+        with tempfile.TemporaryDirectory() as d:
+            krr_json = pathlib.Path(d, "krr.json")
+            krr_json.write_text(json.dumps({"scans": [scan()]}))
+            env = {"KRR_JSON": str(krr_json), "KRR_CONFIG": str(APP / "krr-config.json"),
+                   "NTFY_URL": "http://ntfy", "NTFY_TOKEN": "tk", "CREATE_PR": "false"}
+            out = io.StringIO()
+            with mock.patch.dict(os.environ, env), mock.patch.object(kr.urllib.request, "urlopen", boom), \
+                    contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+                code = kr.main()
+        self.assertEqual(code, 1)
+        self.assertIn("| Namespace | Workload |", out.getvalue())
 
 
 if __name__ == "__main__":

@@ -6,8 +6,12 @@ Flux substitution disabled, but keep the dollar-brace sequence out of this file 
 See docs/superpowers/specs/2026-11-23-krr-rightsizing-design.md.
 """
 
+import datetime
 import json
 import math
+import os
+import sys
+import urllib.request
 from dataclasses import dataclass
 
 MI = 2**20
@@ -130,3 +134,100 @@ def build_rows(krr: dict, config: dict) -> list[Row]:
         result.append(row)
     result.sort(key=lambda r: (r.namespace, r.workload, r.container))
     return result
+
+
+SUMMARY_MAX_BYTES = 4000
+TOP_N = 10
+TABLE_HEADER = ("| Namespace | Workload | Container | CPU req (cur → rec) | Mem req/limit (cur → rec) | Status | Note |\n"
+                "|---|---|---|---|---|---|---|")
+
+
+def _title(today: datetime.date, config: dict) -> str:
+    title = f"KRR report {today.isoformat()}"
+    if today < datetime.date.fromisoformat(config["full_history_from"]):
+        title += " (partial history)"
+    return title
+
+
+def _m(v: int | None) -> str:
+    return "-" if v is None else f"{v}m"
+
+
+def _mi(v: int | None) -> str:
+    return "-" if v is None else fmt_mem(v)
+
+
+def _delta(r: Row) -> tuple[int, int]:
+    return (abs((r.rec_mem_mi or 0) - (r.cur_mem_req_mi or 0)), abs((r.rec_cpu_m or 0) - (r.cur_cpu_req_m or 0)))
+
+
+def render_summary(rows: list[Row], today: datetime.date, config: dict) -> str:
+    sized = [r for r in rows if r.status in ("change", "ok")]
+    cur_cpu = sum(r.cur_cpu_req_m or 0 for r in sized)
+    rec_cpu = sum(r.rec_cpu_m or 0 for r in sized)
+    cur_mem = sum(r.cur_mem_req_mi or 0 for r in sized) / 1024
+    rec_mem = sum(r.rec_mem_mi or 0 for r in sized) / 1024
+    counts = {s: sum(1 for r in rows if r.status == s) for s in ("change", "ok", "manual")}
+    lines = [
+        _title(today, config),
+        f"CPU requests: {cur_cpu}m -> {rec_cpu}m",
+        f"Memory requests: {cur_mem:.1f}Gi -> {rec_mem:.1f}Gi",
+        f"change: {counts['change']}, ok: {counts['ok']}, manual: {counts['manual']}",
+    ]
+    top = sorted((r for r in rows if r.status == "change"), key=_delta, reverse=True)[:TOP_N]
+    if top:
+        lines.append("Top changes:")
+    for r in top:
+        line = (f"- {r.namespace}/{r.container}: cpu {_m(r.cur_cpu_req_m)} -> {_m(r.rec_cpu_m)}, "
+                f"mem {_mi(r.cur_mem_req_mi)} -> {_mi(r.rec_mem_mi)}")
+        if len("\n".join(lines + [line]).encode()) > SUMMARY_MAX_BYTES:
+            break
+        lines.append(line)
+    return "\n".join(lines)
+
+
+def render_markdown(rows: list[Row], today: datetime.date, config: dict) -> str:
+    out = [render_summary(rows, today, config), "", TABLE_HEADER]
+    for r in rows:
+        out.append(
+            f"| {r.namespace} | {r.workload} | {r.container} | {_m(r.cur_cpu_req_m)} → {_m(r.rec_cpu_m)} "
+            f"| {_mi(r.cur_mem_req_mi)}/{_mi(r.cur_mem_lim_mi)} → {_mi(r.rec_mem_mi)} | {r.status} | {r.reason} |")
+    return "\n".join(out) + "\n"
+
+
+def send_ntfy(url: str, token: str, title: str, summary: str, report_md: str, filename: str) -> None:
+    req = urllib.request.Request(
+        f"{url.rstrip('/')}/krr", data=report_md.encode(), method="PUT",
+        headers={
+            "Authorization": f"Bearer {token}",
+            "X-Title": title,
+            "X-Filename": filename,
+            # header values cannot hold newlines; ntfy expands a literal backslash-n
+            "X-Message": summary.replace("\n", "\\n"),
+        })
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        if resp.status >= 300:
+            raise RuntimeError(f"ntfy returned HTTP {resp.status}")
+
+
+def main() -> int:
+    config = load_config(os.environ.get("KRR_CONFIG", "/scripts/krr-config.json"))
+    with open(os.environ.get("KRR_JSON", "/work/krr.json")) as f:
+        rows = build_rows(json.load(f), config)
+    today = datetime.datetime.now(datetime.timezone.utc).date()
+    report = render_markdown(rows, today, config)
+    print(report, flush=True)
+
+    failed = False
+    try:
+        summary = render_summary(rows, today, config)
+        send_ntfy(os.environ["NTFY_URL"], os.environ["NTFY_TOKEN"], summary.splitlines()[0],
+                  "\n".join(summary.splitlines()[1:]), report, f"krr-report-{today.isoformat()}.md")
+    except Exception as e:  # report already printed; keep going so PR mode still runs
+        print(f"ERROR: ntfy delivery failed: {e}", file=sys.stderr)
+        failed = True
+    return 1 if failed else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
