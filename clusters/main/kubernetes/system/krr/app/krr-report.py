@@ -6,7 +6,6 @@ Flux substitution disabled, but keep the dollar-brace sequence out of this file 
 See docs/superpowers/specs/2026-11-23-krr-rightsizing-design.md.
 """
 
-import base64
 import datetime
 import difflib
 import json
@@ -320,22 +319,21 @@ class GitHub:
         with urllib.request.urlopen(req, timeout=30) as resp:
             return resp.read().decode()
 
-    def get_file(self, path: str, ref: str = "main") -> tuple[str, str]:
-        data = self._req("GET", f"/repos/{self.repo}/contents/{path}?ref={ref}")
-        return base64.b64decode(data["content"]).decode(), data["sha"]
-
     def open_or_update_pr(self, changes: dict[str, str], title: str, body: str) -> str:
         r = f"/repos/{self.repo}"
         main_sha = self._req("GET", f"{r}/git/ref/heads/main")["object"]["sha"]
+        # One commit on top of main via the Git Data API; the branch jumps straight to it. Resetting the branch
+        # to main first would leave the PR without commits for a moment, and GitHub closes such PRs.
+        base_tree = self._req("GET", f"{r}/git/commits/{main_sha}")["tree"]["sha"]
+        tree = self._req("POST", f"{r}/git/trees", {"base_tree": base_tree, "tree": [
+            {"path": path, "mode": "100644", "type": "blob", "content": text}
+            for path, text in sorted(changes.items())]})["sha"]
+        commit = self._req("POST", f"{r}/git/commits", {
+            "message": title, "tree": tree, "parents": [main_sha]})["sha"]
         if self._req("GET", f"{r}/git/ref/heads/{BRANCH}", allow_404=True):
-            self._req("PATCH", f"{r}/git/refs/heads/{BRANCH}", {"sha": main_sha, "force": True})
+            self._req("PATCH", f"{r}/git/refs/heads/{BRANCH}", {"sha": commit, "force": True})
         else:
-            self._req("POST", f"{r}/git/refs", {"ref": f"refs/heads/{BRANCH}", "sha": main_sha})
-        for path, text in sorted(changes.items()):
-            sha = self._req("GET", f"{r}/contents/{path}?ref={BRANCH}")["sha"]
-            self._req("PUT", f"{r}/contents/{path}", {
-                "message": f"chore(resources): KRR right-sizing {path}",
-                "content": base64.b64encode(text.encode()).decode(), "sha": sha, "branch": BRANCH})
+            self._req("POST", f"{r}/git/refs", {"ref": f"refs/heads/{BRANCH}", "sha": commit})
         owner = self.repo.split("/")[0]
         prs = self._req("GET", f"{r}/pulls?state=open&head={owner}:{BRANCH}")
         if prs:

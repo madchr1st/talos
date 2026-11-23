@@ -196,4 +196,7 @@ OOMKills / restarts for a week before trusting the cycle.
   (immich has three workloads with a container named `immich`).
 - Files are read via raw.githubusercontent.com (no API rate limit); `values: {}` is expanded; files without a
   `values:` block are `manual`.
+- PR mode writes one commit on top of main via the Git Data API (tree + commit, then move the branch to it) instead
+  of resetting the branch and committing per file via the Contents API: a branch equal to main for a moment can make
+  GitHub close the open PR (final review finding).
 - Known gap: CNPG Postgres pods are not scanned by KRR (no Deployment/StatefulSet owner).

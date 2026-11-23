@@ -342,14 +342,22 @@ class PlanPr(unittest.TestCase):
 class RecordingGitHub(kr.GitHub):
     def __init__(self, responses):
         super().__init__("tk")
-        self.calls, self.responses = [], responses
+        self.calls, self.bodies, self.responses = [], [], responses
 
     def _req(self, method, path, body=None, allow_404=False):
         self.calls.append((method, path.split("?")[0]))
+        self.bodies.append((method, path.split("?")[0], body))
         for (m, prefix), resp in self.responses.items():
             if m == method and path.startswith(prefix):
                 return resp
         return {}
+
+
+GIT_DATA = {
+    ("GET", "/repos/madchr1st/talos/git/commits/abc"): {"tree": {"sha": "maintree"}},
+    ("POST", "/repos/madchr1st/talos/git/trees"): {"sha": "newtree"},
+    ("POST", "/repos/madchr1st/talos/git/commits"): {"sha": "newcommit"},
+}
 
 
 class GitHubApi(unittest.TestCase):
@@ -368,14 +376,23 @@ class GitHubApi(unittest.TestCase):
             ("GET", "/repos/madchr1st/talos/git/ref/heads/main"): {"object": {"sha": "abc"}},
             ("GET", "/repos/madchr1st/talos/git/ref/heads/krr/rightsizing"): {"object": {"sha": "old"}},
             ("GET", "/repos/madchr1st/talos/pulls"): [{"number": 7, "html_url": "https://pr/7"}],
-            ("GET", "/repos/madchr1st/talos/contents/"): {"sha": "filesha"},
+            **GIT_DATA,
         })
         url = gh.open_or_update_pr({"a/helm-release.yaml": "x"}, "title", "body")
         self.assertEqual(url, "https://pr/7")
         self.assertNotIn(("POST", "/repos/madchr1st/talos/pulls"), gh.calls)
         self.assertIn(("PATCH", "/repos/madchr1st/talos/pulls/7"), gh.calls)
-        self.assertIn(("PATCH", "/repos/madchr1st/talos/git/refs/heads/krr/rightsizing"), gh.calls)
-        self.assertIn(("PUT", "/repos/madchr1st/talos/contents/a/helm-release.yaml"), gh.calls)
+        # the branch jumps straight to the new commit, never to main (GitHub would close the PR)
+        (ref,) = [b for m, p, b in gh.bodies if p == "/repos/madchr1st/talos/git/refs/heads/krr/rightsizing"
+                  and m == "PATCH"]
+        self.assertEqual(ref, {"sha": "newcommit", "force": True})
+        (commit,) = [b for m, p, b in gh.bodies if (m, p) == ("POST", "/repos/madchr1st/talos/git/commits")]
+        self.assertEqual((commit["parents"], commit["tree"]), (["abc"], "newtree"))
+        (tree,) = [b for m, p, b in gh.bodies if (m, p) == ("POST", "/repos/madchr1st/talos/git/trees")]
+        self.assertEqual(tree["base_tree"], "maintree")
+        self.assertEqual(tree["tree"], [{"path": "a/helm-release.yaml", "mode": "100644", "type": "blob",
+                                         "content": "x"}])
+        self.assertNotIn("PUT", {m for m, _ in gh.calls})
 
     def test_open_or_update_pr_new(self):
         gh = RecordingGitHub({
@@ -383,10 +400,11 @@ class GitHubApi(unittest.TestCase):
             ("GET", "/repos/madchr1st/talos/git/ref/heads/krr/rightsizing"): None,
             ("GET", "/repos/madchr1st/talos/pulls"): [],
             ("POST", "/repos/madchr1st/talos/pulls"): {"number": 8, "html_url": "https://pr/8"},
-            ("GET", "/repos/madchr1st/talos/contents/"): {"sha": "filesha"},
+            **GIT_DATA,
         })
         self.assertEqual(gh.open_or_update_pr({"a/helm-release.yaml": "x"}, "t", "b"), "https://pr/8")
-        self.assertIn(("POST", "/repos/madchr1st/talos/git/refs"), gh.calls)
+        (ref,) = [b for m, p, b in gh.bodies if (m, p) == ("POST", "/repos/madchr1st/talos/git/refs")]
+        self.assertEqual(ref, {"ref": "refs/heads/krr/rightsizing", "sha": "newcommit"})
         self.assertIn(("POST", "/repos/madchr1st/talos/issues/8/labels"), gh.calls)
 
     def test_dry_run_no_writes(self):
