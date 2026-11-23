@@ -38,7 +38,9 @@ spec:
     TZ: Europe/Zurich
     # config.yml lives in Git (configmap, read-only); Plex token and TMDb key come from values-sec.yaml.
     kometa:
-      run: true
+      # run: true = KOMETA_RUN (one run, then exit -> CrashLoopBackOff in a Deployment);
+      # false = stay up and run at `times`. Manual run: kubectl exec deploy/kometa -- python3 /app/kometa/kometa.py --run --config /config/config.yml
+      run: false
       no_countdown: true
       times:
         - "03:00"
