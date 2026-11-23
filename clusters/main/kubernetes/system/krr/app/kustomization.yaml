@@ -5,3 +5,13 @@ resources:
   - krr.secret.yaml
   - namespace.yaml
   - rbac.yaml
+configMapGenerator:
+  - name: krr-report
+    namespace: krr
+    files:
+      - krr-config.json
+      - krr-report.py
+generatorOptions:
+  annotations:
+    # Python/Markdown content: no Flux variable substitution
+    kustomize.toolkit.fluxcd.io/substitute: disabled
