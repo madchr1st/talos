@@ -187,3 +187,13 @@ OOMKills / restarts for a week before trusting the cycle.
 - No CPU limit via `limits.cpu: 0`, no kustomize patching — user constraint, mechanism verified.
 - Sidecars inherit main values — my call.
 - UTC schedule, Monday 06:00 — my call.
+- 2026-11-23, after the first real run (requests as specified would have been 16.7 cores / 45.8 GiB on a
+  10-core / 28.7 GiB node) — user decisions:
+  - CPU request capped at 1000m per container (`cpu_request_max_m`), still no CPU limit.
+  - Memory floors raise only the **limit**; request = peak + 15 %, limit = max(request, floor).
+  - `full_history_from` = 2026-12-05 (14 d after the GPU went in on 2026-11-21; earlier data has CPU transcodes).
+- Floors and "main container" apply only when workload **and** container are named like the HelmRelease
+  (immich has three workloads with a container named `immich`).
+- Files are read via raw.githubusercontent.com (no API rate limit); `values: {}` is expanded; files without a
+  `values:` block are `manual`.
+- Known gap: CNPG Postgres pods are not scanned by KRR (no Deployment/StatefulSet owner).

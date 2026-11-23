@@ -39,8 +39,10 @@ class Row:
     cur_mem_req_mi: int | None
     cur_mem_lim_mi: int | None
     rec_cpu_m: int | None
-    rec_mem_mi: int | None
+    rec_mem_mi: int | None  # memory request (peak + buffer)
+    rec_mem_lim_mi: int | None  # memory limit = max(request, floor)
     floored: bool
+    capped: bool
     status: str  # "change" | "ok" | "manual"
     reason: str
 
@@ -98,6 +100,7 @@ def _differs(cur: int | None, rec: int, abs_min: int) -> bool:
 
 def build_rows(krr: dict, config: dict) -> list[Row]:
     floors = {k: parse_mem_mi(v) for k, v in (config.get("floors") or {}).items()}
+    cpu_max_m = config.get("cpu_request_max_m")
     result = []
     for scan in krr.get("scans") or []:
         obj = scan["object"]
@@ -109,31 +112,36 @@ def build_rows(krr: dict, config: dict) -> list[Row]:
         rec_cpu = _rec(scan.get("recommended") or {}, "requests", "cpu")
         rec_mem = _rec(scan.get("recommended") or {}, "requests", "memory")
         rec_cpu_m = round_cpu_m(rec_cpu) if rec_cpu is not None else None
+        capped = rec_cpu_m is not None and cpu_max_m is not None and rec_cpu_m > cpu_max_m
+        if capped:
+            rec_cpu_m = cpu_max_m
         rec_mem_mi = round_mem_mi(rec_mem) if rec_mem is not None else None
-        floor = floors.get(f"{obj['namespace']}/{obj['container']}")
+        # main workload + container carry the HelmRelease name (TrueForge convention)
+        is_main = release is not None and obj["name"] == release and obj["container"] == release
+        floor = floors.get(f"{obj['namespace']}/{obj['container']}") if is_main else None
         floored = rec_mem_mi is not None and floor is not None and rec_mem_mi < floor
-        if floored:
-            rec_mem_mi = floor
+        rec_mem_lim_mi = floor if floored else rec_mem_mi
 
         row = Row(
             namespace=obj["namespace"], workload=obj["name"], kind=obj.get("kind", ""), container=obj["container"],
             release=release,
             cur_cpu_req_m=_cur_m(req.get("cpu")), cur_cpu_lim_m=_cur_m(lim.get("cpu")),
             cur_mem_req_mi=_cur_mi(req.get("memory")), cur_mem_lim_mi=_cur_mi(lim.get("memory")),
-            rec_cpu_m=rec_cpu_m, rec_mem_mi=rec_mem_mi, floored=floored, status="ok", reason="",
+            rec_cpu_m=rec_cpu_m, rec_mem_mi=rec_mem_mi, rec_mem_lim_mi=rec_mem_lim_mi, floored=floored,
+            capped=capped, status="ok", reason="",
         )
         if release is None:
             row.status, row.reason = "manual", "not Flux-managed"
-        elif row.container != release:
+        elif not is_main:
             row.status, row.reason = "manual", "sidecar/other container"
         elif rec_cpu_m is None or rec_mem_mi is None:
             row.status, row.reason = "manual", "no data"
         elif (_differs(row.cur_cpu_req_m, rec_cpu_m, THRESHOLD_CPU_M)
               or _differs(row.cur_mem_req_mi, rec_mem_mi, THRESHOLD_MEM_MI)
-              or _differs(row.cur_mem_lim_mi, rec_mem_mi, THRESHOLD_MEM_MI)):
+              or _differs(row.cur_mem_lim_mi, rec_mem_lim_mi, THRESHOLD_MEM_MI)):
             row.status = "change"
-        if floored and not row.reason:
-            row.reason = "floor"
+        if not row.reason:
+            row.reason = ", ".join(n for n, on in (("cpu cap", capped), ("floor", floored)) if on)
         result.append(row)
     result.sort(key=lambda r: (r.namespace, r.workload, r.container))
     return result
@@ -194,7 +202,8 @@ def render_markdown(rows: list[Row], today: datetime.date, config: dict) -> str:
     for r in rows:
         out.append(
             f"| {r.namespace} | {r.workload} | {r.container} | {_m(r.cur_cpu_req_m)} → {_m(r.rec_cpu_m)} "
-            f"| {_mi(r.cur_mem_req_mi)}/{_mi(r.cur_mem_lim_mi)} → {_mi(r.rec_mem_mi)} | {r.status} | {r.reason} |")
+            f"| {_mi(r.cur_mem_req_mi)}/{_mi(r.cur_mem_lim_mi)} → {_mi(r.rec_mem_mi)}/{_mi(r.rec_mem_lim_mi)} "
+            f"| {r.status} | {r.reason} |")
     return "\n".join(out) + "\n"
 
 
@@ -223,9 +232,13 @@ def _indent(line: str) -> int:
     return len(line) - len(line.lstrip(" "))
 
 
-def update_resources_block(text: str, cpu_m: int, mem_mi: int) -> str:
+def update_resources_block(text: str, cpu_m: int, mem_req_mi: int, mem_lim_mi: int) -> str:
     """Set spec.values.resources (TrueForge layout, 4-space indent) textually; keep everything else."""
     lines = text.split("\n")
+    if "  values: {}" in lines:
+        lines[lines.index("  values: {}")] = "  values:"
+    if "  values:" not in lines:
+        raise ValueError("no values block")
     v = lines.index("  values:")
     end_values = next((i for i in range(v + 1, len(lines))
                        if lines[i].strip() and _indent(lines[i]) <= 2), len(lines))
@@ -252,8 +265,8 @@ def update_resources_block(text: str, cpu_m: int, mem_mi: int) -> str:
                 extra.append(line)
             end += 1
 
-    want = {"limits": {"cpu": "0", "memory": fmt_mem(mem_mi)},
-            "requests": {"cpu": f"{cpu_m}m", "memory": fmt_mem(mem_mi)}}
+    want = {"limits": {"cpu": "0", "memory": fmt_mem(mem_lim_mi)},
+            "requests": {"cpu": f"{cpu_m}m", "memory": fmt_mem(mem_req_mi)}}
     block = ["    resources:"]
     for name in ["limits", "requests"] + [n for n in sections if n not in ("limits", "requests")]:
         block.append(f"      {name}:")
@@ -292,13 +305,20 @@ class GitHub:
         self.paths = {t["path"] for t in tree["tree"] if t["type"] == "blob"}
         found = {}
         for path in sorted(p for p in self.paths if p.endswith("/helm-release.yaml")):
-            text, _ = self.get_file(path)
+            text = self.get_text(path)
             meta = text.split("\nspec:")[0]
             name = next((l.split(":", 1)[1].strip() for l in meta.splitlines() if l.startswith("  name:")), None)
             ns = next((l.split(":", 1)[1].strip() for l in meta.splitlines() if l.startswith("  namespace:")), None)
             if name and ns:
                 found[(name, ns)] = path
         return found
+
+    def get_text(self, path: str) -> str:
+        """Read a file on main via raw.githubusercontent.com (not counted against the API rate limit)."""
+        url = f"https://raw.githubusercontent.com/{self.repo}/main/{path}"
+        req = urllib.request.Request(url, headers={"User-Agent": "krr-report"})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return resp.read().decode()
 
     def get_file(self, path: str, ref: str = "main") -> tuple[str, str]:
         data = self._req("GET", f"/repos/{self.repo}/contents/{path}?ref={ref}")
@@ -338,15 +358,18 @@ def plan_pr(rows: list[Row], gh) -> tuple[dict[str, str], list[Row]]:
         if path is None:
             row.status, row.reason = "manual", "HelmRelease file not found"
             continue
-        text, _ = gh.get_file(path)
+        text = gh.get_text(path)
         if "name: truecharts" not in text:
             row.status, row.reason = "manual", "not a TrueForge chart"
             continue
         sec = path.rsplit("/", 1)[0] + "/values-sec.yaml"
-        if sec in gh.paths and any(l.startswith("resources:") for l in gh.get_file(sec)[0].splitlines()):
+        if sec in gh.paths and any(l.startswith("resources:") for l in gh.get_text(sec).splitlines()):
             row.status, row.reason = "manual", "resources in values-sec.yaml"
             continue
-        changes[path] = update_resources_block(text, row.rec_cpu_m, row.rec_mem_mi)
+        try:
+            changes[path] = update_resources_block(text, row.rec_cpu_m, row.rec_mem_mi, row.rec_mem_lim_mi)
+        except ValueError as e:
+            row.status, row.reason = "manual", str(e)
     return changes, rows
 
 
@@ -354,7 +377,7 @@ def run_pr_mode(rows: list[Row], gh, mode: str, today: datetime.date) -> str | N
     changes, rows = plan_pr(rows, gh)
     if mode == "dry-run":
         for path, new in sorted(changes.items()):
-            old, _ = gh.get_file(path)
+            old = gh.get_text(path)
             print("".join(difflib.unified_diff(old.splitlines(True), new.splitlines(True), f"a/{path}", f"b/{path}")))
         return None
     if not changes:
@@ -362,7 +385,8 @@ def run_pr_mode(rows: list[Row], gh, mode: str, today: datetime.date) -> str | N
     body = "Automated by the krr CronJob (system/krr). Review before merging; not auto-merged.\n\n"
     body += TABLE_HEADER + "\n" + "\n".join(
         f"| {r.namespace} | {r.workload} | {r.container} | {_m(r.cur_cpu_req_m)} → {_m(r.rec_cpu_m)} "
-        f"| {_mi(r.cur_mem_req_mi)}/{_mi(r.cur_mem_lim_mi)} → {_mi(r.rec_mem_mi)} | {r.status} | {r.reason} |"
+        f"| {_mi(r.cur_mem_req_mi)}/{_mi(r.cur_mem_lim_mi)} → {_mi(r.rec_mem_mi)}/{_mi(r.rec_mem_lim_mi)} "
+        f"| {r.status} | {r.reason} |"
         for r in rows if r.status == "change")
     return gh.open_or_update_pr(changes, f"chore(resources): KRR right-sizing {today.isoformat()}", body)
 

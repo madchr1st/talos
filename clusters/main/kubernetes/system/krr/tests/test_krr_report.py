@@ -41,8 +41,10 @@ def scan(ns="sonarr", name="sonarr", container="sonarr", labels=FLUX, cur_cpu=0.
     }
 
 
-def rows(*scans, floors=None):
-    config = {"floors": floors or {}, "full_history_from": "2026-12-02"}
+def rows(*scans, floors=None, cpu_max_m=None):
+    config = {"floors": floors or {}, "full_history_from": "2026-12-05"}
+    if cpu_max_m:
+        config["cpu_request_max_m"] = cpu_max_m
     return kr.build_rows({"scans": list(scans)}, config)
 
 
@@ -61,7 +63,8 @@ class Units(unittest.TestCase):
     def test_load_config(self):
         config = kr.load_config(str(APP / "krr-config.json"))
         self.assertEqual(config["floors"]["plex/plex"], "6Gi")
-        self.assertEqual(config["full_history_from"], "2026-12-02")
+        self.assertEqual(config["full_history_from"], "2026-12-05")
+        self.assertEqual(config["cpu_request_max_m"], 1000)
 
 
 class BuildRows(unittest.TestCase):
@@ -69,16 +72,17 @@ class BuildRows(unittest.TestCase):
         plex = {"helm.toolkit.fluxcd.io/name": "plex", "helm.toolkit.fluxcd.io/namespace": "plex"}
         (r,) = rows(scan("plex", "plex", "plex", plex, cur_mem=1024 * MI, rec_mem=2.2 * 1024 * MI),
                     floors={"plex/plex": "6Gi"})
-        self.assertEqual(r.rec_mem_mi, 6144)
+        self.assertEqual(r.rec_mem_mi, 2256)  # request stays at the peak
+        self.assertEqual(r.rec_mem_lim_mi, 6144)  # floor only raises the limit
         self.assertTrue(r.floored)
-        self.assertEqual(r.status, "change")
+        self.assertEqual((r.status, r.reason), ("change", "floor"))
 
     def test_floor_and_threshold(self):
         plex = {"helm.toolkit.fluxcd.io/name": "plex", "helm.toolkit.fluxcd.io/namespace": "plex"}
         floors = {"plex/plex": "6Gi"}
         (r,) = rows(scan("plex", "plex", "plex", plex, cur_cpu=0.08, cur_mem=6000 * MI, cur_mem_lim=6000 * MI,
                          rec_mem=5900 * MI), floors=floors)
-        self.assertEqual(r.rec_mem_mi, 6144)
+        self.assertEqual((r.rec_mem_mi, r.rec_mem_lim_mi), (5904, 6144))
         self.assertEqual(r.status, "ok")
         (r,) = rows(scan("plex", "plex", "plex", plex, cur_cpu=0.08, cur_mem=4096 * MI, rec_mem=5900 * MI),
                     floors=floors)
@@ -92,6 +96,26 @@ class BuildRows(unittest.TestCase):
         self.assertEqual(status(0.075, 200 * MI, 0.02, 200 * MI), "change")
         self.assertEqual(status(0.1, 200 * MI, 0.115, 200 * MI), "ok")
         self.assertEqual(status(0.02, 200 * MI, 0.028, 200 * MI), "ok")
+
+    def test_cpu_cap(self):
+        (r,) = rows(scan(rec_cpu=5.5), cpu_max_m=1000)
+        self.assertEqual(r.rec_cpu_m, 1000)
+        self.assertTrue(r.capped)
+        self.assertEqual(r.reason, "cpu cap")
+
+    def test_no_floor_limit_equals_request(self):
+        (r,) = rows(scan(rec_mem=210 * MI))
+        self.assertEqual((r.rec_mem_mi, r.rec_mem_lim_mi), (224, 224))
+
+    def test_secondary_workload_same_container_name(self):
+        immich = {"helm.toolkit.fluxcd.io/name": "immich", "helm.toolkit.fluxcd.io/namespace": "immich"}
+        result = rows(scan("immich", "immich", "immich", immich),
+                      scan("immich", "immich-microservices", "immich", immich), floors={"immich/immich": "2Gi"})
+        main, micro = result
+        self.assertEqual(main.workload, "immich")
+        self.assertNotEqual(main.status, "manual")
+        self.assertEqual((micro.status, micro.reason), ("manual", "sidecar/other container"))
+        self.assertFalse(micro.floored)
 
     def test_memory_limit_mismatch_is_change(self):
         # request fits, but the limit (TrueForge default 2400Mi) should become = request
@@ -134,7 +158,7 @@ class BuildRows(unittest.TestCase):
         self.assertTrue({r.status for r in result} <= {"change", "ok", "manual"})
 
 
-CONFIG = {"floors": {}, "full_history_from": "2026-12-02"}
+CONFIG = {"floors": {}, "full_history_from": "2026-12-05"}
 
 
 class Report(unittest.TestCase):
@@ -142,8 +166,8 @@ class Report(unittest.TestCase):
         r = rows(scan())
         first = kr.render_summary(r, datetime.date(2026, 11, 30), CONFIG).splitlines()[0]
         self.assertEqual(first, "KRR report 2026-11-30 (partial history)")
-        first = kr.render_summary(r, datetime.date(2026, 12, 2), CONFIG).splitlines()[0]
-        self.assertEqual(first, "KRR report 2026-12-02")
+        first = kr.render_summary(r, datetime.date(2026, 12, 5), CONFIG).splitlines()[0]
+        self.assertEqual(first, "KRR report 2026-12-05")
 
     def test_summary_totals_and_counts(self):
         r = rows(scan(cur_mem_lim=200 * MI), scan("radarr", "radarr", "radarr",
@@ -165,7 +189,7 @@ class Report(unittest.TestCase):
         md = kr.render_markdown(rows(scan(rec_cpu=0.02)), datetime.date(2026, 12, 2), CONFIG)
         self.assertIn("| Namespace | Workload | Container | CPU req (cur → rec) | Mem req/limit (cur → rec) "
                       "| Status | Note |", md)
-        self.assertIn("| sonarr | sonarr | sonarr | 75m → 20m | 200Mi/2400Mi → 224Mi | change |", md)
+        self.assertIn("| sonarr | sonarr | sonarr | 75m → 20m | 200Mi/2400Mi → 224Mi/224Mi | change |", md)
 
 
 class FakeResponse:
@@ -229,7 +253,7 @@ class UpdateResources(unittest.TestCase):
     plain = (FIXTURES / "helm-release-noresources.yaml").read_text()
 
     def test_update_keeps_gpu_and_rest(self):
-        new = kr.update_resources_block(self.gpu, 150, 6144)
+        new = kr.update_resources_block(self.gpu, 150, 1024, 6144)
         self.assertIn("    resources:\n"
                       "      limits:\n"
                       "        cpu: 0\n"
@@ -237,11 +261,11 @@ class UpdateResources(unittest.TestCase):
                       "        nvidia.com/gpu: 1\n"
                       "      requests:\n"
                       "        cpu: 150m\n"
-                      "        memory: 6Gi\n", new)
+                      "        memory: 1Gi\n", new)
         self.assertEqual(strip_resources(new), strip_resources(self.gpu))
 
     def test_update_inserts_block(self):
-        new = kr.update_resources_block(self.plain, 20, 224)
+        new = kr.update_resources_block(self.plain, 20, 224, 224)
         lines = new.splitlines()
         self.assertEqual(lines.count("    resources:"), 1)
         i = lines.index("  values:")
@@ -251,9 +275,19 @@ class UpdateResources(unittest.TestCase):
         self.assertEqual(strip_resources(new), strip_resources(self.plain))
         self.assertIn("{DOMAIN_0}", new)
 
+    def test_update_empty_values(self):
+        text = self.plain.replace("  values:\n", "  values: {}\n  removed:\n", 1)
+        new = kr.update_resources_block(text, 20, 224, 224)
+        self.assertIn("  values:\n    resources:\n      limits:\n", new)
+        self.assertNotIn("values: {}", new)
+
+    def test_update_without_values_raises(self):
+        with self.assertRaises(ValueError):
+            kr.update_resources_block("spec:\n  chart: {}\n", 20, 224, 224)
+
     def test_update_idempotent(self):
-        once = kr.update_resources_block(self.gpu, 150, 6144)
-        self.assertEqual(kr.update_resources_block(once, 150, 6144), once)
+        once = kr.update_resources_block(self.gpu, 150, 1024, 6144)
+        self.assertEqual(kr.update_resources_block(once, 150, 1024, 6144), once)
 
 
 class FakeGitHub:
@@ -265,8 +299,8 @@ class FakeGitHub:
         path = "apps/sonarr/app/helm-release.yaml"
         return {("sonarr", "sonarr"): path} if path in self.files else {}
 
-    def get_file(self, path):
-        return self.files[path], "sha"
+    def get_text(self, path):
+        return self.files[path]
 
 
 class PlanPr(unittest.TestCase):
@@ -293,6 +327,12 @@ class PlanPr(unittest.TestCase):
         self.assertEqual(changes, {})
         self.assertEqual(result[0].reason, "resources in values-sec.yaml")
 
+    def test_plan_pr_no_values_block(self):
+        text = "\n".join(l for l in self.plain.splitlines() if l != "  values:")
+        gh = FakeGitHub({"apps/sonarr/app/helm-release.yaml": text})
+        changes, result = kr.plan_pr(rows(scan(rec_cpu=0.02)), gh)
+        self.assertEqual((changes, result[0].reason), ({}, "no values block"))
+
     def test_plan_pr_missing_file(self):
         gh = FakeGitHub({})
         changes, result = kr.plan_pr(rows(scan(rec_cpu=0.02)), gh)
@@ -313,6 +353,16 @@ class RecordingGitHub(kr.GitHub):
 
 
 class GitHubApi(unittest.TestCase):
+    def test_get_text_uses_raw_not_api(self):
+        seen = []
+
+        class Raw(FakeResponse):
+            def read(self):
+                return b"hello"
+        with mock.patch.object(kr.urllib.request, "urlopen", lambda req, timeout=None: seen.append(req) or Raw()):
+            self.assertEqual(kr.GitHub("").get_text("a/b.yaml"), "hello")
+        self.assertEqual(seen[0].full_url, "https://raw.githubusercontent.com/madchr1st/talos/main/a/b.yaml")
+
     def test_open_or_update_pr_existing(self):
         gh = RecordingGitHub({
             ("GET", "/repos/madchr1st/talos/git/ref/heads/main"): {"object": {"sha": "abc"}},
@@ -344,7 +394,7 @@ class GitHubApi(unittest.TestCase):
         gh = RecordingGitHub({})
         gh.find_helm_releases = lambda: {("sonarr", "sonarr"): "apps/sonarr/app/helm-release.yaml"}
         gh.paths = {"apps/sonarr/app/helm-release.yaml"}
-        gh.get_file = lambda path: (plain, "sha")
+        gh.get_text = lambda path: plain
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
             kr.run_pr_mode(rows(scan(rec_cpu=0.02)), gh, "dry-run", datetime.date(2026, 12, 2))

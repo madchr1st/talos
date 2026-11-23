@@ -1,5 +1,6 @@
 {
-  "full_history_from": "2026-12-02",
+  "cpu_request_max_m": 1000,
+  "full_history_from": "2026-12-05",
   "floors": {
     "immich/immich": "2Gi",
     "jellyfin/jellyfin": "6Gi",
