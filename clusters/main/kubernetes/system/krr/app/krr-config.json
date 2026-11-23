@@ -1,0 +1,11 @@
+{
+  "full_history_from": "2026-12-02",
+  "floors": {
+    "immich/immich": "2Gi",
+    "jellyfin/jellyfin": "6Gi",
+    "kometa/kometa": "2Gi",
+    "paperless-ngx/paperless-ngx": "2Gi",
+    "plex/plex": "6Gi",
+    "tdarr/tdarr": "2Gi"
+  }
+}
