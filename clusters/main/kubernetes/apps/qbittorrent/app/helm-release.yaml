@@ -86,30 +86,31 @@ spec:
       pod:
         fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
-    # VPN as on K3s (AirVPN WireGuard). Keys/addresses + port-forward credentials: values-sec.yaml
+    # Upstream gluetun: the TrueForge mirror (tccr) stops at v3.40.0, whose built-in server list is from 2024
+    # and mostly decommissioned servers
+    gluetunImage:
+      repository: docker.io/qmcgaw/gluetun
+      tag: v3.41.3@sha256:fa19cc76b2af13d57a8d3dc3066f2ada061b1c761b8aecf989b3877c0486e027
+    # VPN (WireGuard). In values-sec.yaml: provider (VPN_SERVICE_PROVIDER, UPDATER_VPN_SERVICE_PROVIDERS),
+    # SERVER_COUNTRIES, forwarded port (FIREWALL_VPN_INPUT_PORTS + service.torrent port), keys/addresses and
+    # port-forward credentials
     addons:
       gluetun:
         enabled: true
         container:
           env:
-            VPN_SERVICE_PROVIDER: airvpn
             VPN_TYPE: wireguard
-            SERVER_COUNTRIES: Sweden
-            FIREWALL_VPN_INPUT_PORTS: "58955"
             DNS_KEEP_NAMESERVER: "off"
             WIREGUARD_PERSISTENT_KEEPALIVE_INTERVAL: 16s
+            # Even the image's server list goes stale: refresh it from the provider API while running, so a VPN
+            # restart does not pick a retired server. First refresh one period after start.
+            UPDATER_PERIOD: 1h
             # Cilium gives the pod a /32, so without these routes gluetun sends replies to kubelet probes and
             # traefik into the tunnel (on K3s the flannel /16 was "local"). Outbound subnets only take effect
             # with the gluetun firewall on, which also gives a kill switch (it was off on K3s).
             FIREWALL: "on"
             FIREWALL_INPUT_PORTS: "10095"
             FIREWALL_OUTBOUND_SUBNETS: "${PODNET},${SVCNET},${LAN_NET}"
-    # QBT_TORRENTING_PORT is derived from the torrent port and rewritten into qBittorrent.conf on every start: keep it = AirVPN forwarded port
-    service:
-      torrent:
-        ports:
-          torrent:
-            port: 58955
     # Ingress only (egress stays open), by policy group (gen-netpols.py). Kubelet probes are always allowed.
     networkPolicy:
       # same namespace + groups: cnpg-operator, ingress, media, monitoring

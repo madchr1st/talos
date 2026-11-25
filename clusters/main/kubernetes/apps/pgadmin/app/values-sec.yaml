@@ -1,23 +1,24 @@
 workload:
-  main:
-    podSpec:
-      containers:
-        main:
-          env:
-            PGADMIN_DEFAULT_EMAIL: ENC[AES256_GCM,data:GLDK2VvjhOiOnYO0S0JZSskxmQ==,iv:pmNG7GefhIz0KZXz40Ox3IxqAC6pafFgW4e8Q0/azi4=,tag:LLKYqQJRyZasxz39mThayw==,type:str]
-            PGADMIN_DEFAULT_PASSWORD: ENC[AES256_GCM,data:tUtAhJ8aNVftiyIbgJLF8w==,iv:SjKvpAQ67XlG1Jk36pgHkZj3n6oWQTpeWMB3CI47KIw=,tag:jn2iNKLgqIVvIxLEbWq4ZA==,type:str]
+    main:
+        podSpec:
+            containers:
+                main:
+                    env:
+                        PGADMIN_DEFAULT_EMAIL: ENC[AES256_GCM,data:Yw5vaeAnWrnpNeuPzQOAb91S+A==,iv:11zUvQ09V4pvxDfpjhJ8gh6xzWEfwcb884oYtbSLR0g=,tag:osZnoeFWfa3S6ZQfdW6fvg==,type:str]
+                        PGADMIN_DEFAULT_PASSWORD: ENC[AES256_GCM,data:Ps3xyrfR7dxi8QATzybeVg==,iv:xipy4jCmLbjoDIWWvocElfhVMSRNYewNskiSMGI64Fw=,tag:mIDH9I7KRXFq+M2c2e/wzA==,type:str]
 sops:
-  age:
-    - recipient: age1uaud96tmvkrmct5ssh20a4dwqy825ru5tqsdp8hu3syxlp4p9glqkamlya
-      enc: |
-        -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBDWG9aS0Z1Uy9ZQ2xDSkxs
-        MTBybWtDM1J2Nk1oTE5EYUt2QzZnblB5NTBFCnpGdG9qNWpvOGJ0bzh0aGFray9x
-        VndmSUVwQWdTVlpIcEZwQ3cyZzQ1S0kKLS0tIHlFZFo3Q0ZZUDBkK3FqeDViNTJq
-        Ulh2YXdyMkcrazhBU3dYNEhtcHNUM0UKZNhZ4RkhFCeaD9iVcg/YGr0nFTueIhZ3
-        27kdYozrxy7kIzYtAMB4KRLsUMdKgryeRC4L1Kw2A7UsmfKXxfiL9A==
-        -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2026-11-18T10:00:48Z"
-  mac: ENC[AES256_GCM,data:aukdDR2DPoMhXkUe4CKCo0Bc3tGuUtMONxjwOVf5M3fsn7dfY7zEJWH3Q8Hmze7ruzkHTFwp9w4i7OAb9KXSAxwlVEyBZauJgtE2oHTwkrLFfd/tb5TJXpa3ZJbKjSAqZPKVxusAzyPzA+ekf4xl7fmXQsfY6Xr4jE1gDaIs/W0=,iv:pmFtoWhSb9tHCCeq4JME/Q/dyhfuSLlmEMfm4qmPfCI=,tag:mMM5chb5ebeHCy9K0lIfaQ==,type:str]
-  encrypted_regex: .
-  version: 3.12.1
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBaN0p5VCtmV0J0aEVhQUQr
+            ZFF1WGRXZUM4bXhBWmo4aEhqblpXdmV3eFZJCkdWWVFhU1h4eE8xZUR6Y0U3YTE1
+            TnYwUFE3ZzI4K0lxTUI2V2hIcFhmV3cKLS0tIHRVZ094eExRcjlBTkNYRDg4MEZt
+            ci9WcHFaVnhHWjU0ZVlEb2ZXMVpmQkEK0cnSkgjPBUVaNnzNiRHcT2c8XYtJKO10
+            7Y9P6T64W5ePQZ1WpBSg6+vHE8GnDH/Rew4SrEX4TYgH3O+B/hJU0w==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1uaud96tmvkrmct5ssh20a4dwqy825ru5tqsdp8hu3syxlp4p9glqkamlya
+    encrypted_regex: .
+    lastmodified: "2026-11-25T08:35:38Z"
+    mac: ENC[AES256_GCM,data:EQ1erMWhc60gIrujCy6ikP8e0iBtC4pPVjGeKT1n3I8D+691SZOWRRj7uGtgcA21cS0xgaeP99XUQ5GPsS5lXe5FjI8s+HrRgeADc0bmJZmqQhU/mMzSmhmh+cPYnpw2KHlVBcQbfkzXA0v1vtRl95heCZ10r8gXLDzg/VpUbT4=,iv:sCLoh620uaCS9LSEMmzxFK3uxTHI3DOIj1A2kkyDJqc=,tag:FWp08p57DdTZ8VzL75o4vg==,type:str]
+    shamir_threshold: 3
+    version: 3.13.1

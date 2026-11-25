@@ -1,22 +1,23 @@
 workload:
-  main:
-    podSpec:
-      containers:
-        main:
-          env:
-            FF_SYNCSERVER_SECRET: ENC[AES256_GCM,data:EBk5FIcYizwfBXpl+P8aPkIukqjQ8HB8,iv:1RihV60WChcq5SxHM9+ATAAcbgLjfEO5WBwz2hAsjHA=,tag:Xx07ORTMqijUrVPj97/9kA==,type:str]
+    main:
+        podSpec:
+            containers:
+                main:
+                    env:
+                        FF_SYNCSERVER_SECRET: ENC[AES256_GCM,data:mslo1OtjpulTBSQFfPqVVvqnsKz8QwVU,iv:mK0wDZ4yvlNqdh+pH+jKZsMPmqahrkSmrQRKmvZMsJQ=,tag:fIS40h9MtN+oIZYYrutuSw==,type:str]
 sops:
-  age:
-    - recipient: age1uaud96tmvkrmct5ssh20a4dwqy825ru5tqsdp8hu3syxlp4p9glqkamlya
-      enc: |
-        -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBySlRjak8wRDRaTXZqTzRO
-        eUc0UDBpUGpaU2lpRXgrakFiaWozWXdldG1nCjVBUmsrdHdhL05UQ2F4N21DKzJQ
-        M2tpamNjeXBPNmhWQTA3MEtianJzQmMKLS0tIDE3MFBPVWE1S0FWS0NnWFpMWWZk
-        UTlkZklhQzk5SDFtTlladlY2TFRaWG8KZt5hbjEHxvuCkskqzT0KfZqBUzBNIBY3
-        djjJSIp2N4CXcAujsX4NtvaJ4QDf7WGi8xTJ7JLg9dbtfem9yjJErg==
-        -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2026-11-18T10:00:48Z"
-  mac: ENC[AES256_GCM,data:iYBrL3HMSbnzBbdnSNB+ntCVbVsC+rVRWFV1UCL08F6KPmOsRkH5eK2rxdEuHFWtgBCz/HMciI5OxTkNQXMjbSaxlC2tD21udk22GIxzBkuAfdVdnzSafAYTcnOFJlTLW/4RkNma3Vx0HOIAXhmxlIX9Mkuu5P+1Kldg6q+aZFk=,iv:+9SU0BbKTOjrMLui0fMGTsJ/cPrBQlpDoRmsrsF7rJY=,tag:BSn93FPvwRJrcAS12248+A==,type:str]
-  encrypted_regex: .
-  version: 3.12.1
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB5Yyt6L1lnWHlZUjFqQVRz
+            ZE5yMHVrVUthWGZ6M0M3Y3ByS1JiWm5kVEdvCnFUb3haeUE5Qmx4TTN4K0dxQWhx
+            K1EvYldOYmZBVlpSMWFGVTJ4b3UrMFUKLS0tIHBqdUZsR1ovcno2NlNJRUlQNHdx
+            MHhWM2hoYWc4V2RUU1pHcEpra1Y1WVkK/1Lyx8zdOZWqI1+baR1xd2b0zWc2gjbJ
+            8YCicS3osHO/59/GUdhywKSTY1dR+3KVk9AOvPDihSwUfVfQXJ3u4Q==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1uaud96tmvkrmct5ssh20a4dwqy825ru5tqsdp8hu3syxlp4p9glqkamlya
+    encrypted_regex: .
+    lastmodified: "2026-11-25T08:35:38Z"
+    mac: ENC[AES256_GCM,data:cWaco/EyotQz4VyZZ4krIYBoWHHlSZLblHG+6GN3JTxWCx20fXCTDwvz7dZeFXo9pAGBttxSzbqWFJtae5MM4T4UpUiObZYJWcwYbww1ozVdPwxGfEWLFqcl+sMAlW/tX1CePCm+uP7RXjepbLKkAUsH66Y+UKZVS1ZsJ2DzOsU=,iv:MQX5zYIb+i4lHJyxMj1O3cNoYLvsxrMPtAIcfGMjQm0=,tag:Q4wuMpYaD2vA4tD+F3bfoA==,type:str]
+    shamir_threshold: 3
+    version: 3.13.1

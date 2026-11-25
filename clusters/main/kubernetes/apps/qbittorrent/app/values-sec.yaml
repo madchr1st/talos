@@ -1,25 +1,36 @@
 addons:
-  gluetun:
-    container:
-      env:
-        WIREGUARD_ADDRESSES: ENC[AES256_GCM,data:VqsjDazu9IKLngSwxZgvJw==,iv:S7QQeWWDS47cfaE6aYm/fgh/R+r+z2rpMf3cf0zE7UM=,tag:UZfWc1EWNpwMkHDUHQXbDQ==,type:str]
-        WIREGUARD_PRIVATE_KEY: ENC[AES256_GCM,data:QHcb1RdH4dyr3qA6wvSu8QYpiQ+O3oW+RrF/Ul5pib+HeI/D5hcuWQs+yag=,iv:bF53WTN2r1N97CODCMM96m2pfjJk+kASoIwcQA+vc2A=,tag:P+oJWi9COrjF1PLDC2ow5Q==,type:str]
-        WIREGUARD_PRESHARED_KEY: ENC[AES256_GCM,data:28VuU9iQ1lOHErxdYzUVE/ob6QjTlsa52sM/NvB6NLTn1DStaoov3G+UJdQ=,iv:w2vOei2hgZTMz6fvNYbzOJ6itPffr4DhBdljsJJrpIQ=,tag:kHnSstMMsQonDmynZn+LHg==,type:str]
+    gluetun:
+        container:
+            env:
+                VPN_SERVICE_PROVIDER: ENC[AES256_GCM,data:LVt5FwCO,iv:4fp7U13PKki3Nxlb+9KQdDuozpk6gpPJk7cPIsGRQaU=,tag:VQ8/vm7gnKnYxahZZV1pLA==,type:str]
+                UPDATER_VPN_SERVICE_PROVIDERS: ENC[AES256_GCM,data:bnhGWd3A,iv:g4wis4g47D3lH0jlOyAJ4q6lsDJN7GKKu/L8O9YHtCw=,tag:yWNDNM0WN2pAy8aq1MLhsw==,type:str]
+                SERVER_COUNTRIES: ENC[AES256_GCM,data:lznYGz3o,iv:pi/1lgrtQpdkC+7QMD4CgiGYrpEe/Bm9mVuJNHfVXnc=,tag:qvm/V/DJbdKowUToNzCzPA==,type:str]
+                FIREWALL_VPN_INPUT_PORTS: ENC[AES256_GCM,data:Q7KGiEY=,iv:mXVazJmeEFz/P1JWBWEyQ0gjGlLGlppzd520+2FcElA=,tag:jww00KoLyvrZUhDOEdcxPA==,type:str]
+                WIREGUARD_ADDRESSES: ENC[AES256_GCM,data:uab8lgHasrUytfkfpFIrNA==,iv:XXfeAgHMVJ4Fp0nxaEMEK6HJFx1clTql5eQCwe7UdB4=,tag:Tw9yqokLUgy2Y1npFDH6bA==,type:str]
+                WIREGUARD_PRIVATE_KEY: ENC[AES256_GCM,data:Th54wTTJNTtVM8FBeb00935CVU1XK4SXf380lJLQw8jh6ne9yK7zlPR1NJs=,iv:hTxWpRBFUppqJWEUBxJan7awKdkMOpDyaD7Ie5u/kWo=,tag:cZuYhFdDiQTut7kg0c4GBA==,type:str]
+                WIREGUARD_PRESHARED_KEY: ENC[AES256_GCM,data:L5zhoori1pp+bvNIAlHgk8ybWE1ZGzJuJxsxqLpV1tFgGAAwg29pHSQygig=,iv:D/F1XgeNl/9pnUMVr4JzXa4z0tTz3xAbnc39jL7Ovtw=,tag:vBxzaP6AoKxze/IGmkPWFA==,type:str]
+# QBT_TORRENTING_PORT is derived from the torrent port: keep it = FIREWALL_VPN_INPUT_PORTS = VPN forwarded port
+service:
+    torrent:
+        ports:
+            torrent:
+                port: ENC[AES256_GCM,data:dvyyZ2g=,iv:NeUlevBjj0rvKHs5Pu3VaSef0KXY0ifqBTlvf/cL0OM=,tag:djDjx2479896B3DrMu0LUQ==,type:int]
 qbitportforward:
-  QBT_USERNAME: ENC[AES256_GCM,data:FuD/,iv:WtzWnrgp0ueIcdYfanjC/mCpSAYswoPfeT85SZlsRF8=,tag:zFI+3mZDe3ugpVVOMQE53w==,type:str]
-  QBT_PASSWORD: ENC[AES256_GCM,data:VnNujihn,iv:1KDArONtI2zZ6OxxCKEwzO8Xb0o9CD1DoW1BdbX4I8c=,tag:pk3Nh9ThETT1pAwLJmVHGA==,type:str]
+    QBT_USERNAME: ENC[AES256_GCM,data:pmyL,iv:zMLZxcIuAMEN4q/J5jeRZiVAmUhc6YFV6caccKraL/k=,tag:xjrDgVoFC7D+rm3mDgvGKw==,type:str]
+    QBT_PASSWORD: ENC[AES256_GCM,data:v8B6ji8k,iv:Efk/EqXaq/7QabyMTZC4pfb5nDwg9Rj8eMjlKyBqA90=,tag:luCL9o9SsOpBGRYPwNcbyw==,type:str]
 sops:
-  age:
-    - recipient: age1uaud96tmvkrmct5ssh20a4dwqy825ru5tqsdp8hu3syxlp4p9glqkamlya
-      enc: |
-        -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBaUGNGMng0T2VuUEpuMG1L
-        WFVpRHl0OGVmRlgzLzFsTDhpelRFcnJKSHhjCnhhRFB5QXhObEhLWXdZR3RSOE9B
-        bGlrNGgyYXZmOE9VQ2JXVWcrUS9ZVm8KLS0tIC9sNEFlbEJjYUhzNitVbi8rM0ph
-        RldCQXNYdElhYmRlRytOUWIrVjFoWXcKT1dfLNfXDCdUIp+cmqhxsNEps3vaSRiu
-        Oa4gC8Du02xpMN3A0G8RWbCzZF/YphFu/AU0YXv3MbftM3tOw2F4/g==
-        -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2026-11-18T14:50:02Z"
-  mac: ENC[AES256_GCM,data:9JGsLCqFoNB2B04kLvHxTaqncnJ6YvZPCLnS8mIKc9ZhusX50TJ4IPc51mLIeD3me54KqXZNboKEaIh+MxtuadvTSyJsW1VGkkFKlE5512IG6towYFPzIAKLvjSZJr5u+hjRLwrtaDnCTP/JNqCPkmv67SEK2TiCsdZafxGaL34=,iv:wqmxstpWnVQHO2u+ciPlj983ua32gTpnO09wxXpRfew=,tag:szFSIBeV7VHgletdbtHG2A==,type:str]
-  encrypted_regex: .
-  version: 3.12.1
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA2cGwyMy9MeXhOKzJwcGcw
+            VkcvOEwrclVTclE1QjZVeFJhZWFZU0tKaUNFCkd2bnVuVEF5S2gzR2p6c3ZFTlhr
+            SGZiamVNM3JjbVJ4SDEvMlh0TUlvRXMKLS0tIDAzS0wyM29xQzNhVm5GUlVvRFJH
+            TmNFekxreHFGdENvMGxyY2N2Z0wrVG8KQpsx6OtStuglEJQSujtYbWKYJ2El5Pin
+            OFg8P9YzIXCmTZMwwEK4/41COFDsL2STtlnQaP3e3gqNYb+NYNT/Tg==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1uaud96tmvkrmct5ssh20a4dwqy825ru5tqsdp8hu3syxlp4p9glqkamlya
+    encrypted_regex: .
+    lastmodified: "2026-11-25T08:35:38Z"
+    mac: ENC[AES256_GCM,data:mQy+T8NqjEiA1WMcEHAhEymc2P410lR/bktlR4vd0D6PyxIbZ5yjja6fFRRLS4srBa5lzXsN80+r75XM8ylRhA6rRHSBP4uo/p0U71Rol2+OTcKwDHuIVvstRqzObZY8Sc7VkFYHkpAKEhNAhCTy0GYneN/sG+4ynSJSYl+YRzU=,iv:bDAaGpWswqou1/kH4Ex1B0u862AV4Imexa8eQBeq8MA=,tag:yPzlDawPn+mD6xCRO1EBDw==,type:str]
+    shamir_threshold: 3
+    version: 3.13.1
