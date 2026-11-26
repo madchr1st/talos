@@ -136,6 +136,10 @@ CNPG_DB_PAPERLESS_NGX_PASSWORD: ENC[AES256_GCM,data:UfTUhNHl5zucJ4jAq74UcLyP9g==
 CNPG_DB_SPEEDTEST_TRACKER_PASSWORD: ENC[AES256_GCM,data:SX07+5AaF59JZPhiwJf6KHMZFQ==,iv:TmNxJWEfdF9f0YGrLvC/UERBbMauUtOtSJLUxQ8A5xk=,tag:K8filBRiFPXxJUM3Sfsnrw==,type:str]
 CNPG_DB_TANDOOR_PASSWORD: ENC[AES256_GCM,data:sOjRAuo3dpB+hGUlCCw6BJy7JA==,iv:vmrVotCe14ujf8Rm3C1/d97/1IxAA3z+k/jtr0eHGOk=,tag:pNt19JNcBFZQmpT7qcAOgA==,type:str]
 CNPG_DB_VAULTWARDEN_PROD_PASSWORD: ENC[AES256_GCM,data:x3PwuRYmp5YanKmbiom/a8LDkQ==,iv:RagHCQ99EGUXMWqTIGxnJf6u0iNz89YDNx1FH07zutE=,tag:bh+pOxIHLz6Ly9Z1+4O0Tw==,type:str]
+VALKEY_BLOCKY_PASSWORD: ENC[AES256_GCM,data:YD5gDkBqiXWwibnfI2QqzlseL1a9CouRTfi4Q4v5ahI=,iv:PC9AbCefw9jUwCNvWW0Ycz/b4yNlUNp2Toh+XL/Imnk=,tag:KaK9zt8nkxSInO0rZtkb6g==,type:str]
+VALKEY_IMMICH_PASSWORD: ENC[AES256_GCM,data:yhfvAlj/UOGe8gKthsp65wNH+oH5Tb+6nYenlzuyIOY=,iv:2fOquOT3kNwGaoRl+uHh+OILXY1g/lKXIcVu6l2wU6Y=,tag:ClRehK+jZ0owo0kaWM91EA==,type:str]
+VALKEY_PAPERLESS_NGX_PASSWORD: ENC[AES256_GCM,data:zwteA20pvngJmMXFF6LueFzORxFIaxqMwjnjAZdgznQ=,iv:UuLPT3KfT1xKiLraXr429z9R8cc2STfk+T5ukEXrex8=,tag:+yJkbXMoZMcH5W4ogJj8+w==,type:str]
+VALKEY_SPEEDTEST_TRACKER_PASSWORD: ENC[AES256_GCM,data:kAWhHttzuCu0PoDXJj0gSAyIx92EgxaF6oNWJvYHmq4=,iv:yxfbqlDctryoOdN64KkrxN9hgY6qjBSAG3g6xroshFw=,tag:KUfKIxR6NtWUGdwUJSSzig==,type:str]
 sops:
   shamir_threshold: 3
   age:
@@ -148,7 +152,7 @@ sops:
         aHN3M3dXOWVpL0VWZjRQK0ZhM1A3aWcKl4Ttg3YFu9KxslVunAbpOrKf/JshYr5S
         LfEJ7IhROPzO//Bgm6iiE/vCrD3BK9HL5QSIJ/19selAOmEkIoYe2g==
         -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2026-11-26T10:09:24Z"
-  mac: ENC[AES256_GCM,data:DsfDkgGMJcNDCeBH6qvmyolmoBxdPbS1JCE6XXtu4kza33T8smwZfGKyBdwJUtrVE4Lt/Cipq4A/H8ZxmczNefB0NACge58qBolA272RfTtqQymGgrlUGomSYTO+YgfBH8jP1jxiUcSaxPr0S7gOGbUtMkr2O0J2xaB3zzxG3lA=,iv:hgdRHe/VPycO5EvIXcnAQd2H5EE4kfCmrGdPrnU8mUg=,tag:1Q0kkvErwgqQeV02jo32eQ==,type:str]
+  lastmodified: "2026-11-26T10:18:38Z"
+  mac: ENC[AES256_GCM,data:+Hsyhw3Q6VoLUeAH4qSlRXOr7XtK3J5R6OHyBs3E9x0GuTg+SeIT9pA+UMsyM54xCq/PFbGkKjnKITcQ5geCQNCZKVixulO/WXdd96OPy+7DMH+Yg7AH8nFl0+dmSCu7zaVijQG2z2oAkxuCRJjDBtg99PQaQLQT8k6tDFsqBxc=,iv:tEi/NU4fZskMBDQ8Tnmi77zKbl8NsXASQwjyr/FBdsk=,tag:wd+xrBuBVf3mD4F0lgVLzg==,type:str]
   unencrypted_suffix: _unencrypted
   version: 3.13.1
