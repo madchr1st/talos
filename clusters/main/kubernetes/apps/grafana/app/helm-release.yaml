@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: grafana
-      version: 24.2.5
+      version: 25.0.1
       sourceRef:
         kind: HelmRepository
         name: truecharts
@@ -35,22 +35,6 @@ spec:
       name: grafana-values-sec
       valuesKey: values-sec.yaml
   values:
-    # cnpg config
-    cnpg:
-      main:
-        enabled: true
-        user: grafana
-        database: grafana
-        cluster:
-          instances: 1
-          storage:
-            size: "2Gi"
-            storageClass: truenas-iscsi
-          walStorage:
-            size: "1Gi"
-            storageClass: truenas-iscsi
-        monitoring:
-          enablePodMonitor: true
     # ingress config
     ingress:
       main:
@@ -161,17 +145,7 @@ spec:
                 GF_AUTH_LDAP_ALLOW_SIGN_UP: "false"
                 GF_SERVER_HTTP_PORT: 3000
                 GF_DATABASE_TYPE: postgres
-                GF_DATABASE_NAME: "{{ .Values.cnpg.main.user }}"
-                GF_DATABASE_USER: "{{ .Values.cnpg.main.database }}"
                 GF_DATABASE_SSL_MODE: disable
-                GF_DATABASE_HOST:
-                  secretKeyRef:
-                    name: cnpg-main-urls
-                    key: host
-                GF_DATABASE_PASSWORD:
-                  secretKeyRef:
-                    name: cnpg-main-user
-                    key: password
             dashboards:
               enabled: true
               env:
@@ -344,3 +318,22 @@ spec:
               - namespaceSelector:
                   matchLabels:
                     policy-group/monitoring: "true"
+    dependencies:
+      postgresql:
+        enabled: true
+        depconfig:
+          postgresqlUsername: grafana
+          postgresqlDatabase: grafana
+          password: ${CNPG_DB_GRAFANA_PASSWORD}
+        operator:
+          cluster:
+            instances: 1
+            storage:
+              size: "2Gi"
+              storageClass: truenas-iscsi
+            walStorage:
+              size: "1Gi"
+              storageClass: truenas-iscsi
+          monitoring:
+            enablePodMonitor: true
+          pgVersion: 16
