@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: home-assistant
-      version: 32.2.8
+      version: 33.0.1
       sourceRef:
         kind: HelmRepository
         name: truecharts
@@ -30,41 +30,6 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    cnpg:
-      main:
-        enabled: true
-        user: home-assistant
-        database: home-assistant
-        pgVersion: 16
-        # Bootstrapped from the K3s cluster's S3 backup + WAL (s3://.../home-assistant/cnpg, server home-assistant-cnpg-main).
-        # Keep mode/recovery: they only matter at cluster creation.
-        mode: recovery
-        recovery:
-          method: object_store
-          credentials: mys3
-        cluster:
-          instances: 1
-          singleNode: true
-          storage:
-            size: 20Gi
-            storageClass: truenas-iscsi
-          walStorage:
-            size: 10Gi
-            storageClass: truenas-iscsi
-        monitoring:
-          enablePodMonitor: true
-        backups:
-          enabled: true
-          # new server name (-r1) so Talos never writes into the K3s backup
-          revision: "1"
-          credentials: mys3
-          scheduledBackups:
-            - name: daily-backup
-              schedule: "0 0 0 * * *"
-              backupOwnerReference: self
-              immediate: true
-              suspend: false
-          retentionPolicy: 30d
     credentials:
       mys3:
         type: s3
@@ -172,3 +137,41 @@ spec:
               - namespaceSelector:
                   matchLabels:
                     policy-group/tailscale: "true"
+    dependencies:
+      postgresql:
+        enabled: true
+        depconfig:
+          postgresqlUsername: home-assistant
+          postgresqlDatabase: home-assistant
+          password: ${CNPG_DB_HOME_ASSISTANT_PASSWORD}
+        operator:
+          pgVersion: 16
+          # Bootstrapped from the K3s cluster's S3 backup + WAL (s3://.../home-assistant/cnpg, server home-assistant-cnpg-main).
+          # Keep mode/recovery: they only matter at cluster creation.
+          mode: recovery
+          recovery:
+            method: object_store
+            credentials: mys3
+          cluster:
+            instances: 1
+            singleNode: true
+            storage:
+              size: 20Gi
+              storageClass: truenas-iscsi
+            walStorage:
+              size: 10Gi
+              storageClass: truenas-iscsi
+          monitoring:
+            enablePodMonitor: true
+          backups:
+            enabled: true
+            # new server name (-r1) so Talos never writes into the K3s backup
+            revision: "1"
+            credentials: mys3
+            scheduledBackups:
+              - name: daily-backup
+                schedule: "0 0 0 * * *"
+                backupOwnerReference: self
+                immediate: true
+                suspend: false
+            retentionPolicy: 30d
