@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: speedtest-tracker
-      version: 13.2.9
+      version: 14.0.0
       sourceRef:
         kind: HelmRepository
         name: truecharts
@@ -53,33 +53,6 @@ spec:
               - name: forward-auth-authelia
                 namespace: authelia
                 expandObjectName: false
-    cnpg:
-      main:
-        enabled: true
-        user: speedtest-tracker
-        database: speedtest-tracker
-        cluster:
-          # single node: a 2nd instance adds RAM but no real HA; S3 backups stay enabled
-          instances: 1
-          singleNode: true
-          storage:
-            size: 2Gi
-            storageClass: truenas-iscsi
-          walStorage:
-            size: 2Gi
-            storageClass: truenas-iscsi
-        monitoring:
-          enablePodMonitor: true
-        backups:
-          enabled: true
-          credentials: mys3
-          scheduledBackups:
-            - name: daily-backup
-              schedule: "0 0 0 * * *"
-              backupOwnerReference: self
-              immediate: true
-              suspend: false
-          retentionPolicy: 30d
     credentials:
       mys3:
         type: s3
@@ -117,11 +90,6 @@ spec:
             path: /prometheus
             interval: 5m
         targetSelector: main
-    redis:
-      persistence:
-        data:
-          size: 1Gi
-          storageClass: truenas-iscsi
     # Ingress only (egress stays open), by policy group (gen-netpols.py). Kubelet probes are always allowed.
     networkPolicy:
       # same namespace + groups: cnpg-operator, ingress, monitoring
@@ -146,3 +114,40 @@ spec:
               - namespaceSelector:
                   matchLabels:
                     policy-group/monitoring: "true"
+    dependencies:
+      postgresql:
+        enabled: true
+        depconfig:
+          postgresqlUsername: speedtest-tracker
+          postgresqlDatabase: speedtest-tracker
+          password: ${CNPG_DB_SPEEDTEST_TRACKER_PASSWORD}
+        operator:
+          cluster:
+            # single node: a 2nd instance adds RAM but no real HA; S3 backups stay enabled
+            instances: 1
+            singleNode: true
+            storage:
+              size: 2Gi
+              storageClass: truenas-iscsi
+            walStorage:
+              size: 2Gi
+              storageClass: truenas-iscsi
+          monitoring:
+            enablePodMonitor: true
+          backups:
+            enabled: true
+            credentials: mys3
+            scheduledBackups:
+              - name: daily-backup
+                schedule: "0 0 0 * * *"
+                backupOwnerReference: self
+                immediate: true
+                suspend: false
+            retentionPolicy: 30d
+          pgVersion: 16
+      valkey:
+        persistence:
+          data:
+            size: 1Gi
+        depconfig:
+          password: ${VALKEY_SPEEDTEST_TRACKER_PASSWORD}
