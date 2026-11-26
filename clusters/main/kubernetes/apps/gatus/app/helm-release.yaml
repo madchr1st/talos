@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: gatus
-      version: 5.3.5
+      version: 6.0.0
       sourceRef:
         kind: HelmRepository
         name: truecharts
@@ -58,33 +58,6 @@ spec:
               - name: forward-auth-authelia
                 namespace: authelia
                 expandObjectName: false
-    cnpg:
-      main:
-        enabled: true
-        user: gatus
-        database: gatus
-        cluster:
-          # single node: a 2nd instance adds RAM but no real HA; S3 backups stay enabled
-          instances: 1
-          singleNode: true
-          storage:
-            size: 2Gi
-            storageClass: truenas-iscsi
-          walStorage:
-            size: 2Gi
-            storageClass: truenas-iscsi
-        monitoring:
-          enablePodMonitor: true
-        backups:
-          enabled: true
-          credentials: mys3
-          scheduledBackups:
-            - name: daily-backup
-              schedule: "0 0 0 * * *"
-              backupOwnerReference: self
-              immediate: true
-              suspend: false
-          retentionPolicy: 30d
     credentials:
       mys3:
         type: s3
@@ -98,10 +71,11 @@ spec:
         enabled: true
         data:
           config.yaml: |
-            {{- if .Values.cnpg.main.enabled }}
+            {{- if .Values.dependencies.postgresql.enabled }}
             storage:
               type: postgres
-              path: {{ (printf "%s?client_encoding=utf8" (.Values.cnpg.main.creds.std | trimAll "\"")) | quote }}
+              # Gatus expands the env var (set by the chart from the postgresql secret)
+              path: "$${GATUS_DB_URL}?client_encoding=utf8"
             {{- end }}
             metrics: true
             ui:
@@ -765,3 +739,34 @@ spec:
               - namespaceSelector:
                   matchLabels:
                     policy-group/monitoring: "true"
+    dependencies:
+      postgresql:
+        enabled: true
+        depconfig:
+          postgresqlUsername: gatus
+          postgresqlDatabase: gatus
+          password: ${CNPG_DB_GATUS_PASSWORD}
+        operator:
+          cluster:
+            # single node: a 2nd instance adds RAM but no real HA; S3 backups stay enabled
+            instances: 1
+            singleNode: true
+            storage:
+              size: 2Gi
+              storageClass: truenas-iscsi
+            walStorage:
+              size: 2Gi
+              storageClass: truenas-iscsi
+          monitoring:
+            enablePodMonitor: true
+          backups:
+            enabled: true
+            credentials: mys3
+            scheduledBackups:
+              - name: daily-backup
+                schedule: "0 0 0 * * *"
+                backupOwnerReference: self
+                immediate: true
+                suspend: false
+            retentionPolicy: 30d
+          pgVersion: 16
