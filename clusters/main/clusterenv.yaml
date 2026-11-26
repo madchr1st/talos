@@ -140,6 +140,7 @@ VALKEY_BLOCKY_PASSWORD: ENC[AES256_GCM,data:YD5gDkBqiXWwibnfI2QqzlseL1a9CouRTfi4
 VALKEY_IMMICH_PASSWORD: ENC[AES256_GCM,data:yhfvAlj/UOGe8gKthsp65wNH+oH5Tb+6nYenlzuyIOY=,iv:2fOquOT3kNwGaoRl+uHh+OILXY1g/lKXIcVu6l2wU6Y=,tag:ClRehK+jZ0owo0kaWM91EA==,type:str]
 VALKEY_PAPERLESS_NGX_PASSWORD: ENC[AES256_GCM,data:zwteA20pvngJmMXFF6LueFzORxFIaxqMwjnjAZdgznQ=,iv:UuLPT3KfT1xKiLraXr429z9R8cc2STfk+T5ukEXrex8=,tag:+yJkbXMoZMcH5W4ogJj8+w==,type:str]
 VALKEY_SPEEDTEST_TRACKER_PASSWORD: ENC[AES256_GCM,data:kAWhHttzuCu0PoDXJj0gSAyIx92EgxaF6oNWJvYHmq4=,iv:yxfbqlDctryoOdN64KkrxN9hgY6qjBSAG3g6xroshFw=,tag:KUfKIxR6NtWUGdwUJSSzig==,type:str]
+VALKEY_AUTHELIA_PASSWORD: ENC[AES256_GCM,data:GwJGWLkappPbzfry6rWG6Khjmj1v13g1mNJeazIt8S8=,iv:pD5dhQSL62bMlEV+v9NURi8z4JAtitVHn79+Lb8emt8=,tag:7+pKUek9yZOldWaMXy7f+Q==,type:str]
 sops:
   shamir_threshold: 3
   age:
@@ -152,7 +153,7 @@ sops:
         aHN3M3dXOWVpL0VWZjRQK0ZhM1A3aWcKl4Ttg3YFu9KxslVunAbpOrKf/JshYr5S
         LfEJ7IhROPzO//Bgm6iiE/vCrD3BK9HL5QSIJ/19selAOmEkIoYe2g==
         -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2026-11-26T10:18:38Z"
-  mac: ENC[AES256_GCM,data:+Hsyhw3Q6VoLUeAH4qSlRXOr7XtK3J5R6OHyBs3E9x0GuTg+SeIT9pA+UMsyM54xCq/PFbGkKjnKITcQ5geCQNCZKVixulO/WXdd96OPy+7DMH+Yg7AH8nFl0+dmSCu7zaVijQG2z2oAkxuCRJjDBtg99PQaQLQT8k6tDFsqBxc=,iv:tEi/NU4fZskMBDQ8Tnmi77zKbl8NsXASQwjyr/FBdsk=,tag:wd+xrBuBVf3mD4F0lgVLzg==,type:str]
+  lastmodified: "2026-11-26T10:21:35Z"
+  mac: ENC[AES256_GCM,data:LN0lYQ+yLovFejUyAwmNAKqYdRi602DvkhKhayoUOF+Gm8f2M7qGf0Acacf5SyE92gqYPsdtOJBbD6iYIsm9dHWy44NOtvIo6pZ49QPpficwom6tM9EbLgrUoSuf7FAmw1GU4z1q1ZncldpQL9VYAiUQQ9O//OQNd9ScmBQgdjk=,iv:nfb0BX7uZtTMrjwP51ddCSBZdoZAHtIOazfNHXmuURE=,tag:uwzwpoU/S4HL71Y2s+LFxQ==,type:str]
   unencrypted_suffix: _unencrypted
   version: 3.13.1
