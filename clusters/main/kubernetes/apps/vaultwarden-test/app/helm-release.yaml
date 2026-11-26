@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: vaultwarden
-      version: 31.1.4
+      version: 32.0.0
       sourceRef:
         kind: HelmRepository
         name: truecharts
@@ -38,44 +38,6 @@ spec:
         accessKey: ${CNPG_BACKUP_AWS_S3_ACCESS_KEY}
         secretKey: ${CNPG_BACKUP_AWS_S3_SECRET_KEY}
         encrKey: ${CNPG_BACKUP_AWS_S3_ENCRYPTION_KEY}
-    cnpg:
-      main:
-        mode: recovery
-        backups:
-          enabled: true
-          credentials: mys3
-          scheduledBackups:
-            - name: daily-backup
-              schedule: "0 0 0 * * *" # Daily at midnight
-              backupOwnerReference: self
-              immediate: true
-              suspend: false
-          retentionPolicy: "30d"
-          # own WAL/backup path (<cluster>-r1): the old K3s cluster still archives to the un-suffixed one
-          revision: "1"
-        recovery:
-          method: object_store
-          credentials: mys3
-        cluster:
-          instances: 1
-          singleNode: true
-          storage:
-            size: 5Gi
-            storageClass: truenas-iscsi
-          walStorage:
-            size: 5Gi
-            storageClass: truenas-iscsi
-        database: "${CNPG_DB_VAULTWARDEN_TEST_NAME}"
-        enabled: true
-        hibernate: false
-        monitoring:
-          disableDefaultQueries: false
-          enablePodMonitor: true
-        password: "${CNPG_DB_VAULTWARDEN_TEST_PASSWORD}"
-        pgVersion: 16
-        pooler:
-          enabled: false
-        user: "${CNPG_DB_VAULTWARDEN_TEST_USER}"
     database:
       type: postgresql
       wal: true
@@ -226,3 +188,43 @@ spec:
               - namespaceSelector:
                   matchLabels:
                     policy-group/monitoring: "true"
+    dependencies:
+      postgresql:
+        enabled: true
+        depconfig:
+          postgresqlUsername: "${CNPG_DB_VAULTWARDEN_TEST_USER}"
+          postgresqlDatabase: "${CNPG_DB_VAULTWARDEN_TEST_NAME}"
+          password: ${CNPG_DB_VAULTWARDEN_TEST_PASSWORD}
+        operator:
+          mode: recovery
+          backups:
+            enabled: true
+            credentials: mys3
+            scheduledBackups:
+              - name: daily-backup
+                schedule: "0 0 0 * * *" # Daily at midnight
+                backupOwnerReference: self
+                immediate: true
+                suspend: false
+            retentionPolicy: "30d"
+            # own WAL/backup path (<cluster>-r1): the old K3s cluster still archives to the un-suffixed one
+            revision: "1"
+          recovery:
+            method: object_store
+            credentials: mys3
+          cluster:
+            instances: 1
+            singleNode: true
+            storage:
+              size: 5Gi
+              storageClass: truenas-iscsi
+            walStorage:
+              size: 5Gi
+              storageClass: truenas-iscsi
+          hibernate: false
+          monitoring:
+            disableDefaultQueries: false
+            enablePodMonitor: true
+          pgVersion: 16
+          pooler:
+            enabled: false
