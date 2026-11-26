@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: tandoor-recipes
-      version: 22.2.6
+      version: 23.0.1
       sourceRef:
         kind: HelmRepository
         name: truecharts
@@ -35,34 +35,6 @@ spec:
       name: tandoor-values-sec
       valuesKey: values-sec.yaml
   values:
-    cnpg:
-      main:
-        enabled: true
-        user: recipes
-        database: recipes
-        pgVersion: 16
-        cluster:
-          # single node: a 2nd instance adds RAM but no real HA; S3 backups stay enabled
-          instances: 1
-          singleNode: true
-          storage:
-            size: 5Gi
-            storageClass: truenas-iscsi
-          walStorage:
-            size: 2Gi
-            storageClass: truenas-iscsi
-        monitoring:
-          enablePodMonitor: true
-        backups:
-          enabled: true
-          credentials: mys3
-          scheduledBackups:
-            - name: daily-backup
-              schedule: "0 0 0 * * *"
-              backupOwnerReference: self
-              immediate: true
-              suspend: false
-          retentionPolicy: 30d
     credentials:
       mys3:
         type: s3
@@ -152,3 +124,34 @@ spec:
               - namespaceSelector:
                   matchLabels:
                     policy-group/monitoring: "true"
+    dependencies:
+      postgresql:
+        enabled: true
+        depconfig:
+          postgresqlUsername: recipes
+          postgresqlDatabase: recipes
+          password: ${CNPG_DB_TANDOOR_PASSWORD}
+        operator:
+          pgVersion: 16
+          cluster:
+            # single node: a 2nd instance adds RAM but no real HA; S3 backups stay enabled
+            instances: 1
+            singleNode: true
+            storage:
+              size: 5Gi
+              storageClass: truenas-iscsi
+            walStorage:
+              size: 2Gi
+              storageClass: truenas-iscsi
+          monitoring:
+            enablePodMonitor: true
+          backups:
+            enabled: true
+            credentials: mys3
+            scheduledBackups:
+              - name: daily-backup
+                schedule: "0 0 0 * * *"
+                backupOwnerReference: self
+                immediate: true
+                suspend: false
+            retentionPolicy: 30d
