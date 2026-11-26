@@ -179,7 +179,6 @@ spec:
       # same namespace + groups: cnpg-operator, ingress, ldap-clients, monitoring + LoadBalancer/LAN ports
       ingress:
         enabled: true
-        policyType: ingress
         podSelector:
           matchExpressions:
             - key: app.kubernetes.io/instance

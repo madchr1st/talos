@@ -129,7 +129,6 @@ spec:
       # same namespace + groups: cnpg-operator, ingress, monitoring
       ingress:
         enabled: true
-        policyType: ingress
         podSelector:
           matchExpressions:
             - key: app.kubernetes.io/instance

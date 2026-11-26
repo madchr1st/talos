@@ -145,7 +145,6 @@ spec:
       # Redis/CNPG: same namespace + groups: cnpg-operator, ingress, monitoring
       ingress:
         enabled: true
-        policyType: ingress
         podSelector:
           matchExpressions:
             - key: app.kubernetes.io/instance
@@ -172,7 +171,6 @@ spec:
       # Paperless trusts the Remote-User header from Authelia: only ingress-internal may reach the web pod
       web:
         enabled: true
-        policyType: ingress
         podSelector:
           matchLabels:
             app.kubernetes.io/name: paperless-ngx

@@ -77,6 +77,10 @@ spec:
     cnpg:
       main:
         enabled: false
+    # Common 2026 (chart 18+) enables PostgreSQL by default; this app keeps SQLite
+    dependencies:
+      postgresql:
+        enabled: false
     workload:
       main:
         podSpec:
@@ -93,7 +97,6 @@ spec:
       # same namespace + groups: cnpg-operator, ingress, media, monitoring
       ingress:
         enabled: true
-        policyType: ingress
         podSelector:
           matchExpressions:
             - key: app.kubernetes.io/instance
