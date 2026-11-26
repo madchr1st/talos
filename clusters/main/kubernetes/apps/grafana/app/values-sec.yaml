@@ -4,21 +4,21 @@ workload:
             containers:
                 main:
                     env:
-                        GF_SECURITY_ADMIN_PASSWORD: ENC[AES256_GCM,data:VY1eBRLZ1wasjed2ZEE46Mu6al2bPUVKMKrno5Gx0n0Uick1zM74HoYc0w==,iv:0SqtXYDDtvZllFSVioJEBkuDx/uXA32l1TdlkTNAIPo=,tag:3jSnA8yQQQFMg3W11rtSkw==,type:str]
-                        GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: ENC[AES256_GCM,data:zNSbciNztm/lfLnLOL6L1ECXwjXmrfBnRqhUpH0uXT23Mm3sMh/gIISNxniZqHlsBSa7RETcLEnsZUsHcCSKHjj1BbBl6qr2,iv:gWiQA9YnJmiBgfkSdYq9Wsn04jArwCh6Z7FMhCvCjSw=,tag:adAsrs7S2/TySOeBcMqPqA==,type:str]
+                        GF_SECURITY_ADMIN_PASSWORD: ENC[AES256_GCM,data:ahl8Qby7BPkC5hynDWEPG6K4vJ727reoYle24gVBXV7KuVMKbj4/6+LtfA==,iv:KP6j/mkG7bfgNMxbGNBAjlLAvBMfFbqwvzZADOaRqKU=,tag:7GiV8a71YhVvtDTOUUaxQA==,type:str]
+                        GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: ENC[AES256_GCM,data:49vi7i3oqm4BOycJ/lSx0OIIYUpqIXdRKwEGrgskDQpOZtp+kUyqo6m2mswhU/LResWd86Las7EUM8ioQa1eG6cg9ClH+03n,iv:/8F9JfJvrvkPDsfgS9XrIS7U+1IVjx/7gQg787UKIqU=,tag:a0xWuDuIHHzdq7lP0B30nQ==,type:str]
 sops:
     age:
         - enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBrOUtVUzdkbmlPVzRsT2h6
-            b1Z1dStaTUV5LzZOWi9abHdYSFBJdy8vZ21rClpTcENqTStoTDRKa0d4UlpQanVv
-            RG5zNHhGWHhhNHZQcUxVaEtlL0k5R00KLS0tIHJDbmlBbXA3RDE4Ri9JeWhKNG1m
-            cmlxV2VjaTJTZWtlTEhwQkZvdEUveUEK/bf3uorTJsTEHws0X9ViPvEv9ex/x33q
-            ApmxzmEhK8FF8wzVo6+MTk23p1MfQNs/4en2BYxRiUFYYYKPn8EOfQ==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBiZ3pEN2VaQm5EMjkwQWkv
+            bEZuYVExQVNkb29LamZQdmsweHJvNzJJdVRvCllTa3NjMTFET25ZOUdWVVdyZm9N
+            cXZ4MkN3MHRhcHg5dHdoN2lmdWtoRVkKLS0tIFQybVRML0JyaTVRYUJ5TG1XMDVl
+            UzZUbkFKZ3J4UVM1TVlJWEh3amRSenMK/kKCaNB5fr2Et08IdaXAWxqStbB4U38x
+            2lVuPshXw4UT0UVFKGvLXaveiT0Zg2A6oJJ++RgUA4zBEEDv8OMRng==
             -----END AGE ENCRYPTED FILE-----
           recipient: age1uaud96tmvkrmct5ssh20a4dwqy825ru5tqsdp8hu3syxlp4p9glqkamlya
     encrypted_regex: .
-    lastmodified: "2026-11-25T08:35:38Z"
-    mac: ENC[AES256_GCM,data:41G5vtBqqE01m2xQS/WxDm+khioV7C3+LBqwuCec/gVKedfMOvr7PfObAvcsJZyTWKvtp2l3jpNocvyDEnzf617HmPxJWPAFebqVlqJH8YoCOV5ja6sjRDmdtBR562aMO1d27dlngNJ61GVCEpoJGFNO5eQB5zIBxwIgWCGoDx0=,iv:2NgIExaWkqXRAZPumNyN8rcMU6tcHyVnBitMZ0EZyi8=,tag:OjaCNLeHTtEWLawFApDqbw==,type:str]
+    lastmodified: "2026-11-26T09:12:45Z"
+    mac: ENC[AES256_GCM,data:rGjoXImMi8lFDt9tJOJQtAIhVo2g4y/urOsBfjEVQpz/zXbX3KUstGKC3cwZ/7Za26gIslUMxh/G+aLUSwjQFHsV3wkX7d7Bjgi73NYRYcMwdopqVOO2tJy2siuQOs2uFmaLnYUaf40hEWW2IH31zJ7HMA+hqZ0PGxZU8OZjda8=,iv:hRbRgh0/fLtYmadwQ8J0Avn+EUikHXNdjy7Q08x0AGw=,tag:OLxK6JvwP97fv0jhkJfO1w==,type:str]
     shamir_threshold: 3
     version: 3.13.1

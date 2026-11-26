@@ -4,22 +4,22 @@ workload:
             containers:
                 main:
                     env:
-                        SECRET_KEY: ENC[AES256_GCM,data:LfQaI35Ewloi7VjGgUAsxkRz3ARkctjsEJ8Cl9Jjsd9I7+pUdC3Yl/mDi1lhS6tPys0=,iv:eDkl8jCtGjxsY1RvxJFpoLntOXOM1dpXN0HS58loHFg=,tag:2/KSPmxsownRN6VF0v4NDg==,type:str]
-                        SOCIALACCOUNT_PROVIDERS: ENC[AES256_GCM,data:8clm7AcdULBJrwrVgEeXwgVFi5Bgv59/QKGImfUx8qkIFPLh8QgnLBY7Q2mo52f1z7WGY3tw7VprugBsY+snMyP5ghv7qy4Bn9ErlnuY21yM32EdghLEXaR+rNsaq4F4yeuYsRcyQ63NuOz/tYgcctlfBeF+3we5/Bb4hrGPyo8ElAtnDlOD8arIzfNjPhVyOZwvu1I6NAV87ItonZ4bRtKU9Vz/+8/4G8+OLSSXxTq8puAlrCBTQHze1MM8HzqIVyNjzTsqCwjlFnRXdq3ImWk8TjkbTgMQrY9pdfut2kzUhAMuQoEl+hw2+fCbkYq2Svci1TRIfiCebc0c9tHSzkMizdxKczlsXMHDGJ+L/X+CXNqJGeJjBKBqkhoQy5rS6sQfHd8qk6A7p+rNPPFfGQgXOUcpOYKSqU07aIJfJh44ra6qZSaFMNFJyPuzAC8EjlrCnqYnKpl5t/ci9P1Qmi+otKOrpNQA2OPWUesgCkUNz7EwexXYAYUuzxJe+6645lBeG5Vrw8Jh6stCUH/WW2d3vTIqtzJW7kPt0zVxHBAaHVCaK2vV5Ep2XAcld14TDGptiz2kYdm/AMRQ6hOyGlrCbQG0fSrwUTPvaso+QFft67mbAzJgygkTlPCEWpp64h54b3HzWFd5tacoEcarpbkrOqNmEg==,iv:ybZaJSU2zt4+jJEBvT5XoV/kVb1+AtHhnP543dSKIjk=,tag:BGgS07QltITQRKG9WcZsOA==,type:str]
-                        SOCIAL_PROVIDERS: ENC[AES256_GCM,data:QVjIpFOWUglcgMrrlm5LmPE1dFw6tBb3G/3+t81PPIdD3gEvpKG9gtHhpJ4TqA==,iv:AITiR+y9bvrQoWRwLfmZfWxxdQFV/3ZSiXirQZXQ2SI=,tag:wlVSV32MdVikhE6SSBKX4g==,type:str]
+                        SECRET_KEY: ENC[AES256_GCM,data:xOw9zrSiI5FwROQInArixLD1HXJ8K+JTfkOR14Uk2YZpiTai98IRMQ9rt4brNIz/X9k=,iv:Y7K2W+847NGPnfLcsYQe+5Fx07Cl51HhYVzXhhJqxEY=,tag:L6LexWx66UvxyQ/1bMpN/A==,type:str]
+                        SOCIALACCOUNT_PROVIDERS: ENC[AES256_GCM,data:iDZhbncCxnsNpaF0EtNJhrDKeaXVvTrrGQZGpx1is98DNkN0yTwY9BMcIKgWYFyTkMVQC6OteA0ZHengtWgKKqIWC8frHsN/6hMpMikdYRPvgUK38hDTV95I6wmgVJWtGJ2QeESrzh39iN4QRoqpuqzHnttK6L1n6M9IgoqHgstUbjWBLbqPdMXEc7nds2HTCVl6rDOpGc5arSg95IAh12VEOByrFTbhsfmGKuYqsEi7eFD5MNzPBuGX2JvqhGYrLIHSXOnxJ8CcIeT+TxHtv4yfIBBWB/kjYEXs1ZJ8iy3Ol51bMWXyvHRj21dOwRkqujQACDMD7PtnP0ZeYTP3Snp46yEWgoEFjz76/Dr4vmJ0E52azYWAmaJ9TXUAwLSpzrOzzsz0etjWdgS8DEM2N8S1dJaT6aV8tr9HoQkbIFh9BGphgmY5VrrgSdFfoCvfoiYmmImuJDZz7PbV+s32TpurA5zlHh1x+HdXOBcvj3BMXBYfYpBaWoHgh6ZgwCtLC4ClRklah0AdL6uJ6N7jh5AKWDG3T/jc6fHYPQJYPIfI5Lm06fQBVEPXwYavf2dBWLuc5d2LJBHVEp8W7WxX9lK5BKr3JrQBDEDljqDEEh/Z5yXr1CoLMjCCciYO/NsZ75RRjcVGqvKULJhmtjUGjAYYkTKsQg==,iv:iF/VRiFyGV5vE5TvBDKzgIEu9HTIgn+AfPdbmEAFkXc=,tag:ICpcCzLgW9RkFddI2M+/Bg==,type:str]
+                        SOCIAL_PROVIDERS: ENC[AES256_GCM,data:S9kzhxWaTeQ1tueev0ro4sxjAES2o3mLlXZLn8TQSQuQaktMQExeUuovQHuM8g==,iv:zYoPqQV6UUJdF0kQ8WhMXkW7tSE7Z1CuHo6j4eYlC0w=,tag:bTDaiFuRu0x4/ns/8S5/sA==,type:str]
 sops:
     age:
         - enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBEOU0yeXZ1bmV2dmJ2Wm5o
-            S3BVOXAycisrWUNrTFJSRDBqMHljeGZGS0dnCk1iSlZobnZKZCtlamJmT0txN1lw
-            MDZ1MStzeTh2UCtwd2hEUGxxa2RKUDAKLS0tIGtkazZzcXZHMnFLSitZb2F3dGx6
-            TytETlhOQkhJczhiMlVJdjQ0dFVFUzQKoOpKijdUvXqDJDgQXX2wo7GZmY27oWHM
-            wz0PYmQQygJrBX7XIa4h94qKWM9x7WL2ubCL8TDDV2Q+77uB5gGA1A==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBYV2d0dlhyOGwwTUc1dHBS
+            cXIrc1pZOXNEN2JWcjdSTjArSVVPdXJka2owClVqd0lzVmJPMDhtWndxMTkyUWJl
+            VEpkeUxYSmtjdTlaUU9Kc0NWbUxnMTAKLS0tIGZ0N0Y2dFRnVGd4YkU2TmI5THQv
+            dWlLQ0pDbkF3YzdXOFZzb3VUUFRENlkKqM056TcqkjCLpRnvmY8b82XjByxOEDi9
+            TvW5B//PWjLsqrSJUn9kd4lEp0Gxg8bUzce0CiwPGTEJJxQkK44VHw==
             -----END AGE ENCRYPTED FILE-----
           recipient: age1uaud96tmvkrmct5ssh20a4dwqy825ru5tqsdp8hu3syxlp4p9glqkamlya
     encrypted_regex: .
-    lastmodified: "2026-11-25T08:35:38Z"
-    mac: ENC[AES256_GCM,data:dfCxM199IsxSW0lGodCEMAjRGR4FgUXKVp6aouNNU+UkvpAdSTE4FpgLQY4rdPzHYLlv0PoUlpYEr4RkwX3FFlq/tLuYDBWLIGxvAc0VvtXp8xaiYkUkFSpjwX7JrMQMyP7cNAxoirh6kncZH6uV0cnXvMc/Z6U2tl9XzGtERT0=,iv:v81C+iX8hEdYV3YV5CbYfTzI13tLNv+dzIQZPXB2t58=,tag:dhbfdEkIxMyzsiUgwn9puA==,type:str]
+    lastmodified: "2026-11-26T09:12:45Z"
+    mac: ENC[AES256_GCM,data:3i8CnwvpsIOA8GvpfYEHCpmDe31GlLle1jy34CjH4nMgdsrtut7NdQfHENcJ2psU5u+flE33QK5rNeXoX7o0UkMjdM45z4RYwxm5wSdajCPi+ORFr4P8QCLOrRXPDvjTGz94e5XemZVBd189/j6kHhwLwnLbiI08vmnLH5z6VLM=,iv:bvRWQxVy3jSdiVXA6CGFtfr0V+2jgk3nbfo2e4uChjI=,tag:pacpvBWERjiaGnfTAvZ8qw==,type:str]
     shamir_threshold: 3
     version: 3.13.1

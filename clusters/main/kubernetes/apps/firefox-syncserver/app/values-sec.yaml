@@ -4,20 +4,20 @@ workload:
             containers:
                 main:
                     env:
-                        FF_SYNCSERVER_SECRET: ENC[AES256_GCM,data:mslo1OtjpulTBSQFfPqVVvqnsKz8QwVU,iv:mK0wDZ4yvlNqdh+pH+jKZsMPmqahrkSmrQRKmvZMsJQ=,tag:fIS40h9MtN+oIZYYrutuSw==,type:str]
+                        FF_SYNCSERVER_SECRET: ENC[AES256_GCM,data:eROyQ6YekFozY6UiPVEWDaAPjI8TIVUn,iv:mwnFSJXfeGcl8+uoONapimlgz1qrZVZkxPLiJqi7qrg=,tag:hzvJtR9NtmZSHcRRRWD+uA==,type:str]
 sops:
     age:
         - enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB5Yyt6L1lnWHlZUjFqQVRz
-            ZE5yMHVrVUthWGZ6M0M3Y3ByS1JiWm5kVEdvCnFUb3haeUE5Qmx4TTN4K0dxQWhx
-            K1EvYldOYmZBVlpSMWFGVTJ4b3UrMFUKLS0tIHBqdUZsR1ovcno2NlNJRUlQNHdx
-            MHhWM2hoYWc4V2RUU1pHcEpra1Y1WVkK/1Lyx8zdOZWqI1+baR1xd2b0zWc2gjbJ
-            8YCicS3osHO/59/GUdhywKSTY1dR+3KVk9AOvPDihSwUfVfQXJ3u4Q==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBqZVlaSmxNY1dhOXRhb3pQ
+            a2tXaXRORHMvUXM0a2Q5R09tVS9DMWp2WFdBCmNBb20rZTlNV2hzK1hrQ25wSWNG
+            WnkwREVHeTY4SVprVVFuT2V4YUNiSHMKLS0tIGVUS2IwUmdobDNpY0xmMlJmTGUw
+            Y01mdXQyQk9HTGdoSjV4WkFvRjJVa00KttO9o06yQNejX5pC7f1nqWs2jxxvoVHx
+            ILitw+/BOBf9DzP+XpPVNOANegLp6p2I5F1XhDmK4utKFKNfNYUQTA==
             -----END AGE ENCRYPTED FILE-----
           recipient: age1uaud96tmvkrmct5ssh20a4dwqy825ru5tqsdp8hu3syxlp4p9glqkamlya
     encrypted_regex: .
-    lastmodified: "2026-11-25T08:35:38Z"
-    mac: ENC[AES256_GCM,data:cWaco/EyotQz4VyZZ4krIYBoWHHlSZLblHG+6GN3JTxWCx20fXCTDwvz7dZeFXo9pAGBttxSzbqWFJtae5MM4T4UpUiObZYJWcwYbww1ozVdPwxGfEWLFqcl+sMAlW/tX1CePCm+uP7RXjepbLKkAUsH66Y+UKZVS1ZsJ2DzOsU=,iv:MQX5zYIb+i4lHJyxMj1O3cNoYLvsxrMPtAIcfGMjQm0=,tag:Q4wuMpYaD2vA4tD+F3bfoA==,type:str]
+    lastmodified: "2026-11-26T09:12:45Z"
+    mac: ENC[AES256_GCM,data:RSwLdwK7v+vjemM20iDUVc689VeItdXQ8YiFGVeyft3Lu4VNBjpW55t3cOU+jrFFvK4zFoGNrWs+QH/4jX7/XFmLjOZJSedHp9XyTuqD6vwJ5OceXk0IpDFhXugZcJJtlDR+qSFsRXdHrc5LO6bPvF7S7pxn7MG4OpKE5kov8ls=,iv:i3AFk30LYuuJNueqcKjePC5vASocxe5A3s1NRvSFsZg=,tag:CU3CQT95Q+Y9pJXncJYUAg==,type:str]
     shamir_threshold: 3
     version: 3.13.1

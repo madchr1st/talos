@@ -1,21 +1,21 @@
 secret:
     ntfy:
-        enabled: ENC[AES256_GCM,data:7CZ/Dw==,iv:AAg2TEdv4w8QbkrHpcCF3ouxGUiep2Ij4xYHbKmHDSU=,tag:WqkZSofLjZLYahCP9Zi40g==,type:bool]
+        enabled: ENC[AES256_GCM,data:QFf9PA==,iv:Bw0EboQC5VR+9nd1VUXAzQELAxz+Gq7Ocfm9V1JatR8=,tag:sef//SpyqlAN5pEpzUL4/w==,type:bool]
         data:
-            NTFY_TOKEN: ENC[AES256_GCM,data:Ho11gGClr2SBhs1OgB/MgAETDZ+4JVEo/Jrul0JYWug=,iv:g0PjN8QATAUNOrOsh5rpWGoPBCnrWZ8wCxZiVwO+N+8=,tag:BZ812Tobjg11Ziu2XAsATQ==,type:str]
+            NTFY_TOKEN: ENC[AES256_GCM,data:61WSh1Uig3oGQjZkvwkgfYCksonpbVs5l/AU2TsikMM=,iv:Kd9iluaIl+IfUes0mICaKPe2kE8p8uZ2Gve2Tm97000=,tag:RK2+WKnvhkx2D3fR/ZIhrw==,type:str]
 sops:
     age:
         - enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBMZzVkNzNUOUNZM2w5UVk2
-            dXZCZ3JOVkhlTDZSTW53eFZHRFlSaDZoVndZCmk0M0gyeGdBZi9LU1RUYktvM2VI
-            L2JYeHFWejZER3N2ME1jOS9ud0tabXcKLS0tIDZEUGcrU3N1TlUzRStEYTgyOENW
-            dG9SN2RSMG5oQ1JhZW5WNXlLMFB1WWcKT/6IilYtHuOzauzdYIdIBhqFRxHbKGY3
-            ZeVw9uFea5EL36/rKeqrvRikZ2Fh/7xVN2KHoVw6/OZeKw9BfKXzSA==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBJSCtTQ0ZSNHQzSWh2RElK
+            YkljK1NLZ0Q5TTJtZkw2blRiWGowaDVNOXpBCmJGREUyT202RDlKZlozUUJyVGtB
+            ZjhiUzdSRE9rNU5sbmpxaWNxN3pRVGMKLS0tIGZ1cTUyT2w2Qms0MXpFKzBMbEhq
+            SU1kM3ZlZTVtVFNKb2UvRWtneVY3UEUKSjSEADt9U1wEgV6BuyI6u6XHUq6//cVx
+            zBEXTx4KaJuk1pzy0Z/gjX/eZyVnnsLSAiwUDnvGCThwheA7cNbcGw==
             -----END AGE ENCRYPTED FILE-----
           recipient: age1uaud96tmvkrmct5ssh20a4dwqy825ru5tqsdp8hu3syxlp4p9glqkamlya
     encrypted_regex: .
-    lastmodified: "2026-11-25T08:35:38Z"
-    mac: ENC[AES256_GCM,data:sdAWdtkFreaDq4EM7lo6WlR+8wWoO2pbqKPkexnZmr6OpAl3fFHmgUaveMQ62WhM39yuvh+ugDxw3mz+yZE5SZPTvXGQPd3DX1mpBnzdb1YwTAOqjXFnCGsKM3O7Y2gzrtZNN4EtxRv9aZ/DA7EVBAWEpqpp92TbsOAJelHwTHU=,iv:V64KrnBVSoB3EYhxb0O9itsTpnUoeQipCDcWSthtHeY=,tag:pYZSI0EeTwCcI8pNmqNujA==,type:str]
+    lastmodified: "2026-11-26T09:12:45Z"
+    mac: ENC[AES256_GCM,data:bnlWAssMfngk7XUgqBntqm4mIyp0sgQWLCBmHa78W7AgziJvScFuoYCbeb3/geQAdQJggqNmh8QOpV0LU0StISc2kw47HJX64WiqXvkwTvtQKHIX4lXWOGkWl3zDbzfSuiWzyuiPHLgbT4/FCZCZI9c47sOWMCG8Fmr1s/TwvMY=,iv:isCPshd2AVGj7W4sMGl0L31ELFjklpu8sfuZ/nc0LFY=,tag:bQr0mc3VitJWxsqzG84AKA==,type:str]
     shamir_threshold: 3
     version: 3.13.1
