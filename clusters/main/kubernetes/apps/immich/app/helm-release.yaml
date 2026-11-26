@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: immich
-      version: 35.7.12
+      version: 36.0.0
       sourceRef:
         kind: HelmRepository
         name: truecharts
@@ -30,42 +30,6 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    cnpg:
-      main:
-        enabled: true
-        user: immich
-        database: immich
-        pgVersion: 16
-        # VectorChord (Immich 3.x); migrated from pgvecto.rs on 2026-11-19 (migration/UPGRADE-PAPERLESS-IMMICH.md)
-        type: vectorchord
-        # Bootstrapped from the K3s cluster's S3 backup + WAL (s3://.../immich/cnpg)
-        mode: recovery
-        recovery:
-          method: object_store
-          credentials: mys3
-        cluster:
-          instances: 1
-          singleNode: true
-          storage:
-            size: 10Gi
-            storageClass: truenas-iscsi
-          walStorage:
-            size: 5Gi
-            storageClass: truenas-iscsi
-        monitoring:
-          enablePodMonitor: true
-        backups:
-          enabled: true
-          # new server name (-r1) so Talos never writes into the K3s backup
-          revision: "1"
-          credentials: mys3
-          scheduledBackups:
-            - name: daily-backup
-              schedule: "0 0 0 * * *"
-              backupOwnerReference: self
-              immediate: true
-              suspend: false
-          retentionPolicy: 30d
     credentials:
       mys3:
         type: s3
@@ -186,8 +150,48 @@ spec:
               - namespaceSelector:
                   matchLabels:
                     policy-group/monitoring: "true"
-    redis:
-      persistence:
-        data:
-          storageClass: truenas-iscsi
-          size: 1Gi
+    dependencies:
+      postgresql:
+        enabled: true
+        depconfig:
+          postgresqlUsername: immich
+          postgresqlDatabase: immich
+          password: ${CNPG_DB_IMMICH_PASSWORD}
+        operator:
+          pgVersion: 16
+          # VectorChord (Immich 3.x); migrated from pgvecto.rs on 2026-11-19 (migration/UPGRADE-PAPERLESS-IMMICH.md)
+          type: vectorchord
+          # Bootstrapped from the K3s cluster's S3 backup + WAL (s3://.../immich/cnpg)
+          mode: recovery
+          recovery:
+            method: object_store
+            credentials: mys3
+          cluster:
+            instances: 1
+            singleNode: true
+            storage:
+              size: 10Gi
+              storageClass: truenas-iscsi
+            walStorage:
+              size: 5Gi
+              storageClass: truenas-iscsi
+          monitoring:
+            enablePodMonitor: true
+          backups:
+            enabled: true
+            # new server name (-r1) so Talos never writes into the K3s backup
+            revision: "1"
+            credentials: mys3
+            scheduledBackups:
+              - name: daily-backup
+                schedule: "0 0 0 * * *"
+                backupOwnerReference: self
+                immediate: true
+                suspend: false
+            retentionPolicy: 30d
+      valkey:
+        persistence:
+          data:
+            size: 1Gi
+        depconfig:
+          password: ${VALKEY_IMMICH_PASSWORD}
