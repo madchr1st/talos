@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: authelia
-      version: 34.2.6
+      version: 35.0.0
       sourceRef:
         kind: HelmRepository
         name: truecharts
@@ -34,45 +34,6 @@ spec:
       name: authelia-config
       valuesKey: authelia-config.yaml
   values:
-    cnpg:
-      main:
-        mode: recovery
-        backups:
-          enabled: true
-          credentials: mys3
-          scheduledBackups:
-            - name: daily-backup
-              # Daily at midnight
-              schedule: 0 0 0 * * *
-              backupOwnerReference: self
-              immediate: true
-              suspend: false
-          retentionPolicy: 30d
-          # own WAL/backup path (<cluster>-r1): the old K3s cluster still archives to the un-suffixed one
-          revision: "1"
-        recovery:
-          method: object_store
-          credentials: mys3
-        cluster:
-          instances: 1
-          singleNode: true
-          storage:
-            size: 5Gi
-            storageClass: truenas-iscsi
-          walStorage:
-            size: 5Gi
-            storageClass: truenas-iscsi
-        database: ${CNPG_DB_AUTHELIA_NAME}
-        enabled: true
-        hibernate: false
-        monitoring:
-          disableDefaultQueries: false
-          enablePodMonitor: true
-        password: ${CNPG_DB_AUTHELIA_PASSWORD}
-        pgVersion: 16
-        pooler:
-          enabled: false
-        user: ${CNPG_DB_AUTHELIA_USER}
     database:
       type: postgresql
       wal: true
@@ -132,16 +93,6 @@ spec:
         mountPath: /config
         readOnly: false
         type: nfs
-    redis:
-      creds:
-        redisPassword: ${REDIS_AUTHELIA_PASSWORD}
-      enabled: true
-      includeCommon: true
-      password: ${REDIS_AUTHELIA_PASSWORD}
-      persistence:
-        data:
-          size: 1Gi
-          storageClass: truenas-iscsi
     resources:
       limits:
         memory: 4Gi
@@ -179,3 +130,50 @@ spec:
               - namespaceSelector:
                   matchLabels:
                     policy-group/monitoring: "true"
+    dependencies:
+      postgresql:
+        enabled: true
+        depconfig:
+          postgresqlUsername: ${CNPG_DB_AUTHELIA_USER}
+          postgresqlDatabase: ${CNPG_DB_AUTHELIA_NAME}
+          password: ${CNPG_DB_AUTHELIA_PASSWORD}
+        operator:
+          mode: recovery
+          backups:
+            enabled: true
+            credentials: mys3
+            scheduledBackups:
+              - name: daily-backup
+                # Daily at midnight
+                schedule: 0 0 0 * * *
+                backupOwnerReference: self
+                immediate: true
+                suspend: false
+            retentionPolicy: 30d
+            # own WAL/backup path (<cluster>-r1): the old K3s cluster still archives to the un-suffixed one
+            revision: "1"
+          recovery:
+            method: object_store
+            credentials: mys3
+          cluster:
+            instances: 1
+            singleNode: true
+            storage:
+              size: 5Gi
+              storageClass: truenas-iscsi
+            walStorage:
+              size: 5Gi
+              storageClass: truenas-iscsi
+          hibernate: false
+          monitoring:
+            disableDefaultQueries: false
+            enablePodMonitor: true
+          pgVersion: 16
+          pooler:
+            enabled: false
+      valkey:
+        persistence:
+          data:
+            size: 1Gi
+        depconfig:
+          password: ${VALKEY_AUTHELIA_PASSWORD}
