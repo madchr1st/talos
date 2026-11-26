@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: vaultwarden
-      version: 31.1.4
+      version: 32.0.0
       sourceRef:
         kind: HelmRepository
         name: truecharts
@@ -38,40 +38,6 @@ spec:
     database:
       type: postgresql
       wal: true
-    cnpg:
-      main:
-        enabled: true
-        user: vaultwarden
-        database: vaultwarden
-        pgVersion: 16
-        # Bootstrapped from the K3s cluster's S3 backup + WAL (s3://.../vaultwarden-prod/cnpg)
-        mode: recovery
-        recovery:
-          method: object_store
-          credentials: mys3
-        cluster:
-          instances: 1
-          singleNode: true
-          storage:
-            size: 5Gi
-            storageClass: truenas-iscsi
-          walStorage:
-            size: 2Gi
-            storageClass: truenas-iscsi
-        monitoring:
-          enablePodMonitor: true
-        backups:
-          enabled: true
-          # new server name (-r1) so Talos never writes into the K3s backup
-          revision: "1"
-          credentials: mys3
-          scheduledBackups:
-            - name: daily-backup
-              schedule: "0 0 0 * * *"
-              backupOwnerReference: self
-              immediate: true
-              suspend: false
-          retentionPolicy: 30d
     credentials:
       mys3:
         type: s3
@@ -163,3 +129,40 @@ spec:
               - namespaceSelector:
                   matchLabels:
                     policy-group/monitoring: "true"
+    dependencies:
+      postgresql:
+        enabled: true
+        depconfig:
+          postgresqlUsername: vaultwarden
+          postgresqlDatabase: vaultwarden
+          password: ${CNPG_DB_VAULTWARDEN_PROD_PASSWORD}
+        operator:
+          pgVersion: 16
+          # Bootstrapped from the K3s cluster's S3 backup + WAL (s3://.../vaultwarden-prod/cnpg)
+          mode: recovery
+          recovery:
+            method: object_store
+            credentials: mys3
+          cluster:
+            instances: 1
+            singleNode: true
+            storage:
+              size: 5Gi
+              storageClass: truenas-iscsi
+            walStorage:
+              size: 2Gi
+              storageClass: truenas-iscsi
+          monitoring:
+            enablePodMonitor: true
+          backups:
+            enabled: true
+            # new server name (-r1) so Talos never writes into the K3s backup
+            revision: "1"
+            credentials: mys3
+            scheduledBackups:
+              - name: daily-backup
+                schedule: "0 0 0 * * *"
+                backupOwnerReference: self
+                immediate: true
+                suspend: false
+            retentionPolicy: 30d
