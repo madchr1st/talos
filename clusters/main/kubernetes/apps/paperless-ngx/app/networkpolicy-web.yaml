@@ -1,0 +1,20 @@
+# Paperless trusts the Remote-User header from Authelia: only ingress-internal may reach the web pod.
+# Kept outside the chart: Common 2026 (32.8.5) renders a second chart NetworkPolicy without a trailing
+# newline, which breaks the manifest. Move back into networkPolicy.web once that is fixed upstream.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: paperless-ngx-web-internal
+  namespace: paperless-ngx
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: paperless-ngx
+      pod.name: main
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              policy-group/ingress-internal: "true"

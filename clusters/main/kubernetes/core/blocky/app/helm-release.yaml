@@ -10,7 +10,7 @@ spec:
   chart:
     spec:
       chart: blocky
-      version: 24.5.1
+      version: 25.0.0
       sourceRef:
         kind: HelmRepository
         name: truecharts
@@ -77,27 +77,6 @@ spec:
     configmap:
       dashboard:
         enabled: true
-      datasource:
-        enabled: true
-    redis:
-      persistence:
-        data:
-          size: 1Gi
-          storageClass: truenas-iscsi
-    # cnpg config
-    cnpg:
-      main:
-        enabled: true
-        cluster:
-          instances: 1
-          storage:
-            size: "2Gi"
-            storageClass: truenas-iscsi
-          walStorage:
-            size: "2Gi"
-            storageClass: truenas-iscsi
-        monitoring:
-          enablePodMonitor: true
     # Upstreams over DoH/DoT instead of plain DNS to ten public resolvers (same provider as AdGuard:
     # Cloudflare with malware blocking, Quad9 as a second, also filtering, provider).
     defaultUpstreams:
@@ -183,6 +162,29 @@ spec:
               *.cdn.optimizely.com
               *.www.siderolabs.com
               *.vlscppe.microsoft.com
+    dependencies:
+      postgresql:
+        enabled: true
+        depconfig:
+          password: ${CNPG_DB_BLOCKY_PASSWORD}
+        operator:
+          cluster:
+            instances: 1
+            storage:
+              size: "2Gi"
+              storageClass: truenas-iscsi
+            walStorage:
+              size: "2Gi"
+              storageClass: truenas-iscsi
+          monitoring:
+            enablePodMonitor: true
+          pgVersion: 16
+      valkey:
+        persistence:
+          data:
+            size: 1Gi
+        depconfig:
+          password: ${VALKEY_BLOCKY_PASSWORD}
   valuesFrom:
     - kind: Secret
       name: blocky-values-sec
