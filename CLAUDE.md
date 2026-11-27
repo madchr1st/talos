@@ -142,7 +142,7 @@ To add an app or caller: put the namespace into the group (label in its `namespa
 - Only the main workload/container (both named like the HelmRelease) of a TrueForge chart is edited; CNPG
   databases are not scanned by KRR at all.
 - Run now: `kubectl --context aarau-talos01 -n krr create job --from=cronjob/krr krr-manual`
-- Tests: `cd clusters/main/kubernetes/system/krr && python3 -m unittest discover -s tests`
+- Tests: `cd clusters/main/kubernetes/system/krr && python3 -B -m unittest discover -s tests` (`-B`: no `__pycache__`, which `clustertool genconfig` would turn into a kustomization entry)
 - PR mode: `CREATE_PR` env in `cronjob.yaml` (`false` | `dry-run` | `true`). `true` needs `GITHUB_TOKEN` in
   `krr.secret.yaml` (fine-grained PAT, this repo only, Contents + Pull requests read/write).
 

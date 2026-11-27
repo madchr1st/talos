@@ -15,4 +15,3 @@ generatorOptions:
   annotations:
     # Python/Markdown content: no Flux variable substitution
     kustomize.toolkit.fluxcd.io/substitute: disabled
-  - __pycache__

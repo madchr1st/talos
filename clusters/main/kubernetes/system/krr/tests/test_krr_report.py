@@ -1,4 +1,8 @@
-"""Tests for app/krr-report.py. Run: cd clusters/main/kubernetes/system/krr && python3 -m unittest discover -s tests -v"""
+"""Tests for app/krr-report.py. Run: cd clusters/main/kubernetes/system/krr && python3 -B -m unittest discover -s tests -v"""
+
+import sys
+
+sys.dont_write_bytecode = True  # no __pycache__ in app/: clustertool genconfig would add it to the kustomization
 
 import importlib.util
 import contextlib
