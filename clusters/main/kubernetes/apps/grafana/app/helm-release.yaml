@@ -35,31 +35,6 @@ spec:
       name: grafana-values-sec
       valuesKey: values-sec.yaml
   values:
-    # ingress config
-    ingress:
-      main:
-        enabled: true
-        primary: true
-        ingressClassName: "traefik-internal"
-        targetSelector:
-          main: main
-        hosts:
-          - host: grafana.${DOMAIN_0}
-            paths:
-              - path: /
-                pathType: Prefix
-        tls:
-          - hosts:
-              - grafana.${DOMAIN_0}
-        integrations:
-          certManager:
-            enabled: true
-            certificateIssuer: "domain-0-le-prod"
-          traefik:
-            enabled: true
-            entrypoints:
-              - websecure
-            forceTLS: true
     # persistence config
     persistence:
       data:
@@ -123,6 +98,8 @@ spec:
                 GF_SECURITY_ADMIN_USER: "admin"
                 # GF_SECURITY_ADMIN_PASSWORD: from values-sec.yaml
                 GF_SERVER_ROOT_URL: https://grafana.${DOMAIN_0}
+                # chart sets server.domain from ingress.main (was a broken map value; empty with the HTTPRoute)
+                GF_SERVER_DOMAIN: grafana.${DOMAIN_0}
                 # SSO via Authelia (client "grafana"; secret in values-sec.yaml)
                 GF_AUTH_GENERIC_OAUTH_ENABLED: "true"
                 GF_AUTH_GENERIC_OAUTH_NAME: Authelia
@@ -359,3 +336,19 @@ spec:
               - get
               - watch
               - list
+    # Gateway API (migration/GATEWAY-API.md): TLS by the wildcard on the Gateway listener; integrations.traefik.enabled
+    # keeps the chart's tc-basic-secure-headers middleware.
+    route:
+      main:
+        enabled: true
+        primary: true
+        kind: HTTPRoute
+        gateway: internal
+        gatewayNamespace: traefik-internal
+        hostnames:
+          - grafana.${DOMAIN_0}
+        targetSelector:
+          main: main
+        integrations:
+          traefik:
+            enabled: true

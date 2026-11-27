@@ -30,25 +30,6 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    ingress:
-      main:
-        enabled: true
-        primary: true
-        ingressClassName: traefik-internal
-        hosts:
-          - host: jellystat.${DOMAIN_0}
-            paths:
-              - path: /
-                pathType: Prefix
-        integrations:
-          certManager:
-            enabled: true
-            certificateIssuer: domain-0-le-prod
-          traefik:
-            enabled: true
-            entrypoints:
-              - websecure
-            middlewares: []
     credentials:
       mys3:
         type: s3
@@ -121,3 +102,17 @@ spec:
                 immediate: true
                 suspend: false
             retentionPolicy: 30d
+    # Gateway API (migration/GATEWAY-API.md): TLS by the wildcard on the Gateway listener; integrations.traefik.enabled
+    # keeps the chart's tc-basic-secure-headers middleware.
+    route:
+      main:
+        enabled: true
+        primary: true
+        kind: HTTPRoute
+        gateway: internal
+        gatewayNamespace: traefik-internal
+        hostnames:
+          - jellystat.${DOMAIN_0}
+        integrations:
+          traefik:
+            enabled: true

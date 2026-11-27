@@ -31,28 +31,6 @@ spec:
     keepHistory: false
   values:
     TZ: Europe/Zurich
-    ingress:
-      main:
-        enabled: true
-        primary: true
-        ingressClassName: traefik-internal
-        hosts:
-          - host: headlamp.${DOMAIN_0}
-            paths:
-              - path: /
-                pathType: Prefix
-        integrations:
-          certManager:
-            enabled: true
-            certificateIssuer: domain-0-le-prod
-          traefik:
-            enabled: true
-            entrypoints:
-              - websecure
-            middlewares:
-              - name: forward-auth-authelia
-                namespace: authelia
-                expandObjectName: false
     # Login: Authelia (2FA, dedicated rule without the /api bypass) + a read-only cluster-wide service account token.
     # allowEditing: true would give the UI write access (cluster-admin-like) -- Flux reverts drift anyway.
     headlamp:
@@ -68,15 +46,9 @@ spec:
       main:
         rules:
           - apiGroups: [""]
-            resources: [namespaces, nodes, pods, pods/log, services, endpoints, persistentvolumeclaims,
-                        persistentvolumes, events, serviceaccounts, resourcequotas, limitranges, replicationcontrollers]
+            resources: [namespaces, nodes, pods, pods/log, services, endpoints, persistentvolumeclaims, persistentvolumes, events, serviceaccounts, resourcequotas, limitranges, replicationcontrollers]
             verbs: [get, list, watch]
-          - apiGroups: [apps, batch, autoscaling, policy, networking.k8s.io, discovery.k8s.io, events.k8s.io,
-                        storage.k8s.io, snapshot.storage.k8s.io, scheduling.k8s.io, node.k8s.io, coordination.k8s.io,
-                        apiextensions.k8s.io, metrics.k8s.io, gateway.networking.k8s.io, cilium.io,
-                        helm.toolkit.fluxcd.io, kustomize.toolkit.fluxcd.io, source.toolkit.fluxcd.io,
-                        notification.toolkit.fluxcd.io, image.toolkit.fluxcd.io, cert-manager.io, acme.cert-manager.io,
-                        postgresql.cnpg.io, traefik.io, metallb.io, monitoring.coreos.com, upgrade.cattle.io]
+          - apiGroups: [apps, batch, autoscaling, policy, networking.k8s.io, discovery.k8s.io, events.k8s.io, storage.k8s.io, snapshot.storage.k8s.io, scheduling.k8s.io, node.k8s.io, coordination.k8s.io, apiextensions.k8s.io, metrics.k8s.io, gateway.networking.k8s.io, cilium.io, helm.toolkit.fluxcd.io, kustomize.toolkit.fluxcd.io, source.toolkit.fluxcd.io, notification.toolkit.fluxcd.io, image.toolkit.fluxcd.io, cert-manager.io, acme.cert-manager.io, postgresql.cnpg.io, traefik.io, metallb.io, monitoring.coreos.com, upgrade.cattle.io]
             resources: ["*"]
             verbs: [get, list, watch]
           - apiGroups: [rbac.authorization.k8s.io]
@@ -106,3 +78,32 @@ spec:
               - namespaceSelector:
                   matchLabels:
                     policy-group/monitoring: "true"
+    # Gateway API (migration/GATEWAY-API.md): TLS by the wildcard on the Gateway listener; integrations.traefik.enabled
+    # keeps the chart's tc-basic-secure-headers middleware. Authelia: namespace-local middleware copy (ingressMiddlewares).
+    route:
+      main:
+        enabled: true
+        primary: true
+        kind: HTTPRoute
+        gateway: internal
+        gatewayNamespace: traefik-internal
+        hostnames:
+          - headlamp.${DOMAIN_0}
+        integrations:
+          traefik:
+            enabled: true
+            middlewares:
+              - name: forward-auth-authelia
+    ingressMiddlewares:
+      traefik:
+        forward-auth-authelia:
+          enabled: true
+          type: forward-auth
+          data:
+            address: http://authelia.authelia.svc.cluster.local:9091/api/authz/forward-auth
+            trustForwardHeader: false
+            authResponseHeaders:
+              - Remote-User
+              - Remote-Groups
+              - Remote-Name
+              - Remote-Email

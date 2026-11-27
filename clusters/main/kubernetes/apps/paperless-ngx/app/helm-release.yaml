@@ -43,29 +43,6 @@ spec:
         accessKey: ${CNPG_BACKUP_AWS_S3_ACCESS_KEY}
         secretKey: ${CNPG_BACKUP_AWS_S3_SECRET_KEY}
         encrKey: ${CNPG_BACKUP_AWS_S3_ENCRYPTION_KEY}
-    ingress:
-      main:
-        enabled: true
-        primary: true
-        ingressClassName: traefik-internal
-        hosts:
-          - host: papierlos.${DOMAIN_0}
-            paths:
-              - path: /
-                pathType: Prefix
-        integrations:
-          certManager:
-            enabled: true
-            certificateIssuer: domain-0-le-prod
-          traefik:
-            enabled: true
-            entrypoints:
-              - websecure
-            # Paperless trusts the Remote-User header from Authelia (PAPERLESS_ENABLE_HTTP_REMOTE_USER)
-            middlewares:
-              - name: forward-auth-authelia
-                namespace: authelia
-                expandObjectName: false
     persistence:
       # copied from the K3s OpenEBS volumes
       data:
@@ -177,3 +154,32 @@ spec:
             size: 1Gi
         depconfig:
           password: ${VALKEY_PAPERLESS_NGX_PASSWORD}
+    # Gateway API (migration/GATEWAY-API.md): TLS by the wildcard on the Gateway listener; integrations.traefik.enabled
+    # keeps the chart's tc-basic-secure-headers middleware. Authelia: namespace-local middleware copy (ingressMiddlewares).
+    route:
+      main:
+        enabled: true
+        primary: true
+        kind: HTTPRoute
+        gateway: internal
+        gatewayNamespace: traefik-internal
+        hostnames:
+          - papierlos.${DOMAIN_0}
+        integrations:
+          traefik:
+            enabled: true
+            middlewares:
+              - name: forward-auth-authelia
+    ingressMiddlewares:
+      traefik:
+        forward-auth-authelia:
+          enabled: true
+          type: forward-auth
+          data:
+            address: http://authelia.authelia.svc.cluster.local:9091/api/authz/forward-auth
+            trustForwardHeader: false
+            authResponseHeaders:
+              - Remote-User
+              - Remote-Groups
+              - Remote-Name
+              - Remote-Email

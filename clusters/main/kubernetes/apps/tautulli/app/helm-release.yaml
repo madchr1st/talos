@@ -30,28 +30,6 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    ingress:
-      main:
-        enabled: true
-        primary: true
-        ingressClassName: traefik-internal
-        hosts:
-          - host: tautulli.${DOMAIN_0}
-            paths:
-              - path: /
-                pathType: Prefix
-        integrations:
-          certManager:
-            enabled: true
-            certificateIssuer: domain-0-le-prod
-          traefik:
-            enabled: true
-            entrypoints:
-              - websecure
-            middlewares:
-              - name: forward-auth-authelia
-                namespace: authelia
-                expandObjectName: false
     persistence:
       # tautulli.db (SQLite) -> block storage, copied from K3s (config.ini pms_ip rewritten at cutover)
       config:
@@ -95,3 +73,32 @@ spec:
               - namespaceSelector:
                   matchLabels:
                     policy-group/monitoring: "true"
+    # Gateway API (migration/GATEWAY-API.md): TLS by the wildcard on the Gateway listener; integrations.traefik.enabled
+    # keeps the chart's tc-basic-secure-headers middleware. Authelia: namespace-local middleware copy (ingressMiddlewares).
+    route:
+      main:
+        enabled: true
+        primary: true
+        kind: HTTPRoute
+        gateway: internal
+        gatewayNamespace: traefik-internal
+        hostnames:
+          - tautulli.${DOMAIN_0}
+        integrations:
+          traefik:
+            enabled: true
+            middlewares:
+              - name: forward-auth-authelia
+    ingressMiddlewares:
+      traefik:
+        forward-auth-authelia:
+          enabled: true
+          type: forward-auth
+          data:
+            address: http://authelia.authelia.svc.cluster.local:9091/api/authz/forward-auth
+            trustForwardHeader: false
+            authResponseHeaders:
+              - Remote-User
+              - Remote-Groups
+              - Remote-Name
+              - Remote-Email
