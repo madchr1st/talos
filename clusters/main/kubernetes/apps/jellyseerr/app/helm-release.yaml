@@ -30,42 +30,6 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    ingress:
-      main:
-        enabled: true
-        primary: true
-        ingressClassName: traefik-internal
-        hosts:
-          - host: jellyseerr.${DOMAIN_0}
-            paths:
-              - path: /
-                pathType: Prefix
-        integrations:
-          certManager:
-            enabled: true
-            certificateIssuer: domain-0-le-prod
-          traefik:
-            enabled: true
-            entrypoints:
-              - websecure
-            middlewares: []
-      ext:
-        enabled: true
-        ingressClassName: traefik-external
-        hosts:
-          - host: jellyseerr.${DOMAIN_0}
-            paths:
-              - path: /
-                pathType: Prefix
-        integrations:
-          certManager:
-            enabled: true
-            certificateIssuer: domain-0-le-prod
-          traefik:
-            enabled: true
-            entrypoints:
-              - websecure
-            middlewares: []
     persistence:
       # Jellyfin instance (Seerr supports one media server per instance): copied from the K3s PVC (uid 568 as on K3s)
       config:
@@ -119,3 +83,27 @@ spec:
               - namespaceSelector:
                   matchLabels:
                     policy-group/monitoring: "true"
+    # Gateway API (migration/GATEWAY-API.md): TLS by the wildcard on the Gateway listener; integrations.traefik.enabled
+    # keeps the chart's tc-basic-secure-headers middleware. Authelia: namespace-local middleware copy (ingressMiddlewares).
+    route:
+      main:
+        enabled: true
+        kind: HTTPRoute
+        gateway: internal
+        gatewayNamespace: traefik-internal
+        hostnames:
+          - jellyseerr.${DOMAIN_0}
+        integrations:
+          traefik:
+            enabled: true
+      ext:
+        enabled: true
+        primary: false
+        kind: HTTPRoute
+        gateway: external
+        gatewayNamespace: traefik-external
+        hostnames:
+          - jellyseerr.${DOMAIN_0}
+        integrations:
+          traefik:
+            enabled: true
