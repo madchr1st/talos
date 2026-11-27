@@ -50,7 +50,7 @@ spec:
         headers:
           defaultMode: drop
     ingressClass:
-      enabled: true
+      enabled: false # no Ingresses left
       isDefaultClass: true
     tlsOptions:
       default:
@@ -63,8 +63,9 @@ spec:
         allowCrossNamespace: true
         allowExternalNameServices: true
         ingressClass: traefik-internal
+      # no Ingresses left: every app uses HTTPRoutes on the Gateways (migration/GATEWAY-API.md)
       kubernetesIngress:
-        enabled: true
+        enabled: false
         allowExternalNameServices: true
         ingressClass: traefik-internal
       kubernetesGateway:
