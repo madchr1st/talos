@@ -63,7 +63,7 @@ spec:
               - websecure
             middlewares: []
       ext:
-        enabled: true
+        enabled: false
         primary: true # main is off (HTTPRoute); one enabled Ingress must be primary
         ingressClassName: traefik-external
         hosts:
@@ -171,7 +171,7 @@ spec:
       # external stays on the Ingress until all external apps move together: Cloudflare reuses one origin
       # connection for several hosts, Traefik answers 421 when Ingress and Gateway hosts mix (migration/GATEWAY-API.md)
       ext:
-        enabled: false
+        enabled: true
         primary: false
         kind: HTTPRoute
         gateway: external
