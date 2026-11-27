@@ -77,6 +77,33 @@ spec:
     configmap:
       dashboard:
         enabled: true
+      # Grafana datasource as ConfigMap (chart default: a Secret with the DB password, which would need
+      # cluster-wide Secret read for Grafana). Password from Grafana's env GF_BLOCKY_DB_PASSWORD ($$ = Flux escape).
+      datasource:
+        enabled: true
+        labels:
+          grafana_datasource: "1"
+        data:
+          datasourceblockypsql.yaml: |-
+            apiVersion: 1
+            datasources:
+            - name: BlockyPostgres
+              type: postgres
+              uid: blockypostgres
+              url: {{ printf "%s.%s:5432" (.Values.dependencies.postgresql.depconfig.creds.plainhost | trimAll "\"") .Release.Namespace }}
+              access: proxy
+              user: {{ .Values.dependencies.postgresql.depconfig.postgresqlUsername }}
+              secureJsonData:
+                password: $$__env{GF_BLOCKY_DB_PASSWORD}
+              jsonData:
+                database: {{ .Values.dependencies.postgresql.depconfig.postgresqlDatabase }}
+                sslmode: 'disable'
+                maxOpenConns: 100
+                maxIdleConns: 100
+                maxIdleConnsAuto: true
+                connMaxLifetime: 14400
+                postgresVersion: 1500
+                timescaledb: false
     # Upstreams over DoH/DoT instead of plain DNS to ten public resolvers (same provider as AdGuard:
     # Cloudflare with malware blocking, Quad9 as a second, also filtering, provider).
     defaultUpstreams:
@@ -185,6 +212,9 @@ spec:
             size: 1Gi
         depconfig:
           password: ${VALKEY_BLOCKY_PASSWORD}
+    secret:
+      datasource:
+        enabled: false
   valuesFrom:
     - kind: Secret
       name: blocky-values-sec

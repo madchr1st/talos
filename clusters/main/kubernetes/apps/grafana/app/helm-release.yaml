@@ -146,6 +146,11 @@ spec:
                 GF_SERVER_HTTP_PORT: 3000
                 GF_DATABASE_TYPE: postgres
                 GF_DATABASE_SSL_MODE: disable
+                # password for the blocky datasource ConfigMap ($__env{GF_BLOCKY_DB_PASSWORD} there)
+                GF_BLOCKY_DB_PASSWORD:
+                  secretKeyRef:
+                    name: blocky-datasource
+                    key: password
             dashboards:
               enabled: true
               env:
@@ -155,7 +160,7 @@ spec:
                 LABEL_VALUE: "1"
                 LOG_LEVEL: info
                 FOLDER: /tmp/dashboards
-                RESOURCE: both
+                RESOURCE: configmap # sidecars read ConfigMaps only, so the ClusterRole needs no Secrets
                 NAMESPACE: "ALL"
                 UNIQUE_FILENAMES: false
                 # NAMESPACE: null
@@ -177,7 +182,7 @@ spec:
                 LABEL_VALUE: "1"
                 LOG_LEVEL: info
                 FOLDER: /etc/grafana/provisioning/datasources
-                RESOURCE: both
+                RESOURCE: configmap
                 NAMESPACE: "ALL"
                 UNIQUE_FILENAMES: false
                 # NAMESPACE: null
@@ -199,7 +204,7 @@ spec:
                 LABEL_VALUE: "1"
                 LOG_LEVEL: info
                 FOLDER: /etc/grafana/provisioning/alerts
-                RESOURCE: both
+                RESOURCE: configmap
                 NAMESPACE: "ALL"
                 UNIQUE_FILENAMES: false
                 # NAMESPACE: null
@@ -221,7 +226,7 @@ spec:
                 LABEL_VALUE: "1"
                 LOG_LEVEL: info
                 FOLDER: /etc/grafana/provisioning/plugins
-                RESOURCE: both
+                RESOURCE: configmap
                 NAMESPACE: "ALL"
                 UNIQUE_FILENAMES: false
                 # NAMESPACE: null
@@ -243,7 +248,7 @@ spec:
                 LABEL_VALUE: "1"
                 LOG_LEVEL: info
                 FOLDER: /etc/grafana/provisioning/notifiers
-                RESOURCE: both
+                RESOURCE: configmap
                 NAMESPACE: "ALL"
                 UNIQUE_FILENAMES: false
                 # NAMESPACE: null
@@ -337,3 +342,20 @@ spec:
           monitoring:
             enablePodMonitor: true
           pgVersion: 16
+    secret:
+      blocky-datasource:
+        enabled: true
+        data:
+          password: ${CNPG_DB_BLOCKY_PASSWORD}
+    # chart default also grants Secrets cluster-wide; the sidecars only need ConfigMaps
+    rbac:
+      main:
+        rules:
+          - apiGroups:
+              - ""
+            resources:
+              - configmaps
+            verbs:
+              - get
+              - watch
+              - list
