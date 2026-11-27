@@ -43,23 +43,6 @@ spec:
     database:
       type: postgresql
       wal: true
-    ingress:
-      main:
-        enabled: true
-        hosts:
-          - host: ldap.${DOMAIN_0}
-            paths:
-              - path: /
-                pathType: Prefix
-        ingressClassName: traefik-internal
-        integrations:
-          certManager:
-            certificateIssuer: domain-0-le-prod
-            enabled: true
-          traefik:
-            enabled: true
-            entrypoints:
-              - websecure
     persistence:
       data:
         autoPermissions:
@@ -211,3 +194,17 @@ spec:
           pgVersion: 16
           pooler:
             enabled: false
+    # Gateway API (migration/GATEWAY-API.md): TLS by the wildcard on the Gateway listener; integrations.traefik.enabled
+    # keeps the chart's tc-basic-secure-headers middleware.
+    route:
+      main:
+        enabled: true
+        primary: true
+        kind: HTTPRoute
+        gateway: internal
+        gatewayNamespace: traefik-internal
+        hostnames:
+          - ldap.${DOMAIN_0}
+        integrations:
+          traefik:
+            enabled: true

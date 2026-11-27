@@ -30,25 +30,6 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    ingress:
-      main:
-        enabled: true
-        primary: true
-        ingressClassName: traefik-internal
-        hosts:
-          - host: plex.${DOMAIN_0}
-            paths:
-              - path: /
-                pathType: Prefix
-        integrations:
-          certManager:
-            enabled: true
-            certificateIssuer: domain-0-le-prod
-          traefik:
-            enabled: true
-            entrypoints:
-              - websecure
-            middlewares: []
     service:
       main:
         type: LoadBalancer
@@ -59,6 +40,8 @@ spec:
     plex:
       # advertised to clients; the UDR forwards WAN 32400 here
       serverIP: ${PLEX_IP}
+      # the chart derives the plex.<domain> URLs from ingress.main; with the HTTPRoute they are set here
+      additionalAdvertiseURL: https://plex.${DOMAIN_0}:443,https://plex.${DOMAIN_0}:32400
       disableGDM: true
       requireHTTPS: false
     persistence:
@@ -139,3 +122,17 @@ spec:
       main:
         podSpec:
           runtimeClassName: nvidia
+    # Gateway API (migration/GATEWAY-API.md): TLS by the wildcard on the Gateway listener; integrations.traefik.enabled
+    # keeps the chart's tc-basic-secure-headers middleware.
+    route:
+      main:
+        enabled: true
+        primary: true
+        kind: HTTPRoute
+        gateway: internal
+        gatewayNamespace: traefik-internal
+        hostnames:
+          - plex.${DOMAIN_0}
+        integrations:
+          traefik:
+            enabled: true
