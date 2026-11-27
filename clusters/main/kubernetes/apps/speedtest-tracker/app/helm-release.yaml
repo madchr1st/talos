@@ -144,7 +144,8 @@ spec:
                 immediate: true
                 suspend: false
             retentionPolicy: 30d
-          pgVersion: 16
+            revision: "1" # new System ID after the major upgrade: new archive folder (serverName -r1)
+          pgVersion: 18
       valkey:
         persistence:
           data:
