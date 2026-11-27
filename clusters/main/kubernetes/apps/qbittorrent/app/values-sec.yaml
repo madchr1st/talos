@@ -2,35 +2,35 @@ addons:
     gluetun:
         container:
             env:
-                VPN_SERVICE_PROVIDER: ENC[AES256_GCM,data:YR7b+yMn,iv:Ixlu8x7aspY4TytxzpxYEozDiHQnwdZiwhh8Mq/BWVg=,tag:LDnzvdc9devnPZc7lNWiIQ==,type:str]
-                UPDATER_VPN_SERVICE_PROVIDERS: ENC[AES256_GCM,data:zkwKK1Zz,iv:EGN4UxTBgKFevPccRWnnLRERzJj/+aENSZ0xu6LP/4E=,tag:Ce81mS2gfhZ+i2ijlXlFdQ==,type:str]
-                SERVER_COUNTRIES: ENC[AES256_GCM,data:8VYrLhGi,iv:VMYLsc+dg+3Q2HOYvQ2Ofe9lOQbbi8qLk+Ox3M2oPLU=,tag:puAptIJWAHpqN0wejPsrrA==,type:str]
-                FIREWALL_VPN_INPUT_PORTS: ENC[AES256_GCM,data:P81q9tw=,iv:vkVp6B2Pr2k8sVAlUHffkSgeTSbVZf/hk0irQfzN50s=,tag:IxlQNEXpJHRFyvELJaVxVQ==,type:str]
-                WIREGUARD_ADDRESSES: ENC[AES256_GCM,data:v3Yd2VJRwF73dwEZ5zIfsw==,iv:r2JITDbHOY7+7r7Yaiy/8U4lswqL4nXkadeb31yNWAs=,tag:MiUAtVzFib/GT6khoRfs2Q==,type:str]
-                WIREGUARD_PRIVATE_KEY: ENC[AES256_GCM,data:3d8j/sJIQ84bVcsNCZwa2Xt4JiYHzV+GTwR0LGqdu8dAOh+MhZh/umLRFbk=,iv:iNt+Efk/sZ1vUreDV8ypLQOLpzTnPQM0GPKSwoY5cLk=,tag:eiBeGB5J9AlSYW48g5XXYw==,type:str]
-                WIREGUARD_PRESHARED_KEY: ENC[AES256_GCM,data:cat21CJzAUV5u5UKip2gib6WigqchgA+dnvyThASQesWV9XXHhIaQM7hh6w=,iv:BandEmqlfBX2+4JP65GiX9aqFvHeUSWH0MOPAh4F/5Y=,tag:6bpEZ1XhoZCHp3LoPQLfjA==,type:str]
+                VPN_SERVICE_PROVIDER: ENC[AES256_GCM,data:X8Kjlbfm,iv:tZMh9GrdbSXyU+GJe0hsjgUJpzOdqHYjLqTSIOCMneo=,tag:ZY9VbZHR2i2jQJCW3NZy3g==,type:str]
+                UPDATER_VPN_SERVICE_PROVIDERS: ENC[AES256_GCM,data:HmCdF2Yf,iv:G0FNfUCAM1aQeg98IuKwv2Ikkzcg5s4i2nzweOwH6Sc=,tag:yrsirJLHb9HLRDU/UW+q2g==,type:str]
+                SERVER_COUNTRIES: ENC[AES256_GCM,data:9MgEhbVV,iv:aWehB1vqPrCsDLvAgP60Ba/gFeyeG6kid4ojI4iK9GE=,tag:QzlApj9kc4DhvamTPGL9LQ==,type:str]
+                FIREWALL_VPN_INPUT_PORTS: ENC[AES256_GCM,data:NWf8iYw=,iv:vwx2LrCpBAOKZsQRi960ihFqY+IgpX91Jzwi6WNT+hM=,tag:tzX/yF7WhyK6o5f44hCwpg==,type:str]
+                WIREGUARD_ADDRESSES: ENC[AES256_GCM,data:5EILrKugpp1sEv/wu5zuhw==,iv:7JTHG4BYQevPX8qqcjzNt1N0zL4azqfMzl7KGzL+D/k=,tag:DbmVvAKvYz/SaXv68PZxGw==,type:str]
+                WIREGUARD_PRIVATE_KEY: ENC[AES256_GCM,data:+nh4LU03iIZfYNyeHohot3/lSFDIl/i0cLHiISdPttAXxd8+E93WXCrnjOE=,iv:+8BvpU9mh2UQkYvTaRhLYt8kBc80XJH3NUJf9q8t+Qw=,tag:Sj97rmkdlULps0HLqAAP3g==,type:str]
+                WIREGUARD_PRESHARED_KEY: ENC[AES256_GCM,data:atU/IG1Z0x4IYf+Gq3SqUJ42NyCbmuOnNvTwkLA05agB+JPYW74ek06GZ6A=,iv:n7hJNpMoCK1nhs021iX7gKjQyCmsSioA3X76BmR2WRc=,tag:QQbPXBPTfLerabp1PcWj7A==,type:str]
 # QBT_TORRENTING_PORT is derived from the torrent port: keep it = FIREWALL_VPN_INPUT_PORTS = VPN forwarded port
 service:
     torrent:
         ports:
             torrent:
-                port: ENC[AES256_GCM,data:zXLIjjY=,iv:wbuK59+EgN27qnr9SEJnSCCsK+2bvsUsziWBa6GfRbk=,tag:sb/3tQ9IGjNHu+vdweK7FA==,type:int]
+                port: ENC[AES256_GCM,data:H2fdleo=,iv:e+LoYmFB2WmQDmljIwarpMxe2RcJSR6g50vJEKxz6PQ=,tag:ypQa1Gw085FVHhW5pf1o8g==,type:int]
 qbitportforward:
-    QBT_USERNAME: ENC[AES256_GCM,data:DfXH,iv:GmE/7usLoQddnxKAA/8e27Ki+u8GeKWXAKzAxzDz7s4=,tag:UOEGtYjR4Fb4r16uZGijuQ==,type:str]
-    QBT_PASSWORD: ENC[AES256_GCM,data:FMUK4vub,iv:YCRsipHytdvi0vUNnN4DxQrkOMV5w/hLMhBmVVGlC8s=,tag:u/hUiQkYuf7kOTGyfEIaVA==,type:str]
+    QBT_USERNAME: ENC[AES256_GCM,data:qO92,iv:iDahYAGr1GOmVmQy94NGNdBsC7U0sdy8RLiMoUW1POE=,tag:AjRjFBNrzXz06Joubm50kw==,type:str]
+    QBT_PASSWORD: ENC[AES256_GCM,data:pwu3YE32,iv:Mp5sOVVunvnUlAYbPnIskp07I2gWDAb6ycSshsEKHRA=,tag:fFCrepXHeRC/IyCUGsBYCA==,type:str]
 sops:
     age:
         - enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBSUUNjbTJKNll1RVVDRHpt
-            RkRpWi9UcEt3eDlnUCsyTjhyNE9ZMWk2aVNjCmd2a3ZVcE84SFJRaW9zeUZsbjIz
-            ZkVaRHFwQzczcTJ4VlRKZzFPRytScWcKLS0tIFE0Rm1FMjdqOFdveFN3Z3RhNmUw
-            cmliY0paSDMrakxqTXROOE95cUQyTjQKVyt679CW7AL9CcL7YjvFSAvItt5f0710
-            lzb4Fz6WTrOywvhbGAyX3JE1m7NLPFp+fsnFwnO7sy0IrQkTnByMWQ==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA2ZFZ6T1l2QTlIYUh6a1NX
+            NmttWUFnUnJGSVBOdFFPWjk3RGo0dTVIR3hJCnd4TW1yWk9OZGo0S0VTckhCVzI2
+            NitFbkk4RjNBQ0dKcWVzUHZTNWxXUzQKLS0tIHlIdXRRTmFvTXpyczRFNWVNcmRm
+            SWhzUTl4RjFJckdQSzVyQmpNODNoM00Kd8V0WhyuSMAJxtyE0spxVgHpXvyEMkbT
+            /AW8Gv//3Xvb2/avlaJFHsUjSRAFuazllYKrASF22gGu9/bdMvwdxg==
             -----END AGE ENCRYPTED FILE-----
           recipient: age1uaud96tmvkrmct5ssh20a4dwqy825ru5tqsdp8hu3syxlp4p9glqkamlya
     encrypted_regex: .
-    lastmodified: "2026-11-26T09:12:45Z"
-    mac: ENC[AES256_GCM,data:52oNdvpMIcYgrGpCsoi6o3sgd77ekyHwsaDO1OwXsvKfwRgRl52J5DtsaonCyAZg0IaJRyrPYLmL0EjGqpOX0wPr5glaEhE4w8SFQH5DusL7uprNjYq5emYbRf6eG+7SNWR1RnYuAzoSRsa37cnlBTwGv3cEZJ0COGSNfzm/dSU=,iv:I7cbyE1aFld8WhklJHqSHzuo8ujBPwYRBvc196xF+JI=,tag:AAqD/D4z0Hkg2Il2Q05GBA==,type:str]
+    lastmodified: "2026-11-27T07:11:40Z"
+    mac: ENC[AES256_GCM,data:min6/nngnNHsXLe4BRLYoQQTFu5U3o6YZONo2/O2LufyhnpBYyYfGd99yaK+qtFCtDg+SoMw2OVi3Hn5jUiRIi9MIDVeJQXmhir7/+qpJtav2wkJeTWcON/6ND6k/WdfdgfQS5PhnLeqqurZuoSS50dLpXCkIgAWyEVIjlGjgIw=,iv:UEPHdZZ4uaq0h4RaS/wKAuxBAQKykk+RU4CB0sgROSE=,tag:6rjm4JNHck/NfBC12NSAzA==,type:str]
     shamir_threshold: 3
     version: 3.13.1
