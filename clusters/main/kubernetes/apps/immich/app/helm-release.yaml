@@ -38,42 +38,6 @@ spec:
         accessKey: ${CNPG_BACKUP_AWS_S3_ACCESS_KEY}
         secretKey: ${CNPG_BACKUP_AWS_S3_SECRET_KEY}
         encrKey: ${CNPG_BACKUP_AWS_S3_ENCRYPTION_KEY}
-    ingress:
-      main:
-        enabled: true
-        primary: true
-        ingressClassName: traefik-internal
-        hosts:
-          - host: photos.${DOMAIN_0}
-            paths:
-              - path: /
-                pathType: Prefix
-        integrations:
-          certManager:
-            enabled: true
-            certificateIssuer: domain-0-le-prod
-          traefik:
-            enabled: true
-            entrypoints:
-              - websecure
-            middlewares: []
-      ext:
-        enabled: true
-        ingressClassName: traefik-external
-        hosts:
-          - host: photos.${DOMAIN_0}
-            paths:
-              - path: /
-                pathType: Prefix
-        integrations:
-          certManager:
-            enabled: true
-            certificateIssuer: domain-0-le-prod
-          traefik:
-            enabled: true
-            entrypoints:
-              - websecure
-            middlewares: []
     persistence:
       # photos/videos stay on the NAS (as on K3s), uid 1000
       library:
@@ -195,3 +159,27 @@ spec:
             size: 1Gi
         depconfig:
           password: ${VALKEY_IMMICH_PASSWORD}
+    # Gateway API (migration/GATEWAY-API.md): TLS by the wildcard on the Gateway listener; integrations.traefik.enabled
+    # keeps the chart's tc-basic-secure-headers middleware. Authelia: namespace-local middleware copy (ingressMiddlewares).
+    route:
+      main:
+        enabled: true
+        kind: HTTPRoute
+        gateway: internal
+        gatewayNamespace: traefik-internal
+        hostnames:
+          - photos.${DOMAIN_0}
+        integrations:
+          traefik:
+            enabled: true
+      ext:
+        enabled: true
+        primary: false
+        kind: HTTPRoute
+        gateway: external
+        gatewayNamespace: traefik-external
+        hostnames:
+          - photos.${DOMAIN_0}
+        integrations:
+          traefik:
+            enabled: true
