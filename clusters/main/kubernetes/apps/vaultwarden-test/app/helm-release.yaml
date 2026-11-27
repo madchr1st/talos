@@ -229,8 +229,8 @@ spec:
           pooler:
             enabled: false
     # Gateway API pilot (migration/GATEWAY-API.md): HTTPRoutes on the internal/external Gateway, TLS by the
-    # wildcard certificate on the Gateway listener. Each route gets its own Authelia forward-auth middleware
-    # (a route can only use middlewares in its own namespace). Rollback: ingress.*.enabled true, route.* false.
+    # wildcard certificate on the Gateway listener. Authelia via the namespace-local middleware below (a route
+    # can only use middlewares in its own namespace). Rollback: ingress.*.enabled true, route.* false.
     route:
       main:
         enabled: true
@@ -242,9 +242,8 @@ spec:
         integrations:
           traefik:
             enabled: true
-            auth:
-              type: authelia
-              internalHost: authelia.authelia.svc.cluster.local:9091
+            middlewares:
+              - name: forward-auth-authelia
       ext:
         enabled: true
         primary: false
@@ -256,6 +255,20 @@ spec:
         integrations:
           traefik:
             enabled: true
-            auth:
-              type: authelia
-              internalHost: authelia.authelia.svc.cluster.local:9091
+            middlewares:
+              - name: forward-auth-authelia
+    # Copy of authelia/forward-auth-authelia for the routes. Not the chart's auth.type integration: it hardcodes
+    # trustForwardHeader: true; false keeps Authelia's view independent of any client-supplied X-Forwarded-* header.
+    ingressMiddlewares:
+      traefik:
+        forward-auth-authelia:
+          enabled: true
+          type: forward-auth
+          data:
+            address: http://authelia.authelia.svc.cluster.local:9091/api/authz/forward-auth
+            trustForwardHeader: false
+            authResponseHeaders:
+              - Remote-User
+              - Remote-Groups
+              - Remote-Name
+              - Remote-Email
