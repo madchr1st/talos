@@ -118,6 +118,14 @@ spec:
             port: 10102
             targetPort: 8080
         type: ClusterIP
+    # chart derives DOMAIN from ingress.main (placeholder.com without it); needed for Duo/WebAuthn/mail links
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                DOMAIN: https://bitwarden-test.${DOMAIN_0}
     vaultwarden:
       admin:
         disableAdminToken: false
