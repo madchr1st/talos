@@ -63,22 +63,6 @@ spec:
                 http_config:
                   authorization:
                     credentials_file: /etc/alertmanager/secrets/alertmanager-ntfy/token
-      # UI behind Authelia (dedicated rule without the /api bypass: the API can create silences)
-      ingress:
-        enabled: true
-        ingressClassName: traefik-internal
-        annotations:
-          cert-manager.io/cluster-issuer: domain-0-le-prod
-          traefik.ingress.kubernetes.io/router.entrypoints: websecure
-          traefik.ingress.kubernetes.io/router.middlewares: authelia-forward-auth-authelia@kubernetescrd
-        hosts:
-          - alertmanager.${DOMAIN_0}
-        paths:
-          - /
-        tls:
-          - secretName: alertmanager-tls
-            hosts:
-              - alertmanager.${DOMAIN_0}
       alertmanagerSpec:
         # links in notifications (the chart would derive http://)
         externalUrl: https://alertmanager.${DOMAIN_0}/
@@ -88,6 +72,23 @@ spec:
           requests:
             cpu: 10m
             memory: 64Mi
+      # UI behind Authelia (dedicated rule without the /api bypass: the API can create silences)
+      route:
+        # Gateway API (migration/GATEWAY-API.md): TLS by the wildcard on the internal Gateway listener
+        main:
+          enabled: true
+          hostnames:
+            - alertmanager.${DOMAIN_0}
+          parentRefs:
+            - name: internal
+              namespace: traefik-internal
+          filters:
+            # Authelia: copy in this namespace (networking/traefik-internal/app/routes.yaml)
+            - type: ExtensionRef
+              extensionRef:
+                group: traefik.io
+                kind: Middleware
+                name: forward-auth-authelia
     # kube-apiserver-availability.rules (30-day SLO recording) needs ~200 s per run on this node (interval 180 s) and
     # fails permanently -> PrometheusRuleFailures. Only feeds the availability panel of the API server dashboard.
     defaultRules:
@@ -100,22 +101,6 @@ spec:
     kubeProxy:
       enabled: false
     prometheus:
-      # UI behind Authelia (dedicated rule without the /api bypass: the admin API is enabled)
-      ingress:
-        enabled: true
-        ingressClassName: traefik-internal
-        annotations:
-          cert-manager.io/cluster-issuer: domain-0-le-prod
-          traefik.ingress.kubernetes.io/router.entrypoints: websecure
-          traefik.ingress.kubernetes.io/router.middlewares: authelia-forward-auth-authelia@kubernetescrd
-        hosts:
-          - prometheus.${DOMAIN_0}
-        paths:
-          - /
-        tls:
-          - secretName: prometheus-tls
-            hosts:
-              - prometheus.${DOMAIN_0}
       prometheusSpec:
         # generatorURL of every alert ("Source:" link in the ntfy message) -> the UI behind traefik-internal (LAN/VPN)
         externalUrl: https://prometheus.${DOMAIN_0}/
@@ -152,6 +137,23 @@ spec:
                 requests:
                   storage: 60Gi
               storageClassName: truenas-iscsi
+      # UI behind Authelia (dedicated rule without the /api bypass: the admin API is enabled)
+      route:
+        # Gateway API (migration/GATEWAY-API.md): TLS by the wildcard on the internal Gateway listener
+        main:
+          enabled: true
+          hostnames:
+            - prometheus.${DOMAIN_0}
+          parentRefs:
+            - name: internal
+              namespace: traefik-internal
+          filters:
+            # Authelia: copy in this namespace (networking/traefik-internal/app/routes.yaml)
+            - type: ExtensionRef
+              extensionRef:
+                group: traefik.io
+                kind: Middleware
+                name: forward-auth-authelia
     prometheus-node-exporter:
       fullnameOverride: node-exporter
       prometheus:

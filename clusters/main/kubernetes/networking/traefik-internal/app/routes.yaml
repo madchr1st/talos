@@ -1,0 +1,63 @@
+# Gateway API pieces for the non-TrueCharts apps on the internal Gateway (migration/GATEWAY-API.md).
+# Here and not next to the apps: Middleware needs the Traefik CRDs, which kube-system/system are applied before.
+#   hubble-ui (cilium chart has no route option): HTTPRoute below
+#   prometheus, alertmanager: HTTPRoutes from the kube-prometheus-stack chart (prometheus/alertmanager.route.main)
+# A route can only use middlewares in its own namespace: copies of authelia/forward-auth-authelia.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: forward-auth-authelia
+  namespace: kube-prometheus-stack
+spec:
+  forwardAuth:
+    address: http://authelia.authelia.svc.cluster.local:9091/api/authz/forward-auth
+    trustForwardHeader: false
+    authResponseHeaders:
+      - Remote-User
+      - Remote-Groups
+      - Remote-Name
+      - Remote-Email
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: forward-auth-authelia
+  namespace: kube-system
+spec:
+  forwardAuth:
+    address: http://authelia.authelia.svc.cluster.local:9091/api/authz/forward-auth
+    trustForwardHeader: false
+    authResponseHeaders:
+      - Remote-User
+      - Remote-Groups
+      - Remote-Name
+      - Remote-Email
+---
+# Hubble UI (LAN/tailnet), behind Authelia (dedicated rules ahead of its global /api bypass: the UI reads all flows via /api)
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: hubble-ui
+  namespace: kube-system
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: internal
+      namespace: traefik-internal
+  hostnames:
+    - hubble.${DOMAIN_0}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: forward-auth-authelia
+      backendRefs:
+        - name: hubble-ui
+          port: 80
