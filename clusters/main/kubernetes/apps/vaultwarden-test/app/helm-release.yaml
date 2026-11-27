@@ -43,7 +43,7 @@ spec:
       wal: true
     ingress:
       main:
-        enabled: true
+        enabled: false
         hosts:
           - host: bitwarden-test.${DOMAIN_0}
             paths:
@@ -64,7 +64,7 @@ spec:
                 namespace: authelia
                 expandObjectName: false
       ext:
-        enabled: true
+        enabled: false
         hosts:
           - host: bitwarden-test.${DOMAIN_0}
             paths:
@@ -228,3 +228,34 @@ spec:
           pgVersion: 16
           pooler:
             enabled: false
+    # Gateway API pilot (migration/GATEWAY-API.md): HTTPRoutes on the internal/external Gateway, TLS by the
+    # wildcard certificate on the Gateway listener. Each route gets its own Authelia forward-auth middleware
+    # (a route can only use middlewares in its own namespace). Rollback: ingress.*.enabled true, route.* false.
+    route:
+      main:
+        enabled: true
+        kind: HTTPRoute
+        gateway: internal
+        gatewayNamespace: traefik-internal
+        hostnames:
+          - bitwarden-test.${DOMAIN_0}
+        integrations:
+          traefik:
+            enabled: true
+            auth:
+              type: authelia
+              internalHost: authelia.authelia.svc.cluster.local:9091
+      ext:
+        enabled: true
+        primary: false
+        kind: HTTPRoute
+        gateway: external
+        gatewayNamespace: traefik-external
+        hostnames:
+          - bitwarden-test.${DOMAIN_0}
+        integrations:
+          traefik:
+            enabled: true
+            auth:
+              type: authelia
+              internalHost: authelia.authelia.svc.cluster.local:9091
