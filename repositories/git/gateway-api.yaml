@@ -1,0 +1,19 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/source.toolkit.fluxcd.io/gitrepository_v1.json
+# Gateway API CRDs (standard channel). The Traefik chart no longer ships them; Traefik >= 3.8 needs >= v1.7.0.
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: gateway-api
+  namespace: flux-system
+spec:
+  interval: 1h
+  url: https://github.com/kubernetes-sigs/gateway-api
+  ref:
+    tag: v1.7.0
+  ignore: |
+    # exclude all
+    /*
+    # include only the CRD kustomization (standard channel + safe-upgrades policy)
+    !/config/crd/kustomization.yaml
+    !/config/crd/standard
