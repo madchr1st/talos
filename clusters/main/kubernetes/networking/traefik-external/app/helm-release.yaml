@@ -69,7 +69,7 @@ spec:
         ingressClass: traefik-external
       kubernetesGateway:
         # -- Enable Traefik Gateway provider for Gateway API
-        enabled: false
+        enabled: true
     # tlsStore: 
     #   default:
     #     defaultCertificate:
@@ -110,3 +110,24 @@ spec:
       requests:
         cpu: 50m
         memory: 64Mi
+    gatewayClass:
+      enabled: true
+      name: traefik-external
+    gateway:
+      enabled: true
+      name: external
+      listeners:
+        web:
+          port: 8000
+          protocol: HTTP
+          namespacePolicy:
+            from: All
+        websecure:
+          port: 8443
+          hostname: '*.${DOMAIN_0}'
+          protocol: HTTPS
+          mode: Terminate
+          namespacePolicy:
+            from: All
+          certificateRefs:
+            - name: certificate-issuer-domain-0-wildcard
