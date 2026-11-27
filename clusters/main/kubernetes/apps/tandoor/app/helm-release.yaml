@@ -63,7 +63,7 @@ spec:
               - websecure
             middlewares: []
       ext:
-        enabled: false
+        enabled: true
         ingressClassName: traefik-external
         hosts:
           - host: tandoor.${DOMAIN_0}
@@ -167,8 +167,10 @@ spec:
         integrations:
           traefik:
             enabled: true # adds the chart's tc-basic-secure-headers middleware (X-Forwarded-Proto, HSTS)
+      # external stays on the Ingress until all external apps move together: Cloudflare reuses one origin
+      # connection for several hosts, Traefik answers 421 when Ingress and Gateway hosts mix (migration/GATEWAY-API.md)
       ext:
-        enabled: true
+        enabled: false
         primary: false
         kind: HTTPRoute
         gateway: external
