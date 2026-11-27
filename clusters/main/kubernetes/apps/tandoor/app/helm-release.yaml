@@ -64,6 +64,7 @@ spec:
             middlewares: []
       ext:
         enabled: true
+        primary: true # main is off (HTTPRoute); one enabled Ingress must be primary
         ingressClassName: traefik-external
         hosts:
           - host: tandoor.${DOMAIN_0}
