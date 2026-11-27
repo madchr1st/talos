@@ -4,3 +4,4 @@ resources:
   - dashboards.yaml
   - helm-release.yaml
   - namespace.yaml
+  - routes.yaml
