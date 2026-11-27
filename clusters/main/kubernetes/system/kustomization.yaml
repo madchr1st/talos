@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - cert-manager/ks.yaml
   - cloudnative-pg/ks.yaml
+  - gateway-api/ks.yaml
   - kube-prometheus-stack/ks.yaml
   - krr/ks.yaml
   - kubernetes-reflector/ks.yaml
