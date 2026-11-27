@@ -30,7 +30,7 @@ spec:
     monitoring:
       podMonitorEnabled: true
       grafanaDashboard:
-        create: true
+        create: false # patched copy in apps/grafana/app/dashboards/cloudnative-pg.json
     resources:
       requests:
         cpu: 10m

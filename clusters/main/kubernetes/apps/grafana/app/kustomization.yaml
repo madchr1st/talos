@@ -14,6 +14,9 @@ configMapGenerator:
   - name: grafana-dashboards-custom
     namespace: grafana
     files:
+      # stock CloudNativePG dashboard (operator chart 0.29.2, grafanaDashboard.create off there), patched:
+      # backup panels read the Barman Cloud plugin metrics, default range 24h (7d was slow)
+      - dashboards/cloudnative-pg.json
       - dashboards/media-dashboard.json
       - dashboards/nvidia-gpu-metrics.json
       - dashboards/speedtest-custom.json
