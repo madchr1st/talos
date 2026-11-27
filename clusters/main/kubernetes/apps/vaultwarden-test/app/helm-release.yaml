@@ -43,7 +43,7 @@ spec:
       wal: true
     ingress:
       main:
-        enabled: false
+        enabled: true
         hosts:
           - host: bitwarden-test.${DOMAIN_0}
             paths:
@@ -64,7 +64,7 @@ spec:
                 namespace: authelia
                 expandObjectName: false
       ext:
-        enabled: false
+        enabled: true
         hosts:
           - host: bitwarden-test.${DOMAIN_0}
             paths:
@@ -233,7 +233,7 @@ spec:
     # can only use middlewares in its own namespace). Rollback: ingress.*.enabled true, route.* false.
     route:
       main:
-        enabled: true
+        enabled: false
         kind: HTTPRoute
         gateway: internal
         gatewayNamespace: traefik-internal
@@ -245,7 +245,7 @@ spec:
             middlewares:
               - name: forward-auth-authelia
       ext:
-        enabled: true
+        enabled: false
         primary: false
         kind: HTTPRoute
         gateway: external
