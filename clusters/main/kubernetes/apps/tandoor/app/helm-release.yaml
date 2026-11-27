@@ -43,6 +43,43 @@ spec:
         accessKey: ${CNPG_BACKUP_AWS_S3_ACCESS_KEY}
         secretKey: ${CNPG_BACKUP_AWS_S3_SECRET_KEY}
         encrKey: ${CNPG_BACKUP_AWS_S3_ENCRYPTION_KEY}
+    ingress:
+      main:
+        enabled: false
+        primary: true
+        ingressClassName: traefik-internal
+        hosts:
+          - host: tandoor.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+        integrations:
+          certManager:
+            enabled: true
+            certificateIssuer: domain-0-le-prod
+          traefik:
+            enabled: true
+            entrypoints:
+              - websecure
+            middlewares: []
+      ext:
+        enabled: true
+        primary: true # main is off (HTTPRoute); one enabled Ingress must be primary
+        ingressClassName: traefik-external
+        hosts:
+          - host: tandoor.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+        integrations:
+          certManager:
+            enabled: true
+            certificateIssuer: domain-0-le-prod
+          traefik:
+            enabled: true
+            entrypoints:
+              - websecure
+            middlewares: []
     persistence:
       media:
         enabled: true
@@ -130,9 +167,11 @@ spec:
           - tandoor.${DOMAIN_0}
         integrations:
           traefik:
-            enabled: true
+            enabled: true # adds the chart's tc-basic-secure-headers middleware (X-Forwarded-Proto, HSTS)
+      # external stays on the Ingress until all external apps move together: Cloudflare reuses one origin
+      # connection for several hosts, Traefik answers 421 when Ingress and Gateway hosts mix (migration/GATEWAY-API.md)
       ext:
-        enabled: true
+        enabled: false
         primary: false
         kind: HTTPRoute
         gateway: external
@@ -141,4 +180,4 @@ spec:
           - tandoor.${DOMAIN_0}
         integrations:
           traefik:
-            enabled: true
+            enabled: true # adds the chart's tc-basic-secure-headers middleware (X-Forwarded-Proto, HSTS)

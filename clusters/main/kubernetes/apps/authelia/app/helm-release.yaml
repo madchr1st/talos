@@ -45,6 +45,44 @@ spec:
         accessKey: ${CNPG_BACKUP_AWS_S3_ACCESS_KEY}
         secretKey: ${CNPG_BACKUP_AWS_S3_SECRET_KEY}
         encrKey: ${CNPG_BACKUP_AWS_S3_ENCRYPTION_KEY}
+    ingress:
+      ext:
+        enabled: true
+        hosts:
+          - host: sso.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+        ingressClassName: traefik-external
+        integrations:
+          certManager:
+            certificateIssuer: domain-0-le-prod
+            enabled: true
+          traefik:
+            enabled: true
+            entrypoints:
+              - websecure
+            middlewares: []
+        required: true
+      main:
+        enabled: true
+        primary: true
+        hosts:
+          - host: sso.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+        ingressClassName: traefik-internal
+        integrations:
+          certManager:
+            certificateIssuer: domain-0-le-prod
+            enabled: true
+          traefik:
+            enabled: true
+            entrypoints:
+              - websecure
+            middlewares: []
+        required: true
     persistence:
       config:
         autoPermissions:
@@ -139,27 +177,3 @@ spec:
             size: 1Gi
         depconfig:
           password: ${VALKEY_AUTHELIA_PASSWORD}
-    # Gateway API (migration/GATEWAY-API.md): TLS by the wildcard on the Gateway listener; integrations.traefik.enabled
-    # keeps the chart's tc-basic-secure-headers middleware. Authelia: namespace-local middleware copy (ingressMiddlewares).
-    route:
-      ext:
-        enabled: true
-        primary: false
-        kind: HTTPRoute
-        gateway: external
-        gatewayNamespace: traefik-external
-        hostnames:
-          - sso.${DOMAIN_0}
-        integrations:
-          traefik:
-            enabled: true
-      main:
-        enabled: true
-        kind: HTTPRoute
-        gateway: internal
-        gatewayNamespace: traefik-internal
-        hostnames:
-          - sso.${DOMAIN_0}
-        integrations:
-          traefik:
-            enabled: true

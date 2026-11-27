@@ -33,6 +33,41 @@ spec:
     image:
       repository: oci.trueforge.org/containerforge/jellyfin
       pullPolicy: IfNotPresent
+    ingress:
+      main:
+        enabled: true
+        hosts:
+          - host: jellyfin.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+        ingressClassName: traefik-internal
+        integrations:
+          certManager:
+            certificateIssuer: domain-0-le-prod
+            enabled: true
+          traefik:
+            enabled: true
+            entrypoints:
+              - websecure
+            middlewares: []
+      ext:
+        enabled: true
+        hosts:
+          - host: jellyfin.${DOMAIN_0}
+            paths:
+              - path: /
+                pathType: Prefix
+        ingressClassName: traefik-external
+        integrations:
+          certManager:
+            certificateIssuer: domain-0-le-prod
+            enabled: true
+          traefik:
+            enabled: true
+            entrypoints:
+              - websecure
+            middlewares: []
     persistence:
       cache:
         enabled: true
@@ -141,27 +176,3 @@ spec:
               - namespaceSelector:
                   matchLabels:
                     policy-group/monitoring: "true"
-    # Gateway API (migration/GATEWAY-API.md): TLS by the wildcard on the Gateway listener; integrations.traefik.enabled
-    # keeps the chart's tc-basic-secure-headers middleware. Authelia: namespace-local middleware copy (ingressMiddlewares).
-    route:
-      main:
-        enabled: true
-        kind: HTTPRoute
-        gateway: internal
-        gatewayNamespace: traefik-internal
-        hostnames:
-          - jellyfin.${DOMAIN_0}
-        integrations:
-          traefik:
-            enabled: true
-      ext:
-        enabled: true
-        primary: false
-        kind: HTTPRoute
-        gateway: external
-        gatewayNamespace: traefik-external
-        hostnames:
-          - jellyfin.${DOMAIN_0}
-        integrations:
-          traefik:
-            enabled: true
