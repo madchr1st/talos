@@ -33,7 +33,7 @@ spec:
     TZ: Europe/Zurich
     ingress:
       main:
-        enabled: true
+        enabled: false
         primary: true
         ingressClassName: traefik-internal
         hosts:
@@ -323,3 +323,32 @@ spec:
               - namespaceSelector:
                   matchLabels:
                     policy-group/monitoring: "true"
+    # Gateway API (migration/GATEWAY-API.md): HTTPRoute on the internal Gateway, TLS by its wildcard listener.
+    # A route can only use middlewares in its own namespace: local copy of authelia/forward-auth-authelia below.
+    route:
+      main:
+        enabled: true
+        kind: HTTPRoute
+        gateway: internal
+        gatewayNamespace: traefik-internal
+        hostnames:
+          - homepage.${DOMAIN_0}
+        integrations:
+          traefik:
+            enabled: true
+            middlewares:
+              - name: forward-auth-authelia
+    # not the chart's auth.type integration: it hardcodes trustForwardHeader: true
+    ingressMiddlewares:
+      traefik:
+        forward-auth-authelia:
+          enabled: true
+          type: forward-auth
+          data:
+            address: http://authelia.authelia.svc.cluster.local:9091/api/authz/forward-auth
+            trustForwardHeader: false
+            authResponseHeaders:
+              - Remote-User
+              - Remote-Groups
+              - Remote-Name
+              - Remote-Email
