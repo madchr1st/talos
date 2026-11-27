@@ -60,6 +60,9 @@ spec:
     providers:
       kubernetesCRD:
         enabled: true
+        # both instances watch all namespaces and would see both `default` TLSOptions: Traefik then drops both
+        # ("Default TLS Options defined in multiple namespaces") and silently uses its built-in defaults
+        defaultTLSResourcesNamespace: traefik-external
         allowCrossNamespace: true
         allowExternalNameServices: true
         ingressClass: traefik-external
