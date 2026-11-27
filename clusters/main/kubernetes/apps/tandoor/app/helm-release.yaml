@@ -45,7 +45,7 @@ spec:
         encrKey: ${CNPG_BACKUP_AWS_S3_ENCRYPTION_KEY}
     ingress:
       main:
-        enabled: true
+        enabled: false
         primary: true
         ingressClassName: traefik-internal
         hosts:
@@ -63,7 +63,7 @@ spec:
               - websecure
             middlewares: []
       ext:
-        enabled: true
+        enabled: false
         ingressClassName: traefik-external
         hosts:
           - host: tandoor.${DOMAIN_0}
@@ -155,3 +155,26 @@ spec:
                 immediate: true
                 suspend: false
             retentionPolicy: 30d
+    # Gateway API (migration/GATEWAY-API.md): HTTPRoutes on the internal/external Gateway, TLS by their wildcard listener.
+    route:
+      main:
+        enabled: true
+        kind: HTTPRoute
+        gateway: internal
+        gatewayNamespace: traefik-internal
+        hostnames:
+          - tandoor.${DOMAIN_0}
+        integrations:
+          traefik:
+            enabled: true # adds the chart's tc-basic-secure-headers middleware (X-Forwarded-Proto, HSTS)
+      ext:
+        enabled: true
+        primary: false
+        kind: HTTPRoute
+        gateway: external
+        gatewayNamespace: traefik-external
+        hostnames:
+          - tandoor.${DOMAIN_0}
+        integrations:
+          traefik:
+            enabled: true # adds the chart's tc-basic-secure-headers middleware (X-Forwarded-Proto, HSTS)
