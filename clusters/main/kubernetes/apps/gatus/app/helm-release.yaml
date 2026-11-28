@@ -266,6 +266,14 @@ spec:
                   - "[STATUS] == 200"
                 alerts:
                   - type: ntfy
+              - name: Flux
+                group: Infra
+                url: "http://flux-operator.flux-system.svc.cluster.local:9080/"
+                interval: 2m
+                conditions:
+                  - "[STATUS] == 200"
+                alerts:
+                  - type: ntfy
               - name: Headlamp
                 group: Infra
                 url: "http://headlamp.headlamp.svc.cluster.local:80/"

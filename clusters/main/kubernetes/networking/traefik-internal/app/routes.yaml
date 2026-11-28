@@ -1,5 +1,6 @@
 # Gateway API pieces for the non-TrueCharts apps on the internal Gateway (migration/GATEWAY-API.md).
 # Here and not next to the apps: Middleware needs the Traefik CRDs, which kube-system/system are applied before.
+#   flux-operator web UI (chart route has no filters): HTTPRoute below
 #   hubble-ui (cilium chart has no route option): HTTPRoute below
 #   prometheus, alertmanager: HTTPRoutes from the kube-prometheus-stack chart (prometheus/alertmanager.route.main)
 # A route can only use middlewares in its own namespace: copies of authelia/forward-auth-authelia.
@@ -8,6 +9,21 @@ kind: Middleware
 metadata:
   name: forward-auth-authelia
   namespace: kube-prometheus-stack
+spec:
+  forwardAuth:
+    address: http://authelia.authelia.svc.cluster.local:9091/api/authz/forward-auth
+    trustForwardHeader: false
+    authResponseHeaders:
+      - Remote-User
+      - Remote-Groups
+      - Remote-Name
+      - Remote-Email
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: forward-auth-authelia
+  namespace: flux-system
 spec:
   forwardAuth:
     address: http://authelia.authelia.svc.cluster.local:9091/api/authz/forward-auth
@@ -32,6 +48,35 @@ spec:
       - Remote-Groups
       - Remote-Name
       - Remote-Email
+---
+# Flux web UI (LAN/tailnet), behind Authelia (dedicated rules ahead of its global /api bypass: the UI's actions use /api)
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: flux-operator
+  namespace: flux-system
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: internal
+      namespace: traefik-internal
+  hostnames:
+    - flux.${DOMAIN_0}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: forward-auth-authelia
+      backendRefs:
+        - name: flux-operator
+          port: 9080
 ---
 # Hubble UI (LAN/tailnet), behind Authelia (dedicated rules ahead of its global /api bypass: the UI reads all flows via /api)
 apiVersion: gateway.networking.k8s.io/v1

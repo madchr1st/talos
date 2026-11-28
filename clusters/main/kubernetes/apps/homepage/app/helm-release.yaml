@@ -241,6 +241,12 @@ spec:
                     description: Internet speed
                     namespace: speedtest-tracker
                     app: speedtest-tracker
+                - Flux:
+                    href: https://flux.${DOMAIN_0}
+                    icon: flux-cd.png
+                    description: GitOps
+                    namespace: flux-system
+                    app: flux-operator
                 - Headlamp:
                     href: https://headlamp.${DOMAIN_0}
                     icon: headlamp.png

@@ -1,0 +1,16 @@
+---
+# Permissions of the web UI's anonymous identity (helm-release.yaml: web.config.authentication).
+# flux-web-admin (created by the chart): read-only on everything (the UI never shows Secret/ConfigMap data), plus the
+# actions reconcile/suspend/resume/download on Flux objects and restart/delete on workloads.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: flux-web-anonymous
+subjects:
+  - kind: Group
+    name: flux-web-anonymous
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: flux-web-admin
+  apiGroup: rbac.authorization.k8s.io

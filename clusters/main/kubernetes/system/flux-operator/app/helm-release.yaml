@@ -1,0 +1,53 @@
+---
+# Flux Operator, only for its web UI (https://fluxoperator.dev/web-ui/) on Flux installed by ForgeTool/bootstrap.
+# No FluxInstance exists, so the operator does not manage Flux; it only builds the FluxReport the UI reads.
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: flux-operator
+  namespace: flux-system
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: flux-operator
+      version: 0.64.0
+      sourceRef:
+        kind: HelmRepository
+        name: controlplaneio-fluxcd
+        namespace: flux-system
+      interval: 15m
+  timeout: 20m
+  maxHistory: 3
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    resources:
+      requests:
+        cpu: 25m
+        memory: 128Mi
+      limits:
+        cpu: null
+        memory: 1Gi
+    serviceMonitor:
+      create: true
+    web:
+      # own policy-group based NetworkPolicy instead (networkpolicy.yaml)
+      networkPolicy:
+        create: false
+      # Login: Authelia forward-auth (2FA) on the route (networking/traefik-internal/app/routes.yaml), so the UI
+      # itself uses one shared identity; its permissions: rbac.yaml.
+      config:
+        authentication:
+          type: Anonymous
+          anonymous:
+            username: flux-web-anonymous
+            groups:
+              - flux-web-anonymous

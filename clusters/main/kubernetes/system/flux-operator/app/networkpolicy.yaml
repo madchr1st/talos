@@ -1,0 +1,34 @@
+---
+# Replaces the chart's policy (web.networkPolicy.create: false), which opens the web UI port to all namespaces and
+# would let any pod skip Authelia. Ingress only, by policy group; kubelet probes (8081) are always allowed.
+#   9080 web UI: ingress-internal (traefik-internal), monitoring (Gatus)
+#   8080 metrics: monitoring (Prometheus)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: flux-operator
+  namespace: flux-system
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: flux-operator
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              policy-group/ingress-internal: "true"
+        - namespaceSelector:
+            matchLabels:
+              policy-group/monitoring: "true"
+      ports:
+        - protocol: TCP
+          port: 9080
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              policy-group/monitoring: "true"
+      ports:
+        - protocol: TCP
+          port: 8080
