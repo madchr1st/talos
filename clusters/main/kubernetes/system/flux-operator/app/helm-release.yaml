@@ -39,6 +39,9 @@ spec:
     serviceMonitor:
       create: true
     web:
+      # own policy-group based NetworkPolicy instead (networkpolicy.yaml)
+      networkPolicy:
+        create: false
       # Login: Authelia forward-auth (2FA) on the route (networking/traefik-internal/app/routes.yaml), so the UI
       # itself uses one shared identity; its permissions: rbac.yaml.
       config:
