@@ -265,10 +265,8 @@ spec:
             enabled: true
             middlewares:
               - name: forward-auth-authelia
-    # Copy of authelia/forward-auth-authelia for the routes. Not the chart's auth.type integration: it hardcodes
-    # trustForwardHeader: true; false keeps Authelia's view independent of any client-supplied X-Forwarded-* header.
-      # Envoy Gateway pilot (migration/GATEWAY-API.md): same host on the pilot Gateway (own IP, no DNS), Authelia via the
-      # chart's Envoy integration (SecurityPolicy -> Authelia /api/authz/ext-authz/). Test with curl --resolve.
+      # Envoy Gateway pilot (migration/GATEWAY-API.md): same host on the pilot Gateway (own IP, no DNS), Authelia via a
+      # SecurityPolicy (-> Authelia /api/authz/ext-authz/). Test with curl --resolve.
       envoy:
         enabled: true
         primary: false
@@ -280,9 +278,35 @@ spec:
         integrations:
           envoy:
             enabled: true
-            auth:
-              type: authelia
-              internalHost: authelia.authelia.svc.cluster.local:9091
+            # = what auth.type authelia renders, plus x-forwarded-for: without it Authelia only sees the proxy pod IP
+            # and the haller-home network rules never match. The ClientTrafficPolicy on the Gateway drops
+            # client-supplied values first, so the header can't be spoofed.
+            securityPolicy:
+              extAuth:
+                failOpen: false
+                headersToExtAuth:
+                  - accept
+                  - sec-fetch-mode
+                  - sec-fetch-dest
+                  - x-requested-with
+                  - cookie
+                  - authorization
+                  - proxy-authorization
+                  - x-forwarded-proto
+                  - x-forwarded-for
+                http:
+                  backendRefs:
+                    - name: authelia
+                      namespace: authelia
+                      port: 9091
+                  path: /api/authz/ext-authz/
+                  headersToBackend:
+                    - Remote-User
+                    - Remote-Groups
+                    - Remote-Email
+                    - Remote-Name
+    # Copy of authelia/forward-auth-authelia for the routes. Not the chart's auth.type integration: it hardcodes
+    # trustForwardHeader: true; false keeps Authelia's view independent of any client-supplied X-Forwarded-* header.
     ingressMiddlewares:
       traefik:
         forward-auth-authelia:
