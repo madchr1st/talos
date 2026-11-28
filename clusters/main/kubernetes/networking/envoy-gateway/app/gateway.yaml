@@ -73,3 +73,31 @@ spec:
           requestRedirect:
             scheme: https
             statusCode: 301
+---
+# Gateway-wide client handling, the equivalent of what Traefik does at its entrypoint and in the chart's
+# tc-basic-secure-headers middleware (which Envoy routes don't get).
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: pilot
+  namespace: envoy-gateway-system
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: pilot
+  headers:
+    # Drop a client-supplied X-Forwarded-For before Envoy appends the real source address. Otherwise a client can
+    # fake its IP towards the apps and Authelia (e.g. pretend to be in the haller-home network). Tested: spoofed
+    # value ignored, Authelia sees the real client.
+    earlyRequestHeaders:
+      remove:
+        - X-Forwarded-For
+    lateResponseHeaders:
+      set:
+        - name: Strict-Transport-Security
+          value: max-age=63072000
+        - name: X-Content-Type-Options
+          value: nosniff
+        - name: Referrer-Policy
+          value: same-origin
