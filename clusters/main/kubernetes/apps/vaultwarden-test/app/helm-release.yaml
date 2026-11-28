@@ -267,6 +267,22 @@ spec:
               - name: forward-auth-authelia
     # Copy of authelia/forward-auth-authelia for the routes. Not the chart's auth.type integration: it hardcodes
     # trustForwardHeader: true; false keeps Authelia's view independent of any client-supplied X-Forwarded-* header.
+      # Envoy Gateway pilot (migration/GATEWAY-API.md): same host on the pilot Gateway (own IP, no DNS), Authelia via the
+      # chart's Envoy integration (SecurityPolicy -> Authelia /api/authz/ext-authz/). Test with curl --resolve.
+      envoy:
+        enabled: true
+        primary: false
+        kind: HTTPRoute
+        gateway: pilot
+        gatewayNamespace: envoy-gateway-system
+        hostnames:
+          - bitwarden-test.${DOMAIN_0}
+        integrations:
+          envoy:
+            enabled: true
+            auth:
+              type: authelia
+              internalHost: authelia.authelia.svc.cluster.local:9091
     ingressMiddlewares:
       traefik:
         forward-auth-authelia:
