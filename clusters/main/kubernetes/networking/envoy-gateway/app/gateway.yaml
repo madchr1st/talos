@@ -1,0 +1,75 @@
+# Envoy Gateway pilot: one internal Gateway on its own IP next to Traefik (migration/GATEWAY-API.md).
+# Test with curl --resolve <host>:443:${ENVOY_PILOT_IP}; no DNS points here.
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: envoy
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: pilot
+  namespace: envoy-gateway-system
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyDeployment:
+        replicas: 1
+      envoyService:
+        annotations:
+          metallb.io/ip-allocated-from-pool: main
+          metallb.io/loadBalancerIPs: ${ENVOY_PILOT_IP}
+        # keep the client source IP (as on Traefik)
+        externalTrafficPolicy: Local
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: pilot
+  namespace: envoy-gateway-system
+spec:
+  gatewayClassName: envoy
+  infrastructure:
+    parametersRef:
+      group: gateway.envoyproxy.io
+      kind: EnvoyProxy
+      name: pilot
+  listeners:
+    - name: web
+      port: 80
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: Same
+    - name: websecure
+      port: 443
+      protocol: HTTPS
+      hostname: "*.${DOMAIN_0}"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          # reflected into every namespace from clusterissuer
+          - name: certificate-issuer-domain-0-wildcard
+      allowedRoutes:
+        namespaces:
+          from: All
+---
+# HTTP -> HTTPS for every host on the pilot Gateway
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: https-redirect
+  namespace: envoy-gateway-system
+spec:
+  parentRefs:
+    - name: pilot
+      sectionName: web
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301

@@ -27,5 +27,21 @@ configMapGenerator:
         kustomize.toolkit.fluxcd.io/substitute: disabled
       labels:
         grafana_dashboard: "1"
+  # Envoy Gateway dashboards from the gateway-addons-helm chart v1.10.0 (charts/gateway-addons-helm/dashboards),
+  # one hard-coded datasource uid in envoy-gateway-global replaced by $datasource. Metrics: PodMonitors in
+  # networking/envoy-gateway/app/podmonitor.yaml
+  - name: grafana-dashboards-envoy
+    namespace: grafana
+    files:
+      - dashboards/envoy-clusters.json
+      - dashboards/envoy-gateway-global.json
+      - dashboards/envoy-proxy-global.json
+      - dashboards/envoy-resources-monitor.json
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        kustomize.toolkit.fluxcd.io/substitute: disabled
+      labels:
+        grafana_dashboard: "1"
 configurations:
   - kustomizeconfig.yaml

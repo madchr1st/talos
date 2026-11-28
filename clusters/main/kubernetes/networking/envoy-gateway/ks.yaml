@@ -1,0 +1,30 @@
+# Envoy Gateway pilot (migration/GATEWAY-API.md): runs next to Traefik on its own IP, own GatewayClass.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: envoy-gateway-crds
+  namespace: flux-system
+spec:
+  interval: 1h
+  path: ./charts/gateway-helm/charts/crds/crds/generated
+  # CRDs: never delete them (that would delete every Envoy Gateway policy)
+  prune: false
+  sourceRef:
+    kind: GitRepository
+    name: envoy-gateway
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: envoy-gateway
+  namespace: flux-system
+spec:
+  interval: 10m
+  path: clusters/main/kubernetes/networking/envoy-gateway/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: cluster
+  dependsOn:
+    - name: envoy-gateway-crds
+    - name: gateway-api

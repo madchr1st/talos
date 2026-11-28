@@ -1,0 +1,16 @@
+# The chart's Envoy auth integration renders a SecurityPolicy in the app namespace whose extAuth backend is the
+# Authelia Service: a cross-namespace reference, allowed here. Add a namespace per app on Envoy with auth.
+apiVersion: gateway.networking.k8s.io/v1
+kind: ReferenceGrant
+metadata:
+  name: envoy-ext-authz
+  namespace: authelia
+spec:
+  from:
+    - group: gateway.envoyproxy.io
+      kind: SecurityPolicy
+      namespace: vaultwarden-test
+  to:
+    - group: ""
+      kind: Service
+      name: authelia
