@@ -1,0 +1,29 @@
+# Metrics for the Grafana dashboards (apps/grafana/app/dashboards/envoy-*.json)
+# Envoy proxies: /stats/prometheus on the "metrics" port (19001)
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: envoy-proxy
+  namespace: envoy-gateway-system
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: envoy
+      app.kubernetes.io/component: proxy
+  podMetricsEndpoints:
+    - port: metrics
+      path: /stats/prometheus
+---
+# Envoy Gateway controller: :19001/metrics
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: envoy-gateway
+  namespace: envoy-gateway-system
+spec:
+  selector:
+    matchLabels:
+      control-plane: envoy-gateway
+  podMetricsEndpoints:
+    - port: metrics
+      path: /metrics

@@ -1,0 +1,19 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/source.toolkit.fluxcd.io/gitrepository_v1.json
+# Envoy Gateway CRDs only (2.8 MB, too big for a Helm release). The Gateway API CRDs stay in gateway-api.yaml.
+# Keep the tag in step with the gateway-helm chart version in networking/envoy-gateway/app/helm-release.yaml.
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: envoy-gateway
+  namespace: flux-system
+spec:
+  interval: 1h
+  url: https://github.com/envoyproxy/gateway
+  ref:
+    tag: v1.10.0
+  ignore: |
+    # exclude all
+    /*
+    # include only the plain Envoy Gateway CRDs
+    !/charts/gateway-helm/charts/crds/crds/generated

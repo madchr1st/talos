@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: envoy-gateway-system
+  labels:
+    # the Envoy proxies run here and call the apps (and Authelia's ext-authz endpoint) like Traefik does
+    policy-group/ingress: "true"
+    policy-group/ingress-internal: "true"

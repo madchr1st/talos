@@ -7,6 +7,7 @@ resources:
   - bjw-s.yaml
   - cilium.yaml
   - cloudnative-pg.yaml
+  - envoyproxy.yaml
   - home-ops-mirror.yaml
   - jetstack.yaml
   - kustomization.yaml
